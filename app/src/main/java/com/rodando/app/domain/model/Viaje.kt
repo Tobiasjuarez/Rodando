@@ -9,16 +9,21 @@ package com.rodando.app.domain.model
 data class Viaje(
     val id: String,
     val campaniaId: String,
+    val tipoVinilo: TipoVinilo,
     val inicio: Long,
     val fin: Long?,
     val distanciaKm: Double,
     val estado: EstadoViaje,
     val fotoInicioPath: String,
-    val fotoFinPath: String?
+    val fotoFinPath: String?,
+    val intentosFoto: Int
 )
 
 enum class EstadoViaje {
     EN_CURSO,
+
+    /** El vinilo no se reconoció en la foto: el recorrido se registra pero no computa hasta que se apruebe. */
+    EN_REVISION,
     PENDIENTE,
     SINCRONIZADO,
     NO_COMPUTABLE

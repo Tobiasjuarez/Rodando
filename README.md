@@ -14,14 +14,14 @@ Trabajo Práctico Obligatorio — Desarrollo de Aplicaciones I (UADE), 2.º cuat
 
 ## Requisitos funcionales (v1)
 
-- **RF01** — Iniciar un viaje con foto del vinilo.
+- **RF01** — Iniciar un viaje con foto del vinilo, verificada en el teléfono (hasta 3 intentos; si no, viaje "En revisión").
 - **RF02** — Finalizar un viaje con foto; se calcula distancia y duración.
 - **RF03** — Consultar el historial de viajes, aun sin conexión.
-- **RF04** — Ver la ganancia estimada del mes.
+- **RF04** — Ver la ganancia estimada del mes: fijo mensual según el vinilo + monto por km (mínimos de 400 km y 12 días, tope de 1.500 km).
 
 ## Tecnologías
 
-Kotlin · Jetpack Compose + Material 3 · ViewModel + Coroutines + StateFlow · Navigation Compose · Room · DataStore · Retrofit · WorkManager · Fused Location · CameraX · osmdroid · JUnit.
+Kotlin · Jetpack Compose + Material 3 · ViewModel + Coroutines + StateFlow · Navigation Compose · Room · DataStore · Retrofit · WorkManager · Fused Location · CameraX · ML Kit · osmdroid · JUnit.
 
 Las dependencias se agregan a medida que se implementa cada requisito.
 
