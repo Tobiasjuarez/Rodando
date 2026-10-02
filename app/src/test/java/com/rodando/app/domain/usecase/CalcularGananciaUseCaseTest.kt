@@ -1,6 +1,7 @@
 package com.rodando.app.domain.usecase
 
 import com.rodando.app.domain.model.EstadoViaje
+import com.rodando.app.domain.model.TipoVinilo
 import com.rodando.app.domain.model.Viaje
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -12,12 +13,14 @@ class CalcularGananciaUseCaseTest {
     private fun viaje(km: Double, estado: EstadoViaje) = Viaje(
         id = "v-$km-$estado",
         campaniaId = "c1",
+        tipoVinilo = TipoVinilo.PARCIAL,
         inicio = 0L,
         fin = 1L,
         distanciaKm = km,
         estado = estado,
         fotoInicioPath = "inicio.jpg",
-        fotoFinPath = "fin.jpg"
+        fotoFinPath = "fin.jpg",
+        intentosFoto = 1
     )
 
     @Test
@@ -27,7 +30,8 @@ class CalcularGananciaUseCaseTest {
             viaje(5.0, EstadoViaje.PENDIENTE),
             viaje(0.3, EstadoViaje.PENDIENTE),     // menos de 0,5 km: no computa
             viaje(8.0, EstadoViaje.EN_CURSO),      // no finalizado: no computa
-            viaje(4.0, EstadoViaje.NO_COMPUTABLE)
+            viaje(4.0, EstadoViaje.NO_COMPUTABLE),
+            viaje(6.0, EstadoViaje.EN_REVISION)    // en revisión: no computa hasta aprobarse
         )
 
         val resumen = calcular(viajes, tarifaPorKm = 100.0)
