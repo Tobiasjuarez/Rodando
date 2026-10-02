@@ -5,6 +5,8 @@ import com.rodando.app.domain.model.TipoVinilo
 import com.rodando.app.domain.model.Viaje
 import com.rodando.app.domain.model.Vinilo
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalDate
 import java.time.ZoneId
@@ -95,5 +97,28 @@ class CalcularGananciaUseCaseTest {
 
         assertEquals(0.0, resumen.totalEstimado, 0.0001)
         assertEquals(0, resumen.viajesComputables)
+    }
+
+    @Test
+    fun informa_cuanto_falta_para_los_objetivos_del_mes() {
+        val resumen = calcular(viajesEnDias(5, 37.2), parcial) // 186 km en 5 días
+
+        assertEquals(214.0, resumen.objetivoKm.faltante, 0.0001)
+        assertEquals(0.465, resumen.objetivoKm.progreso, 0.0001)
+        assertEquals(7.0, resumen.objetivoDias.faltante, 0.0001)
+        assertEquals(5.0 / 12, resumen.objetivoDias.progreso, 0.0001)
+        assertFalse(resumen.objetivoKm.cumplido)
+        assertEquals(1314.0, resumen.kmPagosRestantes, 0.0001)
+    }
+
+    @Test
+    fun con_los_objetivos_cumplidos_el_progreso_no_pasa_del_100() {
+        val resumen = calcular(viajesEnDias(14, 45.0), parcial) // 630 km en 14 días
+
+        assertEquals(1.0, resumen.objetivoKm.progreso, 0.0001)
+        assertEquals(0.0, resumen.objetivoKm.faltante, 0.0001)
+        assertEquals(1.0, resumen.objetivoDias.progreso, 0.0001)
+        assertTrue(resumen.objetivoDias.cumplido)
+        assertEquals(870.0, resumen.kmPagosRestantes, 0.0001)
     }
 }
