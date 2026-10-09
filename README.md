@@ -44,7 +44,7 @@ app/src/main/java/com/rodando/app/
 ├── domain/            # Kotlin puro: no depende de Android
 │   ├── model/         # Viaje, Campania, PuntoGps, Vinilo, ResumenGanancia, ObjetivoMensual
 │   ├── repository/    # Interfaces de repositorio
-│   └── usecase/       # Reglas de negocio (distancia, ganancia)
+│   └── usecase/       # Reglas de negocio (distancia, ganancia, intentos de foto)
 └── data/
     ├── local/         # Room (entidades, DAO) y archivos de fotos
     ├── remote/        # Retrofit (API simulada) y DTOs
