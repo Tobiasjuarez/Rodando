@@ -8,5 +8,11 @@ data class ResumenGanancia(
     val viajesComputables: Int,
     val viajesPendientes: Int,
     val fijoCobrado: Double,
-    val totalEstimado: Double
+    val totalEstimado: Double,
+    /** Avance hacia los km mínimos para cobrar el fijo entero. */
+    val objetivoKm: ObjetivoMensual,
+    /** Avance hacia los días con viajes mínimos para cobrar el fijo entero. */
+    val objetivoDias: ObjetivoMensual,
+    /** Km que todavía se pagan este mes antes de llegar al tope. */
+    val kmPagosRestantes: Double
 )

@@ -1,6 +1,7 @@
 package com.rodando.app.domain.usecase
 
 import com.rodando.app.domain.model.EstadoViaje
+import com.rodando.app.domain.model.ObjetivoMensual
 import com.rodando.app.domain.model.ResumenGanancia
 import com.rodando.app.domain.model.Viaje
 import com.rodando.app.domain.model.Vinilo
@@ -36,7 +37,10 @@ class CalcularGananciaUseCase(
             viajesComputables = computables.size,
             viajesPendientes = computables.count { it.estado == EstadoViaje.PENDIENTE },
             fijoCobrado = fijo,
-            totalEstimado = fijo + kmPagados * vinilo.tarifaPorKm
+            totalEstimado = fijo + kmPagados * vinilo.tarifaPorKm,
+            objetivoKm = ObjetivoMensual(actual = km, meta = vinilo.kmMinimo),
+            objetivoDias = ObjetivoMensual(actual = dias.toDouble(), meta = vinilo.diasMinimos.toDouble()),
+            kmPagosRestantes = (vinilo.kmTope - km).coerceAtLeast(0.0)
         )
     }
 
