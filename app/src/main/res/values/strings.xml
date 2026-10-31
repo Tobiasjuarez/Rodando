@@ -52,6 +52,11 @@
     <string name="en_curso_sin_viaje_mensaje">Podés iniciar uno desde Inicio.</string>
     <string name="en_curso_error_titulo">No pudimos cargar el viaje</string>
 
+    <!-- Viaje guardado -->
+    <string name="guardado_ganancia">Suma por km (estimado)</string>
+    <string name="guardado_volver_inicio">Volver al inicio</string>
+    <string name="guardado_ver_detalle">Ver detalle del viaje</string>
+
     <!-- Historial -->
     <string name="historial_titulo">Historial</string>
     <string name="historial_vacio_titulo">Todavía no registraste viajes</string>
