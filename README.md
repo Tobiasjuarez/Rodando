@@ -38,9 +38,12 @@ UI (Compose) → ViewModel → Caso de uso → Repositorio → Room / API / Sens
 ```
 app/src/main/java/com/rodando/app/
 ├── presentation/      # Pantallas Compose, ViewModels, UiState, tema
-│   ├── common/        # UiState (carga, contenido, vacío, error, offline)
+│   ├── common/        # UiState y componentes compartidos (estado vacío)
+│   ├── navegacion/    # Barra inferior y NavHost (Inicio, Historial, Ganancias)
 │   ├── inicio/
-│   └── theme/
+│   ├── historial/
+│   ├── ganancias/
+│   └── theme/         # Paleta de colores del diseño (Material 3)
 ├── domain/            # Kotlin puro: no depende de Android
 │   ├── model/         # Viaje, Campania, PuntoGps, Vinilo, ResumenGanancia, ObjetivoMensual
 │   ├── repository/    # Interfaces de repositorio
