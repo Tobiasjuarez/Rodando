@@ -47,6 +47,13 @@ class CalcularGananciaUseCase(
     fun esComputable(viaje: Viaje): Boolean =
         viaje.estado in ESTADOS_FINALIZADOS && viaje.distanciaKm >= DISTANCIA_MINIMA_KM
 
+    /**
+     * Lo que suma un viaje por sus km (null si no computa). El fijo es mensual y no se reparte
+     * por viaje; tampoco se descuenta el tope de km, que se aplica al total del mes.
+     */
+    fun gananciaPorKm(viaje: Viaje, vinilo: Vinilo): Double? =
+        if (esComputable(viaje)) viaje.distanciaKm * vinilo.tarifaPorKm else null
+
     companion object {
         /** Umbral a confirmar por el equipo (ver preentrega, RF02). */
         const val DISTANCIA_MINIMA_KM = 0.5

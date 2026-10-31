@@ -3,6 +3,8 @@ package com.rodando.app.presentation.detalle
 import com.rodando.app.domain.model.EstadoViaje
 import com.rodando.app.domain.model.PuntoGps
 import com.rodando.app.domain.model.Viaje
+import com.rodando.app.domain.model.Vinilo
+import com.rodando.app.domain.usecase.CalcularGananciaUseCase
 import com.rodando.app.presentation.common.Formato
 import java.time.LocalDate
 
@@ -14,10 +16,18 @@ data class DetalleViajeUi(
     val estado: EstadoViaje,
     val horaInicio: String,
     val horaFin: String?,
-    val puntos: List<PuntoGps>
+    val puntos: List<PuntoGps>,
+    /** Lo que suma el viaje por km; null si no computa o no hay vinilo. */
+    val ganancia: String? = null
 )
 
-fun armarDetalle(viaje: Viaje, puntos: List<PuntoGps>, hoy: LocalDate): DetalleViajeUi {
+fun armarDetalle(
+    viaje: Viaje,
+    puntos: List<PuntoGps>,
+    hoy: LocalDate,
+    vinilo: Vinilo? = null,
+    calcular: CalcularGananciaUseCase = CalcularGananciaUseCase(Formato.zona)
+): DetalleViajeUi {
     val dia = Formato.diaCorto(Formato.fecha(viaje.inicio), hoy)
     val horaInicio = Formato.hora(viaje.inicio)
     val horaFin = viaje.fin?.let { Formato.hora(it) }
@@ -28,6 +38,7 @@ fun armarDetalle(viaje: Viaje, puntos: List<PuntoGps>, hoy: LocalDate): DetalleV
         estado = viaje.estado,
         horaInicio = horaInicio,
         horaFin = horaFin,
-        puntos = puntos
+        puntos = puntos,
+        ganancia = vinilo?.let { calcular.gananciaPorKm(viaje, it) }?.let { "+" + Formato.monto(it) }
     )
 }

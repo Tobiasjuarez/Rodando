@@ -27,7 +27,6 @@ fun armarViajeGuardado(
     vinilo: Vinilo?,
     calcular: CalcularGananciaUseCase = CalcularGananciaUseCase(Formato.zona)
 ): ViajeGuardadoUi {
-    val computa = calcular.esComputable(viaje)
     val minimo = Formato.decimal(CalcularGananciaUseCase.DISTANCIA_MINIMA_KM)
     val (titulo, mensaje) = when (viaje.estado) {
         EstadoViaje.EN_REVISION ->
@@ -46,6 +45,6 @@ fun armarViajeGuardado(
         mensaje = mensaje,
         distancia = Formato.km(viaje.distanciaKm),
         duracion = Formato.duracion(viaje.inicio, viaje.fin),
-        ganancia = if (computa && vinilo != null) "+" + Formato.monto(viaje.distanciaKm * vinilo.tarifaPorKm) else null
+        ganancia = vinilo?.let { calcular.gananciaPorKm(viaje, it) }?.let { "+" + Formato.monto(it) }
     )
 }

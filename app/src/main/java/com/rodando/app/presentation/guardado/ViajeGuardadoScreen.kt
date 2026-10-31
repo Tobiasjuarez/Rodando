@@ -77,10 +77,14 @@ fun ViajeGuardadoContenido(
             Button(onClick = onVolverAlInicio, modifier = Modifier.fillMaxWidth().height(56.dp)) {
                 Text(stringResource(R.string.guardado_volver_inicio))
             }
-            val viaje = (estado as? UiState.Contenido)?.datos
-            if (viaje != null) {
+            val viajeId = when (estado) {
+                is UiState.Contenido -> estado.datos.viajeId
+                is UiState.Offline -> estado.datosLocales.viajeId
+                else -> null
+            }
+            if (viajeId != null) {
                 OutlinedButton(
-                    onClick = { onVerDetalle(viaje.viajeId) },
+                    onClick = { onVerDetalle(viajeId) },
                     modifier = Modifier.fillMaxWidth().height(56.dp)
                 ) {
                     Text(stringResource(R.string.guardado_ver_detalle))
