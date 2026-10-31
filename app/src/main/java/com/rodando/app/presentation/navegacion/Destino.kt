@@ -10,8 +10,8 @@ import com.rodando.app.R
  */
 enum class Destino(
     val ruta: String,
-    @StringRes val etiqueta: Int,
-    @DrawableRes val icono: Int
+    @param:StringRes val etiqueta: Int,
+    @param:DrawableRes val icono: Int
 ) {
     INICIO("inicio", R.string.destino_inicio, R.drawable.ic_inicio),
     HISTORIAL("historial", R.string.destino_historial, R.drawable.ic_historial),
