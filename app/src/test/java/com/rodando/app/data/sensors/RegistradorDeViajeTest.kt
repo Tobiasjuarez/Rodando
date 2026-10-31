@@ -59,4 +59,20 @@ class RegistradorDeViajeTest {
 
         assertTrue("recorrió $km km", km in 0.9..1.4)
     }
+
+    @Test
+    fun descarta_las_posiciones_imprecisas() = runBlocking {
+        val conUnaImprecisa = object : FuenteUbicacion {
+            override fun ubicaciones(): Flow<PuntoGps> = flowOf(
+                PuntoGps(-34.60, -58.38, 1, 5f),
+                PuntoGps(-34.70, -58.38, 2, 120f),
+                PuntoGps(-34.61, -58.38, 3, 12f)
+            )
+        }
+        val registrador = RegistradorDeViaje(repositorio, conUnaImprecisa, CoroutineScope(Dispatchers.Unconfined))
+
+        registrador.iniciar("viaje-1")
+
+        assertEquals(listOf(1L, 3L), repositorio.observarPuntos("viaje-1").first().map { it.timestamp })
+    }
 }
