@@ -10,6 +10,19 @@
     <string name="historial_titulo">Historial</string>
     <string name="historial_vacio_titulo">Todavía no registraste viajes</string>
     <string name="historial_vacio_mensaje">Tus viajes van a aparecer acá apenas los finalices, aunque no tengas conexión.</string>
+    <string name="historial_error_titulo">No pudimos cargar el historial</string>
+    <string name="historial_ver_detalle">ver el detalle del viaje</string>
+    <plurals name="historial_aviso_pendientes">
+        <item quantity="one">%d viaje pendiente de envío. Se va a enviar solo al volver la conexión.</item>
+        <item quantity="other">%d viajes pendientes de envío. Se enviarán solos al volver la conexión.</item>
+    </plurals>
+
+    <!-- Estados de un viaje -->
+    <string name="estado_en_curso">En curso</string>
+    <string name="estado_en_revision">En revisión</string>
+    <string name="estado_pendiente">Pendiente de envío</string>
+    <string name="estado_sincronizado">Sincronizado</string>
+    <string name="estado_no_computable">No computable</string>
 
     <!-- Ganancias -->
     <string name="ganancias_titulo">Ganancias</string>
