@@ -32,6 +32,7 @@ import com.rodando.app.presentation.ganancias.GananciasViewModel
 import com.rodando.app.presentation.historial.HistorialScreen
 import com.rodando.app.presentation.historial.HistorialViewModel
 import com.rodando.app.presentation.inicio.InicioScreen
+import com.rodando.app.presentation.inicio.InicioViewModel
 
 /**
  * Raíz de la app: Scaffold con la barra de navegación inferior (Inicio, Historial, Ganancias)
@@ -55,7 +56,17 @@ fun RodandoApp(navController: NavHostController = rememberNavController()) {
             startDestination = Destino.inicial.ruta,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(Destino.INICIO.ruta) { InicioScreen() }
+            composable(Destino.INICIO.ruta) {
+                val viewModel: InicioViewModel = viewModel(
+                    factory = InicioViewModel.fabrica(
+                        contenedor.campaniaRepository,
+                        contenedor.viniloRepository,
+                        contenedor.viajeRepository
+                    )
+                )
+                // El botón "Iniciar viaje" se habilita cuando exista el flujo de cámara de RF01.
+                InicioScreen(viewModel = viewModel, onIniciarViaje = null)
+            }
             composable(Destino.HISTORIAL.ruta) {
                 val viewModel: HistorialViewModel =
                     viewModel(factory = HistorialViewModel.fabrica(contenedor.viajeRepository))

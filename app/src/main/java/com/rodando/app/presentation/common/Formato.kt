@@ -36,6 +36,14 @@ object Formato {
     /** "642,8" sin unidad */
     fun decimal(valor: Double): String = String.format(locale, "%.1f", valor)
 
+    /** "1 al 31 de octubre" o "15 de octubre al 14 de noviembre" */
+    fun periodo(desde: LocalDate, hasta: LocalDate): String =
+        if (desde.month == hasta.month && desde.year == hasta.year) {
+            "${desde.dayOfMonth} al ${hasta.dayOfMonth} de ${meses[hasta.monthValue - 1]}"
+        } else {
+            "${desde.dayOfMonth} de ${meses[desde.monthValue - 1]} al ${hasta.dayOfMonth} de ${meses[hasta.monthValue - 1]}"
+        }
+
     /** "OCTUBRE" */
     fun mes(fecha: LocalDate): String = meses[fecha.monthValue - 1].uppercase(locale)
 
