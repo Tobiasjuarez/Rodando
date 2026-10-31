@@ -17,6 +17,18 @@
         <item quantity="other">%d viajes pendientes de envío. Se enviarán solos al volver la conexión.</item>
     </plurals>
 
+    <!-- Detalle del viaje -->
+    <string name="volver">Volver</string>
+    <string name="detalle_titulo">Detalle del viaje</string>
+    <string name="detalle_distancia">Distancia</string>
+    <string name="detalle_duracion">Duración</string>
+    <string name="detalle_fotos">Fotos del vinilo</string>
+    <string name="detalle_mapa">Mapa del recorrido</string>
+    <string name="detalle_sin_puntos">Este viaje no tiene puntos GPS</string>
+    <string name="detalle_error_titulo">No encontramos el viaje</string>
+    <string name="detalle_foto_inicio">Inicio · %1$s</string>
+    <string name="detalle_foto_fin">Fin · %1$s</string>
+
     <!-- Estados de un viaje -->
     <string name="estado_en_curso">En curso</string>
     <string name="estado_en_revision">En revisión</string>
