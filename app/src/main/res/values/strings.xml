@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">Rodando</string>
+
+    <!-- Navegación inferior -->
+    <string name="destino_inicio">Inicio</string>
+    <string name="destino_historial">Historial</string>
+    <string name="destino_ganancias">Ganancias</string>
+
+    <!-- Historial -->
+    <string name="historial_titulo">Historial</string>
+    <string name="historial_vacio_titulo">Todavía no registraste viajes</string>
+    <string name="historial_vacio_mensaje">Tus viajes van a aparecer acá apenas los finalices, aunque no tengas conexión.</string>
+
+    <!-- Ganancias -->
+    <string name="ganancias_titulo">Ganancias</string>
+    <string name="ganancias_vacio_titulo">Todavía no hay ganancias este mes</string>
+    <string name="ganancias_vacio_mensaje">Cuando registres viajes vas a ver el estimado del mes y cuánto te falta para cobrar el fijo entero.</string>
 </resources>
