@@ -19,6 +19,8 @@
         <item quantity="other">ESTE MES · %d VIAJES</item>
     </plurals>
     <string name="inicio_iniciar_viaje">Iniciar viaje</string>
+    <string name="inicio_ver_viaje_en_curso">Ver viaje en curso</string>
+    <string name="inicio_aviso_en_curso">Tenés un viaje en curso. Finalizalo para empezar otro.</string>
     <string name="inicio_aviso_foto">Te vamos a pedir una foto del vinilo antes de arrancar.</string>
     <string name="inicio_sin_campania_titulo">Todavía no tenés una campaña activa</string>
     <string name="inicio_sin_campania_mensaje">Cuando te asignen una, la vas a ver acá y vas a poder empezar a registrar viajes.</string>
