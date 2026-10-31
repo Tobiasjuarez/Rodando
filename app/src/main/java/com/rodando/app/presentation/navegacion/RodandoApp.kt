@@ -27,8 +27,15 @@ import androidx.navigation.navArgument
 import com.rodando.app.RodandoApplication
 import com.rodando.app.presentation.detalle.DetalleViajeScreen
 import com.rodando.app.presentation.detalle.DetalleViajeViewModel
+import com.rodando.app.presentation.encurso.ViajeEnCursoScreen
+import com.rodando.app.presentation.encurso.ViajeEnCursoViewModel
+import com.rodando.app.presentation.foto.FotoViniloScreen
+import com.rodando.app.presentation.foto.FotoViniloViewModel
+import com.rodando.app.presentation.foto.MomentoFoto
 import com.rodando.app.presentation.ganancias.GananciasScreen
 import com.rodando.app.presentation.ganancias.GananciasViewModel
+import com.rodando.app.presentation.guardado.ViajeGuardadoScreen
+import com.rodando.app.presentation.guardado.ViajeGuardadoViewModel
 import com.rodando.app.presentation.historial.HistorialScreen
 import com.rodando.app.presentation.historial.HistorialViewModel
 import com.rodando.app.presentation.inicio.InicioScreen
@@ -47,8 +54,9 @@ fun RodandoApp(navController: NavHostController = rememberNavController()) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
-            // El detalle de un viaje ocupa toda la pantalla, sin barra inferior.
-            if (destinoActual?.route != Rutas.DETALLE_VIAJE) BarraInferior(navController, destinoActual)
+            // La barra solo se ve en las tres pestañas; el resto de las pantallas ocupa toda la pantalla.
+            val enPestania = destinoActual == null || Destino.entries.any { it.ruta == destinoActual.route }
+            if (enPestania) BarraInferior(navController, destinoActual)
         }
     ) { innerPadding ->
         NavHost(
@@ -64,8 +72,11 @@ fun RodandoApp(navController: NavHostController = rememberNavController()) {
                         contenedor.viajeRepository
                     )
                 )
-                // El botón "Iniciar viaje" se habilita cuando exista el flujo de cámara de RF01.
-                InicioScreen(viewModel = viewModel, onIniciarViaje = null)
+                InicioScreen(
+                    viewModel = viewModel,
+                    onIniciarViaje = { navController.navigate(Rutas.FOTO_INICIO) },
+                    onVerViajeEnCurso = { navController.navigate(Rutas.VIAJE_EN_CURSO) { launchSingleTop = true } }
+                )
             }
             composable(Destino.HISTORIAL.ruta) {
                 val viewModel: HistorialViewModel =
@@ -90,8 +101,72 @@ fun RodandoApp(navController: NavHostController = rememberNavController()) {
             ) { entrada ->
                 val viajeId = entrada.arguments?.getString(Rutas.ARG_VIAJE_ID).orEmpty()
                 val viewModel: DetalleViajeViewModel =
-                    viewModel(factory = DetalleViajeViewModel.fabrica(contenedor.viajeRepository, viajeId))
+                    viewModel(factory = DetalleViajeViewModel.fabrica(contenedor.viajeRepository, contenedor.viniloRepository, viajeId))
                 DetalleViajeScreen(viewModel = viewModel, onVolver = { navController.popBackStack() })
+            }
+
+            // RF01 y RF02: foto inicial -> viaje en curso -> foto final -> viaje guardado.
+            composable(Rutas.FOTO_INICIO) {
+                val viewModel: FotoViniloViewModel = viewModel(
+                    factory = FotoViniloViewModel.fabrica(
+                        MomentoFoto.INICIO, null, contenedor.iniciarViaje, contenedor.finalizarViaje
+                    )
+                )
+                FotoViniloScreen(
+                    viewModel = viewModel,
+                    onListo = {
+                        navController.navigate(Rutas.VIAJE_EN_CURSO) {
+                            popUpTo(Rutas.FOTO_INICIO) { inclusive = true }
+                        }
+                    },
+                    onVolver = { navController.popBackStack() }
+                )
+            }
+            composable(Rutas.VIAJE_EN_CURSO) {
+                val viewModel: ViajeEnCursoViewModel =
+                    viewModel(factory = ViajeEnCursoViewModel.fabrica(contenedor.viajeRepository))
+                ViajeEnCursoScreen(
+                    viewModel = viewModel,
+                    onFinalizar = { id -> navController.navigate(Rutas.fotoFin(id)) },
+                    onVolver = { navController.popBackStack() }
+                )
+            }
+            composable(
+                route = Rutas.FOTO_FIN,
+                arguments = listOf(navArgument(Rutas.ARG_VIAJE_ID) { type = NavType.StringType })
+            ) { entrada ->
+                val viajeId = entrada.arguments?.getString(Rutas.ARG_VIAJE_ID).orEmpty()
+                val viewModel: FotoViniloViewModel = viewModel(
+                    factory = FotoViniloViewModel.fabrica(
+                        MomentoFoto.FIN, viajeId, contenedor.iniciarViaje, contenedor.finalizarViaje
+                    )
+                )
+                FotoViniloScreen(
+                    viewModel = viewModel,
+                    onListo = { id ->
+                        // Al guardar, se sacan de la pila el viaje en curso y las fotos.
+                        navController.navigate(Rutas.viajeGuardado(id)) { popUpTo(Destino.INICIO.ruta) }
+                    },
+                    onVolver = { navController.popBackStack() }
+                )
+            }
+            composable(
+                route = Rutas.VIAJE_GUARDADO,
+                arguments = listOf(navArgument(Rutas.ARG_VIAJE_ID) { type = NavType.StringType })
+            ) { entrada ->
+                val viajeId = entrada.arguments?.getString(Rutas.ARG_VIAJE_ID).orEmpty()
+                val viewModel: ViajeGuardadoViewModel = viewModel(
+                    factory = ViajeGuardadoViewModel.fabrica(
+                        contenedor.viajeRepository, contenedor.viniloRepository, viajeId
+                    )
+                )
+                ViajeGuardadoScreen(
+                    viewModel = viewModel,
+                    onVolverAlInicio = { navController.popBackStack(Destino.INICIO.ruta, inclusive = false) },
+                    onVerDetalle = { id ->
+                        navController.navigate(Rutas.detalleViaje(id)) { popUpTo(Destino.INICIO.ruta) }
+                    }
+                )
             }
         }
     }

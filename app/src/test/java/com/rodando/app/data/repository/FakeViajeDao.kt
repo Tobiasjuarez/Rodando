@@ -3,7 +3,6 @@ package com.rodando.app.data.repository
 import com.rodando.app.data.local.PuntoGpsEntity
 import com.rodando.app.data.local.ViajeDao
 import com.rodando.app.data.local.ViajeEntity
-import com.rodando.app.domain.model.EstadoViaje
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
@@ -11,7 +10,8 @@ import kotlinx.coroutines.flow.map
 /** DAO en memoria para probar el repositorio sin Android. */
 class FakeViajeDao : ViajeDao {
     private val viajes = MutableStateFlow<List<ViajeEntity>>(emptyList())
-    val puntos = mutableListOf<PuntoGpsEntity>()
+    private val flujoPuntos = MutableStateFlow<List<PuntoGpsEntity>>(emptyList())
+    val puntos: List<PuntoGpsEntity> get() = flujoPuntos.value
 
     override fun observarTodos(): Flow<List<ViajeEntity>> =
         viajes.map { lista -> lista.sortedByDescending { it.inicio } }
@@ -20,12 +20,12 @@ class FakeViajeDao : ViajeDao {
         viajes.map { lista -> lista.find { it.id == id } }
 
     override fun observarEnCurso(): Flow<ViajeEntity?> =
-        viajes.map { lista -> lista.find { it.estado == EstadoViaje.EN_CURSO } }
+        viajes.map { lista -> lista.find { it.fin == null } }
 
     override suspend fun obtenerPorId(id: String): ViajeEntity? = viajes.value.find { it.id == id }
 
     override suspend fun obtenerEnCurso(): ViajeEntity? =
-        viajes.value.find { it.estado == EstadoViaje.EN_CURSO }
+        viajes.value.find { it.fin == null }
 
     override suspend fun contar(): Int = viajes.value.size
 
@@ -34,12 +34,15 @@ class FakeViajeDao : ViajeDao {
     }
 
     override suspend fun guardarPunto(punto: PuntoGpsEntity) {
-        puntos += punto
+        flujoPuntos.value = flujoPuntos.value + punto
     }
 
     override suspend fun guardarPuntos(puntos: List<PuntoGpsEntity>) {
-        this.puntos += puntos
+        flujoPuntos.value = flujoPuntos.value + puntos
     }
+
+    override fun observarPuntos(viajeId: String): Flow<List<PuntoGpsEntity>> =
+        flujoPuntos.map { lista -> lista.filter { it.viajeId == viajeId }.sortedBy { it.timestamp } }
 
     override suspend fun puntosDeViaje(viajeId: String): List<PuntoGpsEntity> =
         puntos.filter { it.viajeId == viajeId }.sortedBy { it.timestamp }

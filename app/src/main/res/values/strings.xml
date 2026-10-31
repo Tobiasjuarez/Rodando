@@ -19,10 +19,45 @@
         <item quantity="other">ESTE MES · %d VIAJES</item>
     </plurals>
     <string name="inicio_iniciar_viaje">Iniciar viaje</string>
+    <string name="inicio_ver_viaje_en_curso">Ver viaje en curso</string>
+    <string name="inicio_aviso_en_curso">Tenés un viaje en curso. Finalizalo para empezar otro.</string>
     <string name="inicio_aviso_foto">Te vamos a pedir una foto del vinilo antes de arrancar.</string>
     <string name="inicio_sin_campania_titulo">Todavía no tenés una campaña activa</string>
     <string name="inicio_sin_campania_mensaje">Cuando te asignen una, la vas a ver acá y vas a poder empezar a registrar viajes.</string>
     <string name="inicio_error_titulo">No pudimos cargar tus datos</string>
+
+    <!-- Foto del vinilo -->
+    <string name="foto_titulo_inicio">Foto del vinilo</string>
+    <string name="foto_subtitulo_inicio">Antes de arrancar el viaje</string>
+    <string name="foto_titulo_fin">Foto final del vinilo</string>
+    <string name="foto_subtitulo_fin">Para cerrar el viaje</string>
+    <string name="foto_visor">Vista de la cámara</string>
+    <string name="foto_encuadre">Encuadrá el vinilo completo</string>
+    <string name="foto_simulada">Cámara simulada · la real llega con CameraX</string>
+    <string name="foto_consejo">Buscá buena luz y que se vea toda la puerta del auto.</string>
+    <string name="foto_sacar_inicio">Sacar foto e iniciar</string>
+    <string name="foto_sacar_fin">Sacar foto y finalizar</string>
+
+    <!-- Viaje en curso -->
+    <string name="en_curso_titulo">Viaje en curso</string>
+    <string name="en_curso_tiempo">TIEMPO</string>
+    <string name="en_curso_distancia">DISTANCIA</string>
+    <string name="en_curso_esperando_ubicacion">Esperando la ubicación…</string>
+    <string name="en_curso_aviso_segundo_plano">El recorrido se sigue registrando aunque salgas de esta pantalla.</string>
+    <string name="en_curso_aviso_revision">La foto del vinilo quedó en revisión: el viaje se registra, pero suma recién cuando la aprueben.</string>
+    <string name="en_curso_finalizar">Finalizar viaje</string>
+    <string name="en_curso_confirmar_titulo">¿Finalizar el viaje?</string>
+    <string name="en_curso_confirmar_mensaje">Te vamos a pedir una foto final del vinilo para cerrarlo.</string>
+    <string name="en_curso_confirmar_si">Finalizar</string>
+    <string name="en_curso_confirmar_no">Seguir manejando</string>
+    <string name="en_curso_sin_viaje_titulo">No hay un viaje en curso</string>
+    <string name="en_curso_sin_viaje_mensaje">Podés iniciar uno desde Inicio.</string>
+    <string name="en_curso_error_titulo">No pudimos cargar el viaje</string>
+
+    <!-- Viaje guardado -->
+    <string name="guardado_ganancia">Suma por km (estimado)</string>
+    <string name="guardado_volver_inicio">Volver al inicio</string>
+    <string name="guardado_ver_detalle">Ver detalle del viaje</string>
 
     <!-- Historial -->
     <string name="historial_titulo">Historial</string>

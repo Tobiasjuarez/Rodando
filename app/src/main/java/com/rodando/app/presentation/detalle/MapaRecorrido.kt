@@ -29,7 +29,11 @@ import com.rodando.app.domain.model.PuntoGps
  * El mapa real (osmdroid) se suma junto con el registro por GPS.
  */
 @Composable
-fun MapaRecorrido(puntos: List<PuntoGps>, modifier: Modifier = Modifier) {
+fun MapaRecorrido(
+    puntos: List<PuntoGps>,
+    modifier: Modifier = Modifier,
+    mensajeSinPuntos: String = stringResource(R.string.detalle_sin_puntos)
+) {
     val colorRecorrido = MaterialTheme.colorScheme.primary
     val descripcion = stringResource(R.string.detalle_mapa)
     Box(
@@ -40,7 +44,7 @@ fun MapaRecorrido(puntos: List<PuntoGps>, modifier: Modifier = Modifier) {
     ) {
         if (puntos.size < 2) {
             Text(
-                text = stringResource(R.string.detalle_sin_puntos),
+                text = mensajeSinPuntos,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.align(Alignment.Center)

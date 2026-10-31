@@ -41,18 +41,24 @@ import com.rodando.app.presentation.theme.RodandoTheme
 @Composable
 fun InicioScreen(
     viewModel: InicioViewModel,
-    /** null mientras el flujo de RF01 no esté disponible: el botón queda deshabilitado. */
-    onIniciarViaje: (() -> Unit)?,
+    onIniciarViaje: () -> Unit,
+    onVerViajeEnCurso: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
-    InicioContenido(estado = estado, onIniciarViaje = onIniciarViaje, modifier = modifier)
+    InicioContenido(
+        estado = estado,
+        onIniciarViaje = onIniciarViaje,
+        onVerViajeEnCurso = onVerViajeEnCurso,
+        modifier = modifier
+    )
 }
 
 @Composable
 fun InicioContenido(
     estado: UiState<InicioUi>,
-    onIniciarViaje: (() -> Unit)?,
+    onIniciarViaje: () -> Unit,
+    onVerViajeEnCurso: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxSize()) {
@@ -67,14 +73,14 @@ fun InicioContenido(
                 mensaje = estado.mensaje,
                 modifier = Modifier.padding(top = 96.dp)
             )
-            is UiState.Contenido -> Inicio(estado.datos, onIniciarViaje)
-            is UiState.Offline -> Inicio(estado.datosLocales, onIniciarViaje)
+            is UiState.Contenido -> Inicio(estado.datos, onIniciarViaje, onVerViajeEnCurso)
+            is UiState.Offline -> Inicio(estado.datosLocales, onIniciarViaje, onVerViajeEnCurso)
         }
     }
 }
 
 @Composable
-private fun Inicio(inicio: InicioUi, onIniciarViaje: (() -> Unit)?) {
+private fun Inicio(inicio: InicioUi, onIniciarViaje: () -> Unit, onVerViajeEnCurso: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -171,17 +177,24 @@ private fun Inicio(inicio: InicioUi, onIniciarViaje: (() -> Unit)?) {
             modifier = Modifier.padding(vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            // Con un viaje en curso, el botón lleva a ese viaje en lugar de iniciar otro.
             Button(
-                onClick = { onIniciarViaje?.invoke() },
-                enabled = inicio.puedeIniciarViaje && onIniciarViaje != null,
+                onClick = if (inicio.hayViajeEnCurso) onVerViajeEnCurso else onIniciarViaje,
+                enabled = inicio.hayViajeEnCurso || inicio.puedeIniciarViaje,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
             ) {
-                Text(stringResource(R.string.inicio_iniciar_viaje))
+                Text(
+                    stringResource(
+                        if (inicio.hayViajeEnCurso) R.string.inicio_ver_viaje_en_curso else R.string.inicio_iniciar_viaje
+                    )
+                )
             }
             Text(
-                text = stringResource(R.string.inicio_aviso_foto),
+                text = stringResource(
+                    if (inicio.hayViajeEnCurso) R.string.inicio_aviso_en_curso else R.string.inicio_aviso_foto
+                ),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -250,10 +263,12 @@ private fun InicioPreview() {
                     viajesDelMes = 31,
                     barraKm = BarraObjetivoUi("642,8 de 400 km", 1f, "Cumplido", true),
                     barraDias = BarraObjetivoUi("14 de 12 días", 1f, "Cumplido", true),
-                    puedeIniciarViaje = true
+                    puedeIniciarViaje = true,
+                    hayViajeEnCurso = false
                 )
             ),
-            onIniciarViaje = {}
+            onIniciarViaje = {},
+            onVerViajeEnCurso = {}
         )
     }
 }

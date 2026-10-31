@@ -98,6 +98,7 @@ private fun Detalle(detalle: DetalleViajeUi) {
         Column {
             FilaDato(stringResource(R.string.detalle_distancia), detalle.distancia)
             FilaDato(stringResource(R.string.detalle_duracion), detalle.duracion)
+            detalle.ganancia?.let { FilaDato(stringResource(R.string.guardado_ganancia), it) }
         }
         Text(
             text = stringResource(R.string.detalle_fotos),
@@ -147,7 +148,7 @@ private fun DetallePreview() {
     RodandoTheme {
         DetalleViajeContenido(
             estado = UiState.Contenido(
-                DetalleViajeUi("Hoy · 08:42 a 09:24", "18,4 km", "42 min", EstadoViaje.SINCRONIZADO, "08:42", "09:24", puntos)
+                DetalleViajeUi("Hoy · 08:42 a 09:24", "18,4 km", "42 min", EstadoViaje.SINCRONIZADO, "08:42", "09:24", puntos, "+$920")
             ),
             onVolver = {}
         )

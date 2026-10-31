@@ -1,9 +1,7 @@
 package com.rodando.app
 
 import android.app.Application
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class RodandoApplication : Application() {
@@ -11,12 +9,15 @@ class RodandoApplication : Application() {
     lateinit var container: AppContainer
         private set
 
-    /** Alcance para tareas que no dependen de una pantalla. */
-    private val alcance = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-
     override fun onCreate() {
         super.onCreate()
         container = AppContainer(this)
-        alcance.launch { container.datosDePrueba.cargarSiHaceFalta() }
+        container.alcance.launch {
+            container.datosDePrueba.cargarSiHaceFalta()
+            // RNF02: si la app se cerró con un viaje en curso, se sigue registrando el recorrido.
+            container.viajeRepository.observarViajeEnCurso().first()?.let { viaje ->
+                container.registradorDeViaje.iniciar(viaje.id)
+            }
+        }
     }
 }

@@ -21,7 +21,8 @@ data class InicioUi(
     val viajesDelMes: Int,
     val barraKm: BarraObjetivoUi?,
     val barraDias: BarraObjetivoUi?,
-    val puedeIniciarViaje: Boolean
+    val puedeIniciarViaje: Boolean,
+    val hayViajeEnCurso: Boolean
 )
 
 fun TipoVinilo.nombre(): String = when (this) {
@@ -36,7 +37,7 @@ fun TipoVinilo.nombre(): String = when (this) {
  */
 fun armarInicio(campania: Campania, vinilo: Vinilo?, viajes: List<Viaje>, hoy: LocalDate): InicioUi {
     val ganancias = vinilo?.let { armarGanancias(viajes, it, hoy) }
-    val hayViajeEnCurso = viajes.any { it.estado == EstadoViaje.EN_CURSO }
+    val hayViajeEnCurso = viajes.any { it.fin == null }
     return InicioUi(
         marca = campania.marca,
         periodo = buildString {
@@ -50,6 +51,7 @@ fun armarInicio(campania: Campania, vinilo: Vinilo?, viajes: List<Viaje>, hoy: L
         viajesDelMes = ganancias?.viajesComputables ?: 0,
         barraKm = ganancias?.barraKm,
         barraDias = ganancias?.barraDias,
-        puedeIniciarViaje = vinilo?.fechaInstalacion != null && !hayViajeEnCurso
+        puedeIniciarViaje = vinilo?.fechaInstalacion != null && !hayViajeEnCurso,
+        hayViajeEnCurso = hayViajeEnCurso
     )
 }
