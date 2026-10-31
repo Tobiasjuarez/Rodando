@@ -6,6 +6,24 @@
     <string name="destino_historial">Historial</string>
     <string name="destino_ganancias">Ganancias</string>
 
+    <!-- Inicio -->
+    <string name="inicio_saludo">Hola</string>
+    <string name="inicio_todo_sincronizado">Todo sincronizado</string>
+    <plurals name="inicio_pendientes">
+        <item quantity="one">%d viaje pendiente de envío</item>
+        <item quantity="other">%d viajes pendientes de envío</item>
+    </plurals>
+    <string name="inicio_campania_activa">CAMPAÑA ACTIVA</string>
+    <plurals name="inicio_este_mes">
+        <item quantity="one">ESTE MES · %d VIAJE</item>
+        <item quantity="other">ESTE MES · %d VIAJES</item>
+    </plurals>
+    <string name="inicio_iniciar_viaje">Iniciar viaje</string>
+    <string name="inicio_aviso_foto">Te vamos a pedir una foto del vinilo antes de arrancar.</string>
+    <string name="inicio_sin_campania_titulo">Todavía no tenés una campaña activa</string>
+    <string name="inicio_sin_campania_mensaje">Cuando te asignen una, la vas a ver acá y vas a poder empezar a registrar viajes.</string>
+    <string name="inicio_error_titulo">No pudimos cargar tus datos</string>
+
     <!-- Historial -->
     <string name="historial_titulo">Historial</string>
     <string name="historial_vacio_titulo">Todavía no registraste viajes</string>
@@ -38,6 +56,14 @@
 
     <!-- Ganancias -->
     <string name="ganancias_titulo">Ganancias</string>
-    <string name="ganancias_vacio_titulo">Todavía no hay ganancias este mes</string>
-    <string name="ganancias_vacio_mensaje">Cuando registres viajes vas a ver el estimado del mes y cuánto te falta para cobrar el fijo entero.</string>
+    <string name="ganancias_sin_vinilo_titulo">Todavía no tenés un vinilo instalado</string>
+    <string name="ganancias_sin_vinilo_mensaje">Cuando te coloquen el vinilo vas a ver el estimado del mes y cuánto te falta para cobrar el fijo entero.</string>
+    <string name="ganancias_error_titulo">No pudimos calcular las ganancias</string>
+    <string name="ganancias_objetivos">PARA COBRAR EL FIJO ENTERO (%1$s)</string>
+    <string name="ganancias_km">Km verificados</string>
+    <string name="ganancias_dias">Días con viajes</string>
+    <string name="ganancias_computables">Viajes computables</string>
+    <string name="ganancias_pendientes">Pendientes de envío</string>
+    <string name="ganancias_no_computables">No computables</string>
+    <string name="ganancias_ver_viajes">Ver viajes del mes</string>
 </resources>

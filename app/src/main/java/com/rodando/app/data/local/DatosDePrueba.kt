@@ -2,6 +2,7 @@ package com.rodando.app.data.local
 
 import com.rodando.app.domain.model.EstadoViaje
 import com.rodando.app.domain.model.TipoVinilo
+import com.rodando.app.domain.model.Vinilo
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
@@ -14,11 +15,14 @@ import java.time.ZoneId
  */
 class DatosDePrueba(
     private val dao: ViajeDao,
+    private val campaniaDao: CampaniaDao,
+    private val viniloDao: ViniloDao,
     private val zona: ZoneId = ZoneId.of("America/Argentina/Buenos_Aires"),
     private val hoy: () -> LocalDate = { LocalDate.now(ZoneId.of("America/Argentina/Buenos_Aires")) }
 ) {
 
     suspend fun cargarSiHaceFalta() {
+        if (campaniaDao.contar() == 0) cargarCampaniaYVinilo()
         if (dao.contar() > 0) return
         val dia = hoy()
         // Recorridos de Lucía entre Ramos Mejía y Microcentro (ver escenario de la preentrega).
@@ -31,6 +35,27 @@ class DatosDePrueba(
             Ejemplo("demo-6", dia.minusDays(4), LocalTime.of(8, 30), 44, 18.3, EstadoViaje.SINCRONIZADO)
         )
         viajes.forEach { guardar(it) }
+    }
+
+    /** Campaña del mes actual y vinilo Parcial con las tarifas del estudio de precios. */
+    private suspend fun cargarCampaniaYVinilo() {
+        val mes = hoy().withDayOfMonth(1)
+        campaniaDao.guardar(
+            CampaniaEntity(
+                id = CAMPANIA_DEMO,
+                marca = "Pampa Bebidas",
+                fechaInicio = mes.atStartOfDay(zona).toInstant().toEpochMilli(),
+                fechaFin = mes.plusMonths(1).atStartOfDay(zona).toInstant().toEpochMilli() - 1
+            )
+        )
+        viniloDao.guardar(
+            Vinilo(
+                tipo = TipoVinilo.PARCIAL,
+                fijoMensual = 50_000.0,
+                tarifaPorKm = 50.0,
+                fechaInstalacion = mes.atStartOfDay(zona).toInstant().toEpochMilli()
+            ).aEntidad()
+        )
     }
 
     private suspend fun guardar(e: Ejemplo) {

@@ -14,6 +14,22 @@ class FormatoTest {
     }
 
     @Test
+    fun los_montos_van_en_pesos_con_punto_de_miles() {
+        assertEquals("$82.140", Formato.monto(82_140.0))
+        assertEquals("$20.833", Formato.monto(20_833.33))
+        assertEquals("1.500", Formato.miles(1_500))
+    }
+
+    @Test
+    fun el_periodo_de_una_campania_dentro_de_un_mes_o_entre_dos() {
+        assertEquals("1 al 31 de octubre", Formato.periodo(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 31)))
+        assertEquals(
+            "15 de octubre al 14 de noviembre",
+            Formato.periodo(LocalDate.of(2026, 10, 15), LocalDate.of(2026, 11, 14))
+        )
+    }
+
+    @Test
     fun la_duracion_se_muestra_en_minutos() {
         assertEquals("42 min", Formato.duracion(0L, 42 * 60_000L))
         assertEquals("0 min", Formato.duracion(1_000L, null))

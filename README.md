@@ -40,10 +40,10 @@ app/src/main/java/com/rodando/app/
 ├── presentation/      # Pantallas Compose, ViewModels, UiState, tema
 │   ├── common/        # UiState y componentes compartidos (estado vacío)
 │   ├── navegacion/    # Barra inferior y NavHost (Inicio, Historial, Ganancias)
-│   ├── inicio/
+│   ├── inicio/        # Campaña activa, vinilo y resumen del mes
 │   ├── historial/     # RF03: lista de viajes agrupada por día
 │   ├── detalle/       # RF03: detalle del viaje con el recorrido
-│   ├── ganancias/
+│   ├── ganancias/     # RF04: ganancia estimada y barras de objetivos
 │   └── theme/         # Paleta de colores del diseño (Material 3)
 ├── domain/            # Kotlin puro: no depende de Android
 │   ├── model/         # Viaje, Campania, PuntoGps, Vinilo, ResumenGanancia, ObjetivoMensual
@@ -62,7 +62,7 @@ app/src/main/java/com/rodando/app/
 2. Elegir un emulador (Android 8.0 / API 26 o superior) y tocar **Run**.
 3. Tests unitarios: clic derecho en `app/src/test` → **Run Tests**, o `./gradlew test`.
 
-La primera vez que se abre, la app carga viajes de ejemplo en Room para poder probar Historial y Detalle sin GPS ni cámara. Para empezar de cero: *Settings → Apps → Rodando → Storage → Clear storage*.
+La primera vez que se abre, la app carga viajes de ejemplo en Room para poder probar Historial y Detalle sin GPS ni cámara. También carga una campaña (Pampa Bebidas) y un vinilo Parcial ($50.000/mes + $50/km) para Inicio y Ganancias. Para empezar de cero: *Settings → Apps → Rodando → Storage → Clear storage*.
 
 La API simulada y sus instrucciones se agregan en la carpeta `api-mock/` cuando se implemente la sincronización.
 
