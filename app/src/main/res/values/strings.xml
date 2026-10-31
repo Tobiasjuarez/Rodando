@@ -44,7 +44,7 @@
     <string name="en_curso_tiempo">TIEMPO</string>
     <string name="en_curso_distancia">DISTANCIA</string>
     <string name="en_curso_esperando_ubicacion">Esperando la ubicación…</string>
-    <string name="en_curso_aviso_segundo_plano">El recorrido se sigue registrando aunque salgas de esta pantalla.</string>
+    <string name="en_curso_aviso_segundo_plano">El recorrido se sigue registrando aunque salgas de la app o bloquees el teléfono. Lo vas a ver en la notificación.</string>
     <string name="en_curso_aviso_revision">La foto del vinilo quedó en revisión: el viaje se registra, pero suma recién cuando la aprueben.</string>
     <string name="en_curso_finalizar">Finalizar viaje</string>
     <string name="en_curso_confirmar_titulo">¿Finalizar el viaje?</string>
