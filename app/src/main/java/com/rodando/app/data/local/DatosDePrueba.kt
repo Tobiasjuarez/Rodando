@@ -65,7 +65,8 @@ class DatosDePrueba(
         val pasos = 24
         return (0..pasos).map { i ->
             val t = i.toDouble() / pasos
-            val curva = if (i % 6 in 2..3) 0.004 else 0.0 // algunas vueltas a la manzana
+            // Algunas vueltas a la manzana; en un viaje corto se va derecho para no deformar el dibujo.
+            val curva = if (!e.corto && i % 6 in 2..3) 0.004 else 0.0
             PuntoGpsEntity(
                 viajeId = e.id,
                 latitud = desde.first + (hasta.first - desde.first) * t + curva,
