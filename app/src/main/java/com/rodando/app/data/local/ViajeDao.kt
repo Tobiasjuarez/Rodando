@@ -16,13 +16,14 @@ interface ViajeDao {
     @Query("SELECT * FROM viajes WHERE id = :id")
     fun observarPorId(id: String): Flow<ViajeEntity?>
 
-    @Query("SELECT * FROM viajes WHERE estado = 'EN_CURSO' LIMIT 1")
+    /** Un viaje sin hora de fin está en curso (normal o en revisión). */
+    @Query("SELECT * FROM viajes WHERE fin IS NULL LIMIT 1")
     fun observarEnCurso(): Flow<ViajeEntity?>
 
     @Query("SELECT * FROM viajes WHERE id = :id")
     suspend fun obtenerPorId(id: String): ViajeEntity?
 
-    @Query("SELECT * FROM viajes WHERE estado = 'EN_CURSO' LIMIT 1")
+    @Query("SELECT * FROM viajes WHERE fin IS NULL LIMIT 1")
     suspend fun obtenerEnCurso(): ViajeEntity?
 
     @Query("SELECT COUNT(*) FROM viajes")

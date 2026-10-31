@@ -22,7 +22,7 @@ class InicioUiTest {
     private val parcial = Vinilo(TipoVinilo.PARCIAL, 50_000.0, 50.0, fechaInstalacion = millis(LocalDate.of(2026, 10, 1)))
 
     private fun viaje(estado: EstadoViaje) =
-        Viaje("v", "c", TipoVinilo.PARCIAL, millis(hoy), null, 0.0, estado, "", null, 1)
+        Viaje("v", "c", TipoVinilo.PARCIAL, millis(hoy), if (estado == EstadoViaje.EN_CURSO) null else millis(hoy) + 1, 0.0, estado, "", null, 1)
 
     @Test
     fun muestra_la_campania_el_vinilo_y_la_tarifa() {
@@ -49,6 +49,7 @@ class InicioUiTest {
         val ui = armarInicio(campania, parcial, listOf(viaje(EstadoViaje.EN_CURSO)), hoy)
 
         assertFalse(ui.puedeIniciarViaje)
+        assertTrue(ui.hayViajeEnCurso)
     }
 
     @Test
