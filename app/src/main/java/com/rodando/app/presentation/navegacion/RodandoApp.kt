@@ -28,6 +28,7 @@ import com.rodando.app.RodandoApplication
 import com.rodando.app.presentation.detalle.DetalleViajeScreen
 import com.rodando.app.presentation.detalle.DetalleViajeViewModel
 import com.rodando.app.presentation.ganancias.GananciasScreen
+import com.rodando.app.presentation.ganancias.GananciasViewModel
 import com.rodando.app.presentation.historial.HistorialScreen
 import com.rodando.app.presentation.historial.HistorialViewModel
 import com.rodando.app.presentation.inicio.InicioScreen
@@ -63,7 +64,15 @@ fun RodandoApp(navController: NavHostController = rememberNavController()) {
                     onAbrirViaje = { id -> navController.navigate(Rutas.detalleViaje(id)) }
                 )
             }
-            composable(Destino.GANANCIAS.ruta) { GananciasScreen() }
+            composable(Destino.GANANCIAS.ruta) {
+                val viewModel: GananciasViewModel = viewModel(
+                    factory = GananciasViewModel.fabrica(contenedor.viajeRepository, contenedor.viniloRepository)
+                )
+                GananciasScreen(
+                    viewModel = viewModel,
+                    onVerViajes = { irAPestania(navController, Destino.HISTORIAL) }
+                )
+            }
             composable(
                 route = Rutas.DETALLE_VIAJE,
                 arguments = listOf(navArgument(Rutas.ARG_VIAJE_ID) { type = NavType.StringType })
@@ -83,17 +92,7 @@ private fun BarraInferior(navController: NavHostController, destinoActual: NavDe
         Destino.entries.forEach { destino ->
             NavigationBarItem(
                 selected = destinoActual?.hierarchy?.any { it.route == destino.ruta } == true,
-                onClick = {
-                    navController.navigate(destino.ruta) {
-                        // Evita acumular pantallas al tocar varias veces la barra
-                        // y conserva el estado de cada pestaña.
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                },
+                onClick = { irAPestania(navController, destino) },
                 icon = {
                     // La etiqueta ya describe el destino para TalkBack.
                     Icon(painterResource(destino.icono), contentDescription = null)
@@ -101,5 +100,16 @@ private fun BarraInferior(navController: NavHostController, destinoActual: NavDe
                 label = { Text(stringResource(destino.etiqueta)) }
             )
         }
+    }
+}
+
+/** Cambia de pestaña sin acumular pantallas y conservando el estado de cada una. */
+private fun irAPestania(navController: NavHostController, destino: Destino) {
+    navController.navigate(destino.ruta) {
+        popUpTo(navController.graph.findStartDestination().id) {
+            saveState = true
+        }
+        launchSingleTop = true
+        restoreState = true
     }
 }

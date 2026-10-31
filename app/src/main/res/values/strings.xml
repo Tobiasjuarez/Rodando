@@ -38,6 +38,14 @@
 
     <!-- Ganancias -->
     <string name="ganancias_titulo">Ganancias</string>
-    <string name="ganancias_vacio_titulo">Todavía no hay ganancias este mes</string>
-    <string name="ganancias_vacio_mensaje">Cuando registres viajes vas a ver el estimado del mes y cuánto te falta para cobrar el fijo entero.</string>
+    <string name="ganancias_sin_vinilo_titulo">Todavía no tenés un vinilo instalado</string>
+    <string name="ganancias_sin_vinilo_mensaje">Cuando te coloquen el vinilo vas a ver el estimado del mes y cuánto te falta para cobrar el fijo entero.</string>
+    <string name="ganancias_error_titulo">No pudimos calcular las ganancias</string>
+    <string name="ganancias_objetivos">PARA COBRAR EL FIJO ENTERO (%1$s)</string>
+    <string name="ganancias_km">Km verificados</string>
+    <string name="ganancias_dias">Días con viajes</string>
+    <string name="ganancias_computables">Viajes computables</string>
+    <string name="ganancias_pendientes">Pendientes de envío</string>
+    <string name="ganancias_no_computables">No computables</string>
+    <string name="ganancias_ver_viajes">Ver viajes del mes</string>
 </resources>

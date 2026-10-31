@@ -27,6 +27,18 @@ object Formato {
     /** "18,4 km" */
     fun km(valor: Double): String = String.format(locale, "%.1f km", valor)
 
+    /** "$82.140": pesos sin decimales y con punto de miles. */
+    fun monto(valor: Double): String = "$" + miles(Math.round(valor))
+
+    /** "1.500" */
+    fun miles(valor: Long): String = String.format(Locale.US, "%,d", valor).replace(',', '.')
+
+    /** "642,8" sin unidad */
+    fun decimal(valor: Double): String = String.format(locale, "%.1f", valor)
+
+    /** "OCTUBRE" */
+    fun mes(fecha: LocalDate): String = meses[fecha.monthValue - 1].uppercase(locale)
+
     /** "42 min" */
     fun duracion(inicio: Long, fin: Long?): String = "${((fin ?: inicio) - inicio) / 60_000} min"
 
