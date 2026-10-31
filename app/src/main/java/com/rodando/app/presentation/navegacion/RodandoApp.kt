@@ -1,5 +1,7 @@
 package com.rodando.app.presentation.navegacion
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
@@ -8,7 +10,11 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -24,7 +30,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import kotlinx.coroutines.flow.first
 import com.rodando.app.RodandoApplication
+import com.rodando.app.data.sensors.Permisos
 import com.rodando.app.presentation.detalle.DetalleViajeScreen
 import com.rodando.app.presentation.detalle.DetalleViajeViewModel
 import com.rodando.app.presentation.encurso.ViajeEnCursoScreen
@@ -49,7 +57,14 @@ import com.rodando.app.presentation.inicio.InicioViewModel
 fun RodandoApp(navController: NavHostController = rememberNavController()) {
     val entradaActual by navController.currentBackStackEntryAsState()
     val destinoActual = entradaActual?.destination
-    val contenedor = (LocalContext.current.applicationContext as RodandoApplication).container
+    val contexto = LocalContext.current
+    val contenedor = (contexto.applicationContext as RodandoApplication).container
+
+    // RNF02: si la app se cerró con un viaje en curso, al abrirla se vuelve a encender el registro.
+    LaunchedEffect(Unit) {
+        val enCurso = contenedor.viajeRepository.observarViajeEnCurso().first()
+        if (enCurso != null && Permisos.tieneUbicacion(contexto)) contenedor.registroDeRecorrido.iniciar(enCurso.id)
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -72,10 +87,24 @@ fun RodandoApp(navController: NavHostController = rememberNavController()) {
                         contenedor.viajeRepository
                     )
                 )
+                // Antes de la foto se piden la ubicación y, desde Android 13, las notificaciones.
+                var faltaUbicacion by rememberSaveable { mutableStateOf(false) }
+                val pedirPermisos =
+                    rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+                        faltaUbicacion = !Permisos.tieneUbicacion(contexto)
+                        if (!faltaUbicacion) navController.navigate(Rutas.FOTO_INICIO)
+                    }
                 InicioScreen(
                     viewModel = viewModel,
-                    onIniciarViaje = { navController.navigate(Rutas.FOTO_INICIO) },
-                    onVerViajeEnCurso = { navController.navigate(Rutas.VIAJE_EN_CURSO) { launchSingleTop = true } }
+                    onIniciarViaje = {
+                        if (Permisos.faltaAlguno(contexto)) {
+                            pedirPermisos.launch(Permisos.paraViaje)
+                        } else {
+                            navController.navigate(Rutas.FOTO_INICIO)
+                        }
+                    },
+                    onVerViajeEnCurso = { navController.navigate(Rutas.VIAJE_EN_CURSO) { launchSingleTop = true } },
+                    faltaUbicacion = faltaUbicacion
                 )
             }
             composable(Destino.HISTORIAL.ruta) {

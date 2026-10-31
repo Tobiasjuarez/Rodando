@@ -20,6 +20,12 @@ object Permisos {
         concedido(context, Manifest.permission.ACCESS_FINE_LOCATION) ||
             concedido(context, Manifest.permission.ACCESS_COARSE_LOCATION)
 
+    /** true si hay que mostrar el pedido de permisos antes de iniciar un viaje. */
+    fun faltaAlguno(context: Context): Boolean =
+        !tieneUbicacion(context) ||
+            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                !concedido(context, Manifest.permission.POST_NOTIFICATIONS))
+
     private fun concedido(context: Context, permiso: String) =
         ContextCompat.checkSelfPermission(context, permiso) == PackageManager.PERMISSION_GRANTED
 }

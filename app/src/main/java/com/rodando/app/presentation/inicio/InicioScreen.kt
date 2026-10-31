@@ -43,14 +43,17 @@ fun InicioScreen(
     viewModel: InicioViewModel,
     onIniciarViaje: () -> Unit,
     onVerViajeEnCurso: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** true si el conductor rechazó el permiso de ubicación. */
+    faltaUbicacion: Boolean = false
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     InicioContenido(
         estado = estado,
         onIniciarViaje = onIniciarViaje,
         onVerViajeEnCurso = onVerViajeEnCurso,
-        modifier = modifier
+        modifier = modifier,
+        faltaUbicacion = faltaUbicacion
     )
 }
 
@@ -59,7 +62,8 @@ fun InicioContenido(
     estado: UiState<InicioUi>,
     onIniciarViaje: () -> Unit,
     onVerViajeEnCurso: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    faltaUbicacion: Boolean = false
 ) {
     Column(modifier = modifier.fillMaxSize()) {
         when (estado) {
@@ -73,14 +77,19 @@ fun InicioContenido(
                 mensaje = estado.mensaje,
                 modifier = Modifier.padding(top = 96.dp)
             )
-            is UiState.Contenido -> Inicio(estado.datos, onIniciarViaje, onVerViajeEnCurso)
-            is UiState.Offline -> Inicio(estado.datosLocales, onIniciarViaje, onVerViajeEnCurso)
+            is UiState.Contenido -> Inicio(estado.datos, onIniciarViaje, onVerViajeEnCurso, faltaUbicacion)
+            is UiState.Offline -> Inicio(estado.datosLocales, onIniciarViaje, onVerViajeEnCurso, faltaUbicacion)
         }
     }
 }
 
 @Composable
-private fun Inicio(inicio: InicioUi, onIniciarViaje: () -> Unit, onVerViajeEnCurso: () -> Unit) {
+private fun Inicio(
+    inicio: InicioUi,
+    onIniciarViaje: () -> Unit,
+    onVerViajeEnCurso: () -> Unit,
+    faltaUbicacion: Boolean
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -191,12 +200,17 @@ private fun Inicio(inicio: InicioUi, onIniciarViaje: () -> Unit, onVerViajeEnCur
                     )
                 )
             }
+            val sinPermiso = faltaUbicacion && !inicio.hayViajeEnCurso
             Text(
                 text = stringResource(
-                    if (inicio.hayViajeEnCurso) R.string.inicio_aviso_en_curso else R.string.inicio_aviso_foto
+                    when {
+                        inicio.hayViajeEnCurso -> R.string.inicio_aviso_en_curso
+                        sinPermiso -> R.string.inicio_aviso_sin_ubicacion
+                        else -> R.string.inicio_aviso_foto
+                    }
                 ),
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = if (sinPermiso) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
