@@ -55,7 +55,7 @@ app/src/main/java/com/rodando/app/
 └── data/
     ├── local/         # Room (entidades, DAO, mappers) y viajes de ejemplo
     ├── remote/        # Retrofit (API simulada) y DTOs
-    ├── sensors/       # Registro del recorrido (por ahora con ubicación simulada) y cámara
+    ├── sensors/       # GPS (Fused Location), servicio en primer plano del viaje, permisos y cámara
     └── repository/    # Implementaciones de los repositorios
 ```
 
@@ -67,7 +67,14 @@ app/src/main/java/com/rodando/app/
 
 La primera vez que se abre, la app carga viajes de ejemplo en Room para poder probar Historial y Detalle sin GPS ni cámara. También carga una campaña (Pampa Bebidas) y un vinilo Parcial ($50.000/mes + $50/km) para Inicio y Ganancias. Para empezar de cero: *Settings → Apps → Rodando → Storage → Clear storage*.
 
-**Probar un viaje:** en Inicio, *Iniciar viaje* → *Sacar foto e iniciar*. Por ahora la cámara y la ubicación son simuladas: la foto siempre se acepta y el auto "avanza" unos 200 m cada 2 segundos desde Ramos Mejía, así que en un minuto se juntan unos 6 km. *Finalizar viaje* pide la foto final y muestra el viaje guardado como pendiente de envío. Si la app se cierra con un viaje en curso, al volver a abrirla se sigue registrando. El GPS real (en un servicio en primer plano), CameraX y la verificación con ML Kit se suman en las próximas ramas.
+**Probar un viaje:** en Inicio, *Iniciar viaje*. La primera vez la app pide permiso de ubicación y de notificaciones. Después viene *Sacar foto e iniciar* (la cámara todavía es simulada y la foto siempre se acepta). El recorrido se registra con el GPS dentro de un servicio en primer plano, con una notificación fija, así que sigue aunque se bloquee el teléfono. *Finalizar viaje* pide la foto final y muestra el viaje guardado.
+
+En el emulador la ubicación no cambia sola, así que un viaje queda en 0 km y "No computable". Para que se mueva hay dos formas:
+
+- Cargar una ruta en *Extended controls (⋯) → Location → Routes* y tocar *Play route* con el viaje en curso.
+- Poner `USAR_UBICACION_SIMULADA = true` en `AppContainer`: el auto "avanza" solo unos 200 m cada 2 segundos desde Ramos Mejía.
+
+CameraX y la verificación con ML Kit se suman en las próximas ramas.
 
 La API simulada y sus instrucciones se agregan en la carpeta `api-mock/` cuando se implemente la sincronización.
 
