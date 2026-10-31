@@ -250,7 +250,8 @@ private fun InicioPreview() {
                     viajesDelMes = 31,
                     barraKm = BarraObjetivoUi("642,8 de 400 km", 1f, "Cumplido", true),
                     barraDias = BarraObjetivoUi("14 de 12 días", 1f, "Cumplido", true),
-                    puedeIniciarViaje = true
+                    puedeIniciarViaje = true,
+                    hayViajeEnCurso = false
                 )
             ),
             onIniciarViaje = {}

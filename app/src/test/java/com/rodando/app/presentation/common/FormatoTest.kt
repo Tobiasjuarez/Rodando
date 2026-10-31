@@ -47,4 +47,11 @@ class FormatoTest {
         assertEquals("HOY", Formato.tituloDia(hoy, hoy))
         assertEquals("LUNES 28 DE SEPTIEMBRE", Formato.tituloDia(LocalDate.of(2026, 9, 28), hoy))
     }
+
+    @Test
+    fun el_cronometro_muestra_horas_minutos_y_segundos() {
+        assertEquals("00:00:00", Formato.cronometro(0))
+        assertEquals("00:42:15", Formato.cronometro((42 * 60 + 15) * 1000L))
+        assertEquals("01:05:09", Formato.cronometro((3600 + 5 * 60 + 9) * 1000L))
+    }
 }

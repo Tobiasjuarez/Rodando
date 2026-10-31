@@ -50,6 +50,12 @@ object Formato {
     /** "42 min" */
     fun duracion(inicio: Long, fin: Long?): String = "${((fin ?: inicio) - inicio) / 60_000} min"
 
+    /** "00:42:15": tiempo transcurrido de un viaje en curso. */
+    fun cronometro(millis: Long): String {
+        val segundos = (millis / 1000).coerceAtLeast(0)
+        return "%02d:%02d:%02d".format(segundos / 3600, segundos / 60 % 60, segundos % 60)
+    }
+
     /** "08:42" */
     fun hora(millis: Long): String {
         val t = Instant.ofEpochMilli(millis).atZone(zona).toLocalTime()
