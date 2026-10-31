@@ -41,7 +41,8 @@ app/src/main/java/com/rodando/app/
 │   ├── common/        # UiState y componentes compartidos (estado vacío)
 │   ├── navegacion/    # Barra inferior y NavHost (Inicio, Historial, Ganancias)
 │   ├── inicio/
-│   ├── historial/
+│   ├── historial/     # RF03: lista de viajes agrupada por día
+│   ├── detalle/       # RF03: detalle del viaje con el recorrido
 │   ├── ganancias/
 │   └── theme/         # Paleta de colores del diseño (Material 3)
 ├── domain/            # Kotlin puro: no depende de Android
@@ -49,7 +50,7 @@ app/src/main/java/com/rodando/app/
 │   ├── repository/    # Interfaces de repositorio
 │   └── usecase/       # Reglas de negocio (distancia, ganancia, intentos de foto)
 └── data/
-    ├── local/         # Room (entidades, DAO) y archivos de fotos
+    ├── local/         # Room (entidades, DAO, mappers) y viajes de ejemplo
     ├── remote/        # Retrofit (API simulada) y DTOs
     ├── sensors/       # GPS y cámara
     └── repository/    # Implementaciones de los repositorios
@@ -60,6 +61,8 @@ app/src/main/java/com/rodando/app/
 1. Abrir la carpeta del proyecto en Android Studio y esperar el *Gradle Sync*.
 2. Elegir un emulador (Android 8.0 / API 26 o superior) y tocar **Run**.
 3. Tests unitarios: clic derecho en `app/src/test` → **Run Tests**, o `./gradlew test`.
+
+La primera vez que se abre, la app carga viajes de ejemplo en Room para poder probar Historial y Detalle sin GPS ni cámara. Para empezar de cero: *Settings → Apps → Rodando → Storage → Clear storage*.
 
 La API simulada y sus instrucciones se agregan en la carpeta `api-mock/` cuando se implemente la sincronización.
 
