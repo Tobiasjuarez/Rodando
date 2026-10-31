@@ -59,6 +59,11 @@
     <string name="guardado_volver_inicio">Volver al inicio</string>
     <string name="guardado_ver_detalle">Ver detalle del viaje</string>
 
+    <!-- Notificación del viaje en curso -->
+    <string name="notificacion_canal">Viaje en curso</string>
+    <string name="notificacion_titulo">Viaje en curso</string>
+    <string name="notificacion_texto">Registrando tu recorrido. Tocá para ver el viaje.</string>
+
     <!-- Historial -->
     <string name="historial_titulo">Historial</string>
     <string name="historial_vacio_titulo">Todavía no registraste viajes</string>

@@ -10,9 +10,12 @@ import com.rodando.app.data.repository.CampaniaRepositoryImpl
 import com.rodando.app.data.repository.ViajeRepositoryImpl
 import com.rodando.app.data.repository.ViniloRepositoryImpl
 import com.rodando.app.data.sensors.RegistradorDeViaje
+import com.rodando.app.data.sensors.RegistroConServicio
+import com.rodando.app.data.sensors.UbicacionGps
 import com.rodando.app.data.sensors.UbicacionSimulada
 import com.rodando.app.domain.repository.CampaniaRepository
 import com.rodando.app.domain.repository.FuenteUbicacion
+import com.rodando.app.domain.repository.RegistroDeRecorrido
 import com.rodando.app.domain.repository.ViajeRepository
 import com.rodando.app.domain.repository.ViniloRepository
 import com.rodando.app.domain.usecase.FinalizarViajeUseCase
@@ -35,14 +38,23 @@ class AppContainer(context: Context) {
 
     val viniloRepository: ViniloRepository = ViniloRepositoryImpl(database.viniloDao())
 
-    /** Por ahora simulada; se reemplaza por el GPS real en un servicio en primer plano. */
-    private val fuenteUbicacion: FuenteUbicacion = UbicacionSimulada()
+    /** GPS real, o el recorrido simulado para probar en el emulador sin cargar una ruta. */
+    private val fuenteUbicacion: FuenteUbicacion =
+        if (USAR_UBICACION_SIMULADA) UbicacionSimulada() else UbicacionGps(context)
 
     val registradorDeViaje = RegistradorDeViaje(viajeRepository, fuenteUbicacion, alcance)
 
-    val iniciarViaje = IniciarViajeUseCase(campaniaRepository, viniloRepository, viajeRepository, registradorDeViaje)
+    /** El registro corre dentro de un servicio en primer plano para seguir con la pantalla apagada. */
+    val registroDeRecorrido: RegistroDeRecorrido = RegistroConServicio(context.applicationContext, registradorDeViaje)
 
-    val finalizarViaje = FinalizarViajeUseCase(viajeRepository, registradorDeViaje)
+    val iniciarViaje = IniciarViajeUseCase(campaniaRepository, viniloRepository, viajeRepository, registroDeRecorrido)
+
+    val finalizarViaje = FinalizarViajeUseCase(viajeRepository, registroDeRecorrido)
 
     val datosDePrueba = DatosDePrueba(database.viajeDao(), database.campaniaDao(), database.viniloDao())
+
+    companion object {
+        /** true: el auto "avanza" solo desde Ramos Mejía, sin GPS. Útil para demos en el emulador. */
+        const val USAR_UBICACION_SIMULADA = false
+    }
 }
