@@ -41,6 +41,9 @@ app/src/main/java/com/rodando/app/
 │   ├── common/        # UiState y componentes compartidos (estado vacío)
 │   ├── navegacion/    # Barra inferior y NavHost (Inicio, Historial, Ganancias)
 │   ├── inicio/        # Campaña activa, vinilo y resumen del mes
+│   ├── foto/          # RF01 / RF02: foto del vinilo al iniciar y al finalizar
+│   ├── encurso/       # RF01: viaje en curso con tiempo, distancia y recorrido
+│   ├── guardado/      # RF02: confirmación del viaje guardado
 │   ├── historial/     # RF03: lista de viajes agrupada por día
 │   ├── detalle/       # RF03: detalle del viaje con el recorrido
 │   ├── ganancias/     # RF04: ganancia estimada y barras de objetivos
@@ -48,11 +51,11 @@ app/src/main/java/com/rodando/app/
 ├── domain/            # Kotlin puro: no depende de Android
 │   ├── model/         # Viaje, Campania, PuntoGps, Vinilo, ResumenGanancia, ObjetivoMensual
 │   ├── repository/    # Interfaces de repositorio
-│   └── usecase/       # Reglas de negocio (distancia, ganancia, intentos de foto)
+│   └── usecase/       # Reglas de negocio (iniciar y finalizar viaje, distancia, ganancia, intentos de foto)
 └── data/
     ├── local/         # Room (entidades, DAO, mappers) y viajes de ejemplo
     ├── remote/        # Retrofit (API simulada) y DTOs
-    ├── sensors/       # GPS y cámara
+    ├── sensors/       # Registro del recorrido (por ahora con ubicación simulada) y cámara
     └── repository/    # Implementaciones de los repositorios
 ```
 
@@ -63,6 +66,8 @@ app/src/main/java/com/rodando/app/
 3. Tests unitarios: clic derecho en `app/src/test` → **Run Tests**, o `./gradlew test`.
 
 La primera vez que se abre, la app carga viajes de ejemplo en Room para poder probar Historial y Detalle sin GPS ni cámara. También carga una campaña (Pampa Bebidas) y un vinilo Parcial ($50.000/mes + $50/km) para Inicio y Ganancias. Para empezar de cero: *Settings → Apps → Rodando → Storage → Clear storage*.
+
+**Probar un viaje:** en Inicio, *Iniciar viaje* → *Sacar foto e iniciar*. Por ahora la cámara y la ubicación son simuladas: la foto siempre se acepta y el auto "avanza" unos 200 m cada 2 segundos desde Ramos Mejía, así que en un minuto se juntan unos 6 km. *Finalizar viaje* pide la foto final y muestra el viaje guardado como pendiente de envío. Si la app se cierra con un viaje en curso, al volver a abrirla se sigue registrando. El GPS real (en un servicio en primer plano), CameraX y la verificación con ML Kit se suman en las próximas ramas.
 
 La API simulada y sus instrucciones se agregan en la carpeta `api-mock/` cuando se implemente la sincronización.
 
