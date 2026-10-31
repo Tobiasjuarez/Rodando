@@ -3,8 +3,12 @@ package com.rodando.app
 import android.content.Context
 import com.rodando.app.data.local.DatosDePrueba
 import com.rodando.app.data.local.RodandoDatabase
+import com.rodando.app.data.repository.CampaniaRepositoryImpl
 import com.rodando.app.data.repository.ViajeRepositoryImpl
+import com.rodando.app.data.repository.ViniloRepositoryImpl
+import com.rodando.app.domain.repository.CampaniaRepository
 import com.rodando.app.domain.repository.ViajeRepository
+import com.rodando.app.domain.repository.ViniloRepository
 
 /**
  * Inyección de dependencias manual: crea una sola vez la base de datos y los repositorios
@@ -16,5 +20,9 @@ class AppContainer(context: Context) {
 
     val viajeRepository: ViajeRepository = ViajeRepositoryImpl(database.viajeDao())
 
-    val datosDePrueba = DatosDePrueba(database.viajeDao())
+    val campaniaRepository: CampaniaRepository = CampaniaRepositoryImpl(database.campaniaDao())
+
+    val viniloRepository: ViniloRepository = ViniloRepositoryImpl(database.viniloDao())
+
+    val datosDePrueba = DatosDePrueba(database.viajeDao(), database.campaniaDao(), database.viniloDao())
 }
