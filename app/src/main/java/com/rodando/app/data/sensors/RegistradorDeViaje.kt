@@ -1,6 +1,7 @@
 package com.rodando.app.data.sensors
 
 import com.rodando.app.domain.repository.FuenteUbicacion
+import com.rodando.app.domain.repository.RegistroDeRecorrido
 import com.rodando.app.domain.repository.ViajeRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -15,13 +16,13 @@ class RegistradorDeViaje(
     private val repositorio: ViajeRepository,
     private val fuente: FuenteUbicacion,
     private val alcance: CoroutineScope
-) {
+) : RegistroDeRecorrido {
     private var trabajo: Job? = null
     private var viajeActual: String? = null
 
     val registrando: Boolean get() = trabajo?.isActive == true
 
-    fun iniciar(viajeId: String) {
+    override fun iniciar(viajeId: String) {
         if (registrando && viajeActual == viajeId) return
         detener()
         viajeActual = viajeId
@@ -30,7 +31,7 @@ class RegistradorDeViaje(
         }
     }
 
-    fun detener() {
+    override fun detener() {
         trabajo?.cancel()
         trabajo = null
         viajeActual = null

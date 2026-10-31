@@ -15,6 +15,8 @@ import com.rodando.app.domain.repository.CampaniaRepository
 import com.rodando.app.domain.repository.FuenteUbicacion
 import com.rodando.app.domain.repository.ViajeRepository
 import com.rodando.app.domain.repository.ViniloRepository
+import com.rodando.app.domain.usecase.FinalizarViajeUseCase
+import com.rodando.app.domain.usecase.IniciarViajeUseCase
 
 /**
  * Inyección de dependencias manual: crea una sola vez la base de datos y los repositorios
@@ -37,6 +39,10 @@ class AppContainer(context: Context) {
     private val fuenteUbicacion: FuenteUbicacion = UbicacionSimulada()
 
     val registradorDeViaje = RegistradorDeViaje(viajeRepository, fuenteUbicacion, alcance)
+
+    val iniciarViaje = IniciarViajeUseCase(campaniaRepository, viniloRepository, viajeRepository, registradorDeViaje)
+
+    val finalizarViaje = FinalizarViajeUseCase(viajeRepository, registradorDeViaje)
 
     val datosDePrueba = DatosDePrueba(database.viajeDao(), database.campaniaDao(), database.viniloDao())
 }
