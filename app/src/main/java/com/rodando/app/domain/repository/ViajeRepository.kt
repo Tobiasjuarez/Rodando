@@ -16,6 +16,7 @@ interface ViajeRepository {
     fun observarViajes(): Flow<List<Viaje>>
     fun observarViaje(id: String): Flow<Viaje?>
     fun observarViajeEnCurso(): Flow<Viaje?>
+    fun observarPuntos(viajeId: String): Flow<List<PuntoGps>>
     suspend fun obtenerPuntos(viajeId: String): List<PuntoGps>
 
     /**

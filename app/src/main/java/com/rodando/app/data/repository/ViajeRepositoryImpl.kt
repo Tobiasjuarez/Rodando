@@ -34,6 +34,9 @@ class ViajeRepositoryImpl(
     override fun observarViajeEnCurso(): Flow<Viaje?> =
         dao.observarEnCurso().map { it?.aDominio() }
 
+    override fun observarPuntos(viajeId: String): Flow<List<PuntoGps>> =
+        dao.observarPuntos(viajeId).map { lista -> lista.map { it.aDominio() } }
+
     override suspend fun obtenerPuntos(viajeId: String): List<PuntoGps> =
         dao.puntosDeViaje(viajeId).map { it.aDominio() }
 

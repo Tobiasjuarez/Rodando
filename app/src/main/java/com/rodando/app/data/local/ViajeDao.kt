@@ -39,5 +39,8 @@ interface ViajeDao {
     suspend fun guardarPuntos(puntos: List<PuntoGpsEntity>)
 
     @Query("SELECT * FROM puntos_gps WHERE viajeId = :viajeId ORDER BY timestamp")
+    fun observarPuntos(viajeId: String): Flow<List<PuntoGpsEntity>>
+
+    @Query("SELECT * FROM puntos_gps WHERE viajeId = :viajeId ORDER BY timestamp")
     suspend fun puntosDeViaje(viajeId: String): List<PuntoGpsEntity>
 }

@@ -11,7 +11,8 @@ import kotlinx.coroutines.flow.map
 /** DAO en memoria para probar el repositorio sin Android. */
 class FakeViajeDao : ViajeDao {
     private val viajes = MutableStateFlow<List<ViajeEntity>>(emptyList())
-    val puntos = mutableListOf<PuntoGpsEntity>()
+    private val flujoPuntos = MutableStateFlow<List<PuntoGpsEntity>>(emptyList())
+    val puntos: List<PuntoGpsEntity> get() = flujoPuntos.value
 
     override fun observarTodos(): Flow<List<ViajeEntity>> =
         viajes.map { lista -> lista.sortedByDescending { it.inicio } }
@@ -34,12 +35,15 @@ class FakeViajeDao : ViajeDao {
     }
 
     override suspend fun guardarPunto(punto: PuntoGpsEntity) {
-        puntos += punto
+        flujoPuntos.value = flujoPuntos.value + punto
     }
 
     override suspend fun guardarPuntos(puntos: List<PuntoGpsEntity>) {
-        this.puntos += puntos
+        flujoPuntos.value = flujoPuntos.value + puntos
     }
+
+    override fun observarPuntos(viajeId: String): Flow<List<PuntoGpsEntity>> =
+        flujoPuntos.map { lista -> lista.filter { it.viajeId == viajeId }.sortedBy { it.timestamp } }
 
     override suspend fun puntosDeViaje(viajeId: String): List<PuntoGpsEntity> =
         puntos.filter { it.viajeId == viajeId }.sortedBy { it.timestamp }
