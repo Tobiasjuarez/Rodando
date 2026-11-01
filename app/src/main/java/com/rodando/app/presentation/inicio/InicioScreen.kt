@@ -43,14 +43,17 @@ fun InicioScreen(
     viewModel: InicioViewModel,
     onIniciarViaje: () -> Unit,
     onVerViajeEnCurso: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** Motivo por el que no se pudo iniciar el viaje, si lo hubo. */
+    sinUbicacion: SinUbicacion? = null
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     InicioContenido(
         estado = estado,
         onIniciarViaje = onIniciarViaje,
         onVerViajeEnCurso = onVerViajeEnCurso,
-        modifier = modifier
+        modifier = modifier,
+        sinUbicacion = sinUbicacion
     )
 }
 
@@ -59,7 +62,8 @@ fun InicioContenido(
     estado: UiState<InicioUi>,
     onIniciarViaje: () -> Unit,
     onVerViajeEnCurso: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    sinUbicacion: SinUbicacion? = null
 ) {
     Column(modifier = modifier.fillMaxSize()) {
         when (estado) {
@@ -73,14 +77,19 @@ fun InicioContenido(
                 mensaje = estado.mensaje,
                 modifier = Modifier.padding(top = 96.dp)
             )
-            is UiState.Contenido -> Inicio(estado.datos, onIniciarViaje, onVerViajeEnCurso)
-            is UiState.Offline -> Inicio(estado.datosLocales, onIniciarViaje, onVerViajeEnCurso)
+            is UiState.Contenido -> Inicio(estado.datos, onIniciarViaje, onVerViajeEnCurso, sinUbicacion)
+            is UiState.Offline -> Inicio(estado.datosLocales, onIniciarViaje, onVerViajeEnCurso, sinUbicacion)
         }
     }
 }
 
 @Composable
-private fun Inicio(inicio: InicioUi, onIniciarViaje: () -> Unit, onVerViajeEnCurso: () -> Unit) {
+private fun Inicio(
+    inicio: InicioUi,
+    onIniciarViaje: () -> Unit,
+    onVerViajeEnCurso: () -> Unit,
+    sinUbicacion: SinUbicacion?
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -191,12 +200,18 @@ private fun Inicio(inicio: InicioUi, onIniciarViaje: () -> Unit, onVerViajeEnCur
                     )
                 )
             }
+            val aviso = if (inicio.hayViajeEnCurso) null else sinUbicacion
             Text(
                 text = stringResource(
-                    if (inicio.hayViajeEnCurso) R.string.inicio_aviso_en_curso else R.string.inicio_aviso_foto
+                    when {
+                        inicio.hayViajeEnCurso -> R.string.inicio_aviso_en_curso
+                        aviso == SinUbicacion.PERMISO -> R.string.inicio_aviso_sin_permiso
+                        aviso == SinUbicacion.APAGADA -> R.string.inicio_aviso_ubicacion_apagada
+                        else -> R.string.inicio_aviso_foto
+                    }
                 ),
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = if (aviso != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )

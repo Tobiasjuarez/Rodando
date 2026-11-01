@@ -21,6 +21,8 @@
     <string name="inicio_iniciar_viaje">Iniciar viaje</string>
     <string name="inicio_ver_viaje_en_curso">Ver viaje en curso</string>
     <string name="inicio_aviso_en_curso">Tenés un viaje en curso. Finalizalo para empezar otro.</string>
+    <string name="inicio_aviso_sin_permiso">Necesitamos tu ubicación para registrar el recorrido. Podés darla en Ajustes → Apps → Rodando → Permisos.</string>
+    <string name="inicio_aviso_ubicacion_apagada">La ubicación del teléfono está apagada. Activala para poder registrar el recorrido.</string>
     <string name="inicio_aviso_foto">Te vamos a pedir una foto del vinilo antes de arrancar.</string>
     <string name="inicio_sin_campania_titulo">Todavía no tenés una campaña activa</string>
     <string name="inicio_sin_campania_mensaje">Cuando te asignen una, la vas a ver acá y vas a poder empezar a registrar viajes.</string>
@@ -43,7 +45,8 @@
     <string name="en_curso_tiempo">TIEMPO</string>
     <string name="en_curso_distancia">DISTANCIA</string>
     <string name="en_curso_esperando_ubicacion">Esperando la ubicación…</string>
-    <string name="en_curso_aviso_segundo_plano">El recorrido se sigue registrando aunque salgas de esta pantalla.</string>
+    <string name="en_curso_aviso_segundo_plano">El recorrido se sigue registrando aunque salgas de la app o bloquees el teléfono. Lo vas a ver en la notificación.</string>
+    <string name="en_curso_sin_senal">Todavía no recibimos tu ubicación. Revisá que la ubicación del teléfono esté activada; bajo techo o en un túnel puede tardar.</string>
     <string name="en_curso_aviso_revision">La foto del vinilo quedó en revisión: el viaje se registra, pero suma recién cuando la aprueben.</string>
     <string name="en_curso_finalizar">Finalizar viaje</string>
     <string name="en_curso_confirmar_titulo">¿Finalizar el viaje?</string>
@@ -58,6 +61,11 @@
     <string name="guardado_ganancia">Suma por km (estimado)</string>
     <string name="guardado_volver_inicio">Volver al inicio</string>
     <string name="guardado_ver_detalle">Ver detalle del viaje</string>
+
+    <!-- Notificación del viaje en curso -->
+    <string name="notificacion_canal">Viaje en curso</string>
+    <string name="notificacion_titulo">Viaje en curso</string>
+    <string name="notificacion_texto">Registrando tu recorrido. Tocá para ver el viaje.</string>
 
     <!-- Historial -->
     <string name="historial_titulo">Historial</string>

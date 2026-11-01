@@ -69,8 +69,8 @@ class IniciarYFinalizarViajeTest {
     @Test
     fun finalizar_apaga_el_registro_y_deja_el_viaje_pendiente() = runBlocking {
         iniciar()("inicio.jpg", 1, false)
-        viajes.registrarPunto("viaje-1", PuntoGps(-34.60, -58.38, 1, 5f))
-        viajes.registrarPunto("viaje-1", PuntoGps(-34.61, -58.38, 2, 5f))
+        viajes.registrarPunto("viaje-1", PuntoGps(-34.60, -58.38, 60_000, 5f))
+        viajes.registrarPunto("viaje-1", PuntoGps(-34.61, -58.38, 180_000, 5f))
 
         val viaje = FinalizarViajeUseCase(viajes, registro)("viaje-1", "fin.jpg")
 

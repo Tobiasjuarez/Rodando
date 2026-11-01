@@ -8,8 +8,8 @@ import com.rodando.app.domain.model.PuntoGps
 import com.rodando.app.domain.model.TipoVinilo
 import com.rodando.app.domain.model.Viaje
 import com.rodando.app.domain.repository.ViajeRepository
-import com.rodando.app.domain.usecase.CalcularDistanciaUseCase
 import com.rodando.app.domain.usecase.CalcularGananciaUseCase
+import com.rodando.app.domain.usecase.LimpiarRecorridoUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.UUID
@@ -20,7 +20,7 @@ import java.util.UUID
  */
 class ViajeRepositoryImpl(
     private val dao: ViajeDao,
-    private val calcularDistancia: CalcularDistanciaUseCase = CalcularDistanciaUseCase(),
+    private val limpiarRecorrido: LimpiarRecorridoUseCase = LimpiarRecorridoUseCase(),
     private val ahora: () -> Long = System::currentTimeMillis,
     private val nuevoId: () -> String = { UUID.randomUUID().toString() }
 ) : ViajeRepository {
@@ -70,7 +70,8 @@ class ViajeRepositoryImpl(
 
     override suspend fun finalizarViaje(viajeId: String, fotoFinPath: String): Viaje {
         val entidad = requireNotNull(dao.obtenerPorId(viajeId)) { "No existe el viaje $viajeId" }
-        val distancia = calcularDistancia(obtenerPuntos(viajeId))
+        // Los saltos imposibles del GPS no suman km.
+        val distancia = limpiarRecorrido.distanciaKm(obtenerPuntos(viajeId))
         val estado = when {
             // Un viaje en revisión sigue así hasta que el equipo apruebe las fotos.
             entidad.estado == EstadoViaje.EN_REVISION -> EstadoViaje.EN_REVISION

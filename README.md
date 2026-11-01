@@ -55,7 +55,7 @@ app/src/main/java/com/rodando/app/
 └── data/
     ├── local/         # Room (entidades, DAO, mappers) y viajes de ejemplo
     ├── remote/        # Retrofit (API simulada) y DTOs
-    ├── sensors/       # Registro del recorrido (por ahora con ubicación simulada) y cámara
+    ├── sensors/       # GPS (Fused Location), servicio en primer plano del viaje, permisos y cámara
     └── repository/    # Implementaciones de los repositorios
 ```
 
@@ -67,7 +67,16 @@ app/src/main/java/com/rodando/app/
 
 La primera vez que se abre, la app carga viajes de ejemplo en Room para poder probar Historial y Detalle sin GPS ni cámara. También carga una campaña (Pampa Bebidas) y un vinilo Parcial ($50.000/mes + $50/km) para Inicio y Ganancias. Para empezar de cero: *Settings → Apps → Rodando → Storage → Clear storage*.
 
-**Probar un viaje:** en Inicio, *Iniciar viaje* → *Sacar foto e iniciar*. Por ahora la cámara y la ubicación son simuladas: la foto siempre se acepta y el auto "avanza" unos 200 m cada 2 segundos desde Ramos Mejía, así que en un minuto se juntan unos 6 km. *Finalizar viaje* pide la foto final y muestra el viaje guardado como pendiente de envío. Si la app se cierra con un viaje en curso, al volver a abrirla se sigue registrando. El GPS real (en un servicio en primer plano), CameraX y la verificación con ML Kit se suman en las próximas ramas.
+**Probar un viaje:** en Inicio, *Iniciar viaje*. La primera vez la app pide permiso de ubicación y de notificaciones. Después viene *Sacar foto e iniciar* (la cámara todavía es simulada y la foto siempre se acepta). El recorrido se registra con el GPS dentro de un servicio en primer plano, con una notificación fija, así que sigue aunque se bloquee el teléfono. Mientras dura el viaje, un mapa de OpenStreetMap (osmdroid, sin clave de API) sigue la posición y va dibujando el recorrido; sin conexión no se ven las calles, pero el recorrido se dibuja igual. *Finalizar viaje* pide la foto final y muestra el viaje guardado.
+
+En el emulador la ubicación no cambia sola, así que un viaje queda en 0 km y "No computable". Para que se mueva hay dos formas:
+
+- Con el viaje en curso, abrir *Extended controls (⋯) → Location*, importar uno de los recorridos de [`docs/emulador/`](docs/emulador/) con *Import GPX/KML* y tocar *Play*. La ruta corta (Ramos Mejía → Liniers, 3,7 km) tarda unos 6 minutos a velocidad 1x; la larga (hasta Plaza de Mayo, 18,4 km), unos 30. Se puede acelerar con *Playback speed*.
+- Poner `USAR_UBICACION_SIMULADA = true` en `AppContainer`: el auto "avanza" solo unos 50 m cada 2 segundos (90 km/h) desde Ramos Mejía, sin tocar el emulador.
+
+Las horas se muestran siempre en hora argentina, aunque el emulador esté en otra zona horaria. Los textos del sistema (diálogos de permisos, opciones de la notificación) salen en el idioma del teléfono: para verlos en español, cambiar el idioma del emulador en *Settings → System → Languages*.
+
+CameraX y la verificación con ML Kit se suman en las próximas ramas.
 
 La API simulada y sus instrucciones se agregan en la carpeta `api-mock/` cuando se implemente la sincronización.
 
