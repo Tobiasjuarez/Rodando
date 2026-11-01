@@ -52,12 +52,12 @@ class RegistradorDeViajeTest {
     }
 
     @Test
-    fun la_ubicacion_simulada_avanza_unos_200_metros_por_paso() = runBlocking {
+    fun la_ubicacion_simulada_avanza_unos_50_metros_por_paso() = runBlocking {
         val puntos = UbicacionSimulada(intervaloMs = 0).ubicaciones().take(6).toList()
 
         val km = CalcularDistanciaUseCase()(puntos)
 
-        assertTrue("recorrió $km km", km in 0.9..1.4)
+        assertTrue("recorrió $km km", km in 0.2..0.32)
     }
 
     @Test

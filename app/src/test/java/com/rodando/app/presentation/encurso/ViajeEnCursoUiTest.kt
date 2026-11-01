@@ -36,9 +36,9 @@ class ViajeEnCursoUiTest {
     @Test
     fun la_distancia_sale_de_los_puntos_registrados() {
         // 0,01° de latitud son unos 1,11 km.
-        val puntos = listOf(PuntoGps(-34.60, -58.38, inicio, 5f), PuntoGps(-34.61, -58.38, inicio + 1, 5f))
+        val puntos = listOf(PuntoGps(-34.60, -58.38, inicio, 5f), PuntoGps(-34.61, -58.38, inicio + 120_000, 5f))
 
-        val ui = armarViajeEnCurso(viaje, puntos, ahora = inicio + 60_000)
+        val ui = armarViajeEnCurso(viaje, puntos, ahora = inicio + 180_000)
 
         assertEquals("1,1 km", ui.distancia)
         assertEquals(2, ui.puntos.size)

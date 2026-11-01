@@ -43,8 +43,8 @@ class ViajeRepositoryImplTest {
     @Test
     fun al_finalizar_calcula_la_distancia_y_queda_pendiente_de_envio() = runBlocking {
         iniciar()
-        repositorio.registrarPunto("viaje-1", punto(-34.60, 1_100))
-        repositorio.registrarPunto("viaje-1", punto(-34.61, 1_200)) // unos 1,1 km
+        repositorio.registrarPunto("viaje-1", punto(-34.60, 60_000))
+        repositorio.registrarPunto("viaje-1", punto(-34.61, 180_000)) // unos 1,1 km en 2 minutos
         reloj = 2_000L
 
         val viaje = repositorio.finalizarViaje("viaje-1", "fin.jpg")
@@ -58,8 +58,8 @@ class ViajeRepositoryImplTest {
     @Test
     fun un_viaje_de_menos_de_medio_km_queda_no_computable() = runBlocking {
         iniciar()
-        repositorio.registrarPunto("viaje-1", punto(-34.600, 1_100))
-        repositorio.registrarPunto("viaje-1", punto(-34.601, 1_200)) // unos 110 m
+        repositorio.registrarPunto("viaje-1", punto(-34.600, 60_000))
+        repositorio.registrarPunto("viaje-1", punto(-34.601, 90_000)) // unos 110 m
 
         val viaje = repositorio.finalizarViaje("viaje-1", "fin.jpg")
 
@@ -69,8 +69,8 @@ class ViajeRepositoryImplTest {
     @Test
     fun un_viaje_en_revision_sigue_en_revision_al_finalizar() = runBlocking {
         iniciar(enRevision = true)
-        repositorio.registrarPunto("viaje-1", punto(-34.60, 1_100))
-        repositorio.registrarPunto("viaje-1", punto(-34.61, 1_200))
+        repositorio.registrarPunto("viaje-1", punto(-34.60, 60_000))
+        repositorio.registrarPunto("viaje-1", punto(-34.61, 180_000))
 
         val viaje = repositorio.finalizarViaje("viaje-1", "fin.jpg")
 
