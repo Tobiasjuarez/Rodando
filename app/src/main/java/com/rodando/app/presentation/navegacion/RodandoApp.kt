@@ -1,7 +1,5 @@
 package com.rodando.app.presentation.navegacion
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
@@ -48,6 +46,8 @@ import com.rodando.app.presentation.historial.HistorialScreen
 import com.rodando.app.presentation.historial.HistorialViewModel
 import com.rodando.app.presentation.inicio.InicioScreen
 import com.rodando.app.presentation.inicio.InicioViewModel
+import com.rodando.app.presentation.inicio.SinUbicacion
+import com.rodando.app.presentation.inicio.rememberPedidoDeUbicacion
 
 /**
  * Raíz de la app: Scaffold con la barra de navegación inferior (Inicio, Historial, Ganancias)
@@ -87,24 +87,20 @@ fun RodandoApp(navController: NavHostController = rememberNavController()) {
                         contenedor.viajeRepository
                     )
                 )
-                // Antes de la foto se piden la ubicación y, desde Android 13, las notificaciones.
-                var faltaUbicacion by rememberSaveable { mutableStateOf(false) }
-                val pedirPermisos =
-                    rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-                        faltaUbicacion = !Permisos.tieneUbicacion(contexto)
-                        if (!faltaUbicacion) navController.navigate(Rutas.FOTO_INICIO)
-                    }
+                // Antes de la foto: permisos (ubicación y notificaciones) y ubicación del teléfono activada.
+                var sinUbicacion by rememberSaveable { mutableStateOf<SinUbicacion?>(null) }
+                val iniciarViaje = rememberPedidoDeUbicacion(
+                    onListo = {
+                        sinUbicacion = null
+                        navController.navigate(Rutas.FOTO_INICIO)
+                    },
+                    onSinUbicacion = { sinUbicacion = it }
+                )
                 InicioScreen(
                     viewModel = viewModel,
-                    onIniciarViaje = {
-                        if (Permisos.faltaAlguno(contexto)) {
-                            pedirPermisos.launch(Permisos.paraViaje)
-                        } else {
-                            navController.navigate(Rutas.FOTO_INICIO)
-                        }
-                    },
+                    onIniciarViaje = iniciarViaje,
                     onVerViajeEnCurso = { navController.navigate(Rutas.VIAJE_EN_CURSO) { launchSingleTop = true } },
-                    faltaUbicacion = faltaUbicacion
+                    sinUbicacion = sinUbicacion
                 )
             }
             composable(Destino.HISTORIAL.ruta) {

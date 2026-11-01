@@ -29,9 +29,7 @@ class UbicacionGps(
     // El permiso se verifica antes de encender el servicio del viaje (ver Permisos).
     @SuppressLint("MissingPermission")
     override fun ubicaciones(): Flow<PuntoGps> = callbackFlow {
-        val pedido = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, intervaloMs)
-            .setMinUpdateDistanceMeters(distanciaMinimaMetros)
-            .build()
+        val pedido = pedido(intervaloMs, distanciaMinimaMetros)
         val callback = object : LocationCallback() {
             override fun onLocationResult(resultado: LocationResult) {
                 resultado.locations.forEach { ubicacion ->
@@ -48,5 +46,13 @@ class UbicacionGps(
         }
         cliente.requestLocationUpdates(pedido, callback, Looper.getMainLooper())
         awaitClose { cliente.removeLocationUpdates(callback) }
+    }
+
+    companion object {
+        /** Mismo pedido para registrar el viaje y para revisar que la ubicación del teléfono esté activada. */
+        fun pedido(intervaloMs: Long = 5_000, distanciaMinimaMetros: Float = 10f): LocationRequest =
+            LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, intervaloMs)
+                .setMinUpdateDistanceMeters(distanciaMinimaMetros)
+                .build()
     }
 }
