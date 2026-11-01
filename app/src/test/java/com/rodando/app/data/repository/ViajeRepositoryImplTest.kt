@@ -80,4 +80,15 @@ class ViajeRepositoryImplTest {
 
         assertEquals(EstadoVerificacion.EN_REVISION, viaje.verificacion)
     }
+
+    @Test
+    fun si_el_gps_nunca_respondio_el_viaje_queda_guardado_como_no_computable() = runBlocking {
+        iniciar()
+
+        val viaje = repositorio.finalizarViaje("viaje-1", "fin.jpg")
+
+        assertEquals(0.0, viaje.distanciaKm, 0.0)
+        assertEquals(EstadoVerificacion.NO_COMPUTABLE, viaje.verificacion)
+        assertEquals(1, repositorio.observarViajes().first().size)
+    }
 }

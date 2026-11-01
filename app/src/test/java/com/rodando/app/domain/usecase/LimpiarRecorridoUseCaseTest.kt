@@ -48,4 +48,21 @@ class LimpiarRecorridoUseCaseTest {
 
         assertEquals(puntos, limpiar(puntos))
     }
+
+    @Test
+    fun perdida_de_gps_en_un_tunel_cuenta_el_tramo_si_la_velocidad_es_posible() {
+        // Se corta la señal 3 minutos y reaparece 2 km más adelante (40 km/h): se suma en línea recta.
+        val antes = recorrido(0, 3)
+        val despues = recorrido(60 + 180, 3, latInicial = antes.last().latitud - 0.018)
+
+        val km = limpiar.distanciaKm(antes + despues)
+
+        assertEquals(3.11, km, 0.01) // 0,56 km antes + 2 km de túnel + 0,56 km después
+        assertEquals(6, limpiar(antes + despues).size)
+    }
+
+    @Test
+    fun sin_ninguna_posicion_la_distancia_es_cero() {
+        assertEquals(0.0, limpiar.distanciaKm(emptyList()), 0.0)
+    }
 }

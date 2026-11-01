@@ -95,4 +95,31 @@ class RegistradorDeViajeTest {
             repositorio.observarPuntos("viaje-1").first().map { it.timestamp }
         )
     }
+
+    @Test
+    fun si_la_app_se_cierra_y_vuelve_sigue_sumando_al_mismo_viaje() = runBlocking {
+        // Interrupción: el proceso muere (se pierde el registrador) y al volver se crea otro.
+        val primeraParte = object : FuenteUbicacion {
+            override fun ubicaciones(): Flow<PuntoGps> = flowOf(PuntoGps(-34.60, -58.38, 1_000, 5f))
+        }
+        val segundaParte = object : FuenteUbicacion {
+            override fun ubicaciones(): Flow<PuntoGps> = flowOf(PuntoGps(-34.61, -58.38, 120_000, 5f))
+        }
+        RegistradorDeViaje(repositorio, primeraParte, CoroutineScope(Dispatchers.Unconfined)).iniciar("viaje-1", desde = 0)
+
+        RegistradorDeViaje(repositorio, segundaParte, CoroutineScope(Dispatchers.Unconfined)).iniciar("viaje-1", desde = 0)
+
+        assertEquals(listOf(1_000L, 120_000L), repositorio.observarPuntos("viaje-1").first().map { it.timestamp })
+    }
+
+    @Test
+    fun iniciar_dos_veces_el_mismo_viaje_no_duplica_el_registro() {
+        val registrador = RegistradorDeViaje(repositorio, UbicacionSimulada(), CoroutineScope(Dispatchers.Unconfined))
+
+        registrador.iniciar("viaje-1", desde = 0)
+        registrador.iniciar("viaje-1", desde = 0)
+
+        assertTrue(registrador.registrando)
+        registrador.detener()
+    }
 }
