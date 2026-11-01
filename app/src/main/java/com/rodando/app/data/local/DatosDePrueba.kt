@@ -1,6 +1,7 @@
 package com.rodando.app.data.local
 
-import com.rodando.app.domain.model.EstadoViaje
+import com.rodando.app.domain.model.EstadoEnvio
+import com.rodando.app.domain.model.EstadoVerificacion
 import com.rodando.app.domain.model.TipoVinilo
 import com.rodando.app.domain.model.Vinilo
 import java.time.LocalDate
@@ -26,13 +27,18 @@ class DatosDePrueba(
         if (dao.contar() > 0) return
         val dia = hoy()
         // Recorridos de Lucía entre Ramos Mejía y Microcentro (ver escenario de la preentrega).
+        // Muestran cada combinación: sin enviar, enviado por aprobar, aprobado y no computable.
+        val porAprobar = EstadoVerificacion.POR_APROBAR
+        val aprobado = EstadoVerificacion.APROBADO
+        val sinEnviar = EstadoEnvio.PENDIENTE
+        val enviado = EstadoEnvio.ENVIADO
         val viajes = listOf(
-            Ejemplo("demo-1", dia, LocalTime.of(18, 10), 39, 17.9, EstadoViaje.PENDIENTE, vuelta = true),
-            Ejemplo("demo-2", dia, LocalTime.of(8, 42), 42, 18.4, EstadoViaje.PENDIENTE),
-            Ejemplo("demo-3", dia.minusDays(1), LocalTime.of(19, 5), 3, 0.3, EstadoViaje.NO_COMPUTABLE, corto = true),
-            Ejemplo("demo-4", dia.minusDays(1), LocalTime.of(8, 37), 45, 18.6, EstadoViaje.SINCRONIZADO),
-            Ejemplo("demo-5", dia.minusDays(4), LocalTime.of(18, 22), 40, 18.1, EstadoViaje.SINCRONIZADO, vuelta = true),
-            Ejemplo("demo-6", dia.minusDays(4), LocalTime.of(8, 30), 44, 18.3, EstadoViaje.SINCRONIZADO)
+            Ejemplo("demo-1", dia, LocalTime.of(18, 10), 39, 17.9, porAprobar, sinEnviar, vuelta = true),
+            Ejemplo("demo-2", dia, LocalTime.of(8, 42), 42, 18.4, porAprobar, enviado),
+            Ejemplo("demo-3", dia.minusDays(1), LocalTime.of(19, 5), 3, 0.3, EstadoVerificacion.NO_COMPUTABLE, enviado, corto = true),
+            Ejemplo("demo-4", dia.minusDays(1), LocalTime.of(8, 37), 45, 18.6, aprobado, enviado),
+            Ejemplo("demo-5", dia.minusDays(4), LocalTime.of(18, 22), 40, 18.1, aprobado, enviado, vuelta = true),
+            Ejemplo("demo-6", dia.minusDays(4), LocalTime.of(8, 30), 44, 18.3, aprobado, enviado)
         )
         viajes.forEach { guardar(it) }
     }
@@ -52,7 +58,7 @@ class DatosDePrueba(
             Vinilo(
                 tipo = TipoVinilo.PARCIAL,
                 fijoMensual = 50_000.0,
-                tarifaPorKm = 50.0,
+                tarifaPorKm = TARIFA_DEMO,
                 fechaInstalacion = mes.atStartOfDay(zona).toInstant().toEpochMilli()
             ).aEntidad()
         )
@@ -66,14 +72,16 @@ class DatosDePrueba(
                 id = e.id,
                 campaniaId = CAMPANIA_DEMO,
                 tipoVinilo = TipoVinilo.PARCIAL,
+                tarifaPorKm = TARIFA_DEMO,
                 inicio = inicio,
                 fin = fin,
                 distanciaKm = e.km,
-                estado = e.estado,
+                envio = e.envio,
+                verificacion = e.verificacion,
                 fotoInicioPath = "",
                 fotoFinPath = "",
                 intentosFoto = 1,
-                remoteId = if (e.estado == EstadoViaje.SINCRONIZADO) "remoto-${e.id}" else null
+                remoteId = if (e.envio == EstadoEnvio.ENVIADO) "remoto-${e.id}" else null
             )
         )
         dao.guardarPuntos(recorrido(e, inicio, fin))
@@ -108,13 +116,15 @@ class DatosDePrueba(
         val hora: LocalTime,
         val minutos: Int,
         val km: Double,
-        val estado: EstadoViaje,
+        val verificacion: EstadoVerificacion,
+        val envio: EstadoEnvio,
         val vuelta: Boolean = false,
         val corto: Boolean = false
     )
 
     companion object {
         const val CAMPANIA_DEMO = "campania-demo"
+        private const val TARIFA_DEMO = 50.0
         private val RAMOS_MEJIA = Pair(-34.6415, -58.5650)
         private val MICROCENTRO = Pair(-34.6037, -58.3816)
     }

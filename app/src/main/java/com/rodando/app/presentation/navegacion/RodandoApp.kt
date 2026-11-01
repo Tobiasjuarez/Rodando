@@ -126,7 +126,7 @@ fun RodandoApp(navController: NavHostController = rememberNavController()) {
             ) { entrada ->
                 val viajeId = entrada.arguments?.getString(Rutas.ARG_VIAJE_ID).orEmpty()
                 val viewModel: DetalleViajeViewModel =
-                    viewModel(factory = DetalleViajeViewModel.fabrica(contenedor.viajeRepository, contenedor.viniloRepository, viajeId))
+                    viewModel(factory = DetalleViajeViewModel.fabrica(contenedor.viajeRepository, viajeId))
                 DetalleViajeScreen(viewModel = viewModel, onVolver = { navController.popBackStack() })
             }
 
@@ -181,9 +181,7 @@ fun RodandoApp(navController: NavHostController = rememberNavController()) {
             ) { entrada ->
                 val viajeId = entrada.arguments?.getString(Rutas.ARG_VIAJE_ID).orEmpty()
                 val viewModel: ViajeGuardadoViewModel = viewModel(
-                    factory = ViajeGuardadoViewModel.fabrica(
-                        contenedor.viajeRepository, contenedor.viniloRepository, viajeId
-                    )
+                    factory = ViajeGuardadoViewModel.fabrica(contenedor.viajeRepository, viajeId)
                 )
                 ViajeGuardadoScreen(
                     viewModel = viewModel,

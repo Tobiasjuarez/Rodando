@@ -1,6 +1,7 @@
 package com.rodando.app.data.repository
 
-import com.rodando.app.domain.model.EstadoViaje
+import com.rodando.app.domain.model.EstadoEnvio
+import com.rodando.app.domain.model.EstadoVerificacion
 import com.rodando.app.domain.model.PuntoGps
 import com.rodando.app.domain.model.TipoVinilo
 import kotlinx.coroutines.flow.first
@@ -19,7 +20,7 @@ class ViajeRepositoryImplTest {
     private fun punto(lat: Double, t: Long) = PuntoGps(lat, -58.38, t, 5f)
 
     private suspend fun iniciar(enRevision: Boolean = false) =
-        repositorio.iniciarViaje("campania", TipoVinilo.PARCIAL, "inicio.jpg", 1, enRevision)
+        repositorio.iniciarViaje("campania", TipoVinilo.PARCIAL, 50.0, "inicio.jpg", 1, enRevision)
 
     @Test
     fun iniciar_deja_el_viaje_en_curso_y_guardado() = runBlocking {
@@ -27,7 +28,9 @@ class ViajeRepositoryImplTest {
 
         val enCurso = repositorio.observarViajeEnCurso().first()
         assertNotNull(enCurso)
-        assertEquals(EstadoViaje.EN_CURSO, enCurso!!.estado)
+        assertTrue(enCurso!!.enCurso)
+        assertEquals(EstadoVerificacion.POR_APROBAR, enCurso.verificacion)
+        assertEquals(50.0, enCurso.tarifaPorKm, 0.0)
         assertEquals(1, repositorio.observarViajes().first().size)
     }
 
@@ -49,7 +52,8 @@ class ViajeRepositoryImplTest {
 
         val viaje = repositorio.finalizarViaje("viaje-1", "fin.jpg")
 
-        assertEquals(EstadoViaje.PENDIENTE, viaje.estado)
+        assertEquals(EstadoVerificacion.POR_APROBAR, viaje.verificacion)
+        assertEquals(EstadoEnvio.PENDIENTE, viaje.envio)
         assertEquals(1.11, viaje.distanciaKm, 0.01)
         assertEquals(2_000L, viaje.fin)
         assertEquals("fin.jpg", viaje.fotoFinPath)
@@ -63,7 +67,7 @@ class ViajeRepositoryImplTest {
 
         val viaje = repositorio.finalizarViaje("viaje-1", "fin.jpg")
 
-        assertEquals(EstadoViaje.NO_COMPUTABLE, viaje.estado)
+        assertEquals(EstadoVerificacion.NO_COMPUTABLE, viaje.verificacion)
     }
 
     @Test
@@ -74,6 +78,6 @@ class ViajeRepositoryImplTest {
 
         val viaje = repositorio.finalizarViaje("viaje-1", "fin.jpg")
 
-        assertEquals(EstadoViaje.EN_REVISION, viaje.estado)
+        assertEquals(EstadoVerificacion.EN_REVISION, viaje.verificacion)
     }
 }

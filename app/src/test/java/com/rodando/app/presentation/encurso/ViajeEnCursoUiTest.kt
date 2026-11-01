@@ -1,9 +1,9 @@
 package com.rodando.app.presentation.encurso
 
-import com.rodando.app.domain.model.EstadoViaje
+import com.rodando.app.domain.model.EstadoEnvio
+import com.rodando.app.domain.model.EstadoVerificacion
 import com.rodando.app.domain.model.PuntoGps
-import com.rodando.app.domain.model.TipoVinilo
-import com.rodando.app.domain.model.Viaje
+import com.rodando.app.domain.model.viajeDePrueba
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -12,17 +12,13 @@ import org.junit.Test
 class ViajeEnCursoUiTest {
 
     private val inicio = 1_790_000_000_000L
-    private val viaje = Viaje(
+    private val viaje = viajeDePrueba(
         id = "viaje-1",
-        campaniaId = "campania-1",
-        tipoVinilo = TipoVinilo.PARCIAL,
         inicio = inicio,
         fin = null,
-        distanciaKm = 0.0,
-        estado = EstadoViaje.EN_CURSO,
-        fotoInicioPath = "foto.jpg",
-        fotoFinPath = null,
-        intentosFoto = 1
+        km = 0.0,
+        verificacion = EstadoVerificacion.POR_APROBAR,
+        envio = EstadoEnvio.PENDIENTE
     )
 
     @Test

@@ -2,7 +2,8 @@ package com.rodando.app.data.local
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.rodando.app.domain.model.EstadoViaje
+import com.rodando.app.domain.model.EstadoEnvio
+import com.rodando.app.domain.model.EstadoVerificacion
 import com.rodando.app.domain.model.TipoVinilo
 
 /**
@@ -16,10 +17,12 @@ data class ViajeEntity(
     @PrimaryKey val id: String,
     val campaniaId: String,
     val tipoVinilo: TipoVinilo,
+    val tarifaPorKm: Double,
     val inicio: Long,
     val fin: Long?,
     val distanciaKm: Double,
-    val estado: EstadoViaje,
+    val envio: EstadoEnvio,
+    val verificacion: EstadoVerificacion,
     val fotoInicioPath: String,
     val fotoFinPath: String?,
     val intentosFoto: Int,

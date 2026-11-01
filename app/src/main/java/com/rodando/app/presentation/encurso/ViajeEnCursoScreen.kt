@@ -33,7 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rodando.app.R
-import com.rodando.app.domain.model.EstadoViaje
+import com.rodando.app.domain.model.EstadoVerificacion
 import com.rodando.app.domain.model.PuntoGps
 import com.rodando.app.presentation.common.ChipEstado
 import com.rodando.app.presentation.common.EstadoVacio
@@ -101,7 +101,7 @@ private fun EnCurso(viaje: ViajeEnCursoUi, onFinalizar: (viajeId: String) -> Uni
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                ChipEstado(estado = viaje.estado)
+                ChipEstado(enCurso = true, verificacion = EstadoVerificacion.POR_APROBAR)
                 Text(viaje.desde, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
 
@@ -131,7 +131,7 @@ private fun EnCurso(viaje: ViajeEnCursoUi, onFinalizar: (viajeId: String) -> Uni
                     color = MaterialTheme.colorScheme.error
                 )
             }
-            if (viaje.estado == EstadoViaje.EN_REVISION) {
+            if (viaje.enRevision) {
                 Text(
                     text = stringResource(R.string.en_curso_aviso_revision),
                     style = MaterialTheme.typography.bodyMedium,
@@ -188,7 +188,7 @@ private fun EnCursoPreview() {
     RodandoTheme {
         ViajeEnCursoContenido(
             estado = UiState.Contenido(
-                ViajeEnCursoUi("viaje-1", EstadoViaje.EN_CURSO, "Desde las 08:42", "00:12:40", "1,6 km", puntos)
+                ViajeEnCursoUi("viaje-1", false, "Desde las 08:42", "00:12:40", "1,6 km", puntos)
             ),
             onFinalizar = {},
             onVolver = {}

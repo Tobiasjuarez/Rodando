@@ -169,6 +169,13 @@ private fun Inicio(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(inicio.totalMes, style = MaterialTheme.typography.displaySmall)
+                        inicio.confirmadoMes?.let {
+                            Text(
+                                text = stringResource(R.string.ganancias_confirmado, it),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(16.dp),
                             modifier = Modifier.padding(top = 8.dp)
@@ -282,6 +289,7 @@ private fun InicioPreview() {
                     tarifa = "$50.000/mes + $50/km",
                     pendientes = 2,
                     totalMes = "$82.140",
+                    confirmadoMes = "$71.300",
                     viajesDelMes = 31,
                     barraDias = BarraObjetivoUi("14 de 12 días", 1f, "Cumplido", true),
                     kmMes = "642,8 km",

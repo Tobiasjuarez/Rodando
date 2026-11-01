@@ -29,7 +29,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rodando.app.R
-import com.rodando.app.domain.model.EstadoViaje
+import com.rodando.app.domain.model.EstadoEnvio
+import com.rodando.app.domain.model.EstadoVerificacion
+import com.rodando.app.presentation.common.ChipEnvio
 import com.rodando.app.presentation.common.ChipEstado
 import com.rodando.app.presentation.common.EstadoVacio
 import com.rodando.app.presentation.common.UiState
@@ -151,7 +153,11 @@ private fun FilaViaje(item: ItemViaje, onClick: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        ChipEstado(estado = item.estado)
+        // Aprobación y envío son cosas distintas: un viaje puede estar enviado y todavía sin aprobar.
+        Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            ChipEstado(enCurso = item.enCurso, verificacion = item.verificacion)
+            if (!item.enCurso && item.envio == EstadoEnvio.PENDIENTE) ChipEnvio(item.envio)
+        }
     }
 }
 
@@ -166,8 +172,14 @@ private fun HistorialPreview() {
                         GrupoViajes(
                             "HOY",
                             listOf(
-                                ItemViaje("1", "Hoy · 18:10", "17,9 km · 39 min", EstadoViaje.PENDIENTE),
-                                ItemViaje("2", "Hoy · 08:42", "18,4 km · 42 min", EstadoViaje.SINCRONIZADO)
+                                ItemViaje(
+                                    "1", "Hoy · 18:10", "17,9 km · 39 min", false,
+                                    EstadoVerificacion.POR_APROBAR, EstadoEnvio.PENDIENTE
+                                ),
+                                ItemViaje(
+                                    "2", "Hoy · 08:42", "18,4 km · 42 min", false,
+                                    EstadoVerificacion.APROBADO, EstadoEnvio.ENVIADO
+                                )
                             )
                         )
                     ),

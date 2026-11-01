@@ -8,7 +8,8 @@ import com.rodando.app.domain.repository.ViniloRepository
 import kotlinx.coroutines.flow.first
 
 /**
- * RF01: con la foto del vinilo ya tomada, crea el viaje y empieza a registrar el recorrido.
+ * RF01: con la foto del vinilo ya tomada, crea el viaje (con la tarifa vigente del vinilo)
+ * y empieza a registrar el recorrido.
  * Falla si no hay campaña activa, si el vinilo no está instalado o si ya hay un viaje en curso.
  */
 class IniciarViajeUseCase(
@@ -22,7 +23,7 @@ class IniciarViajeUseCase(
         val campania = checkNotNull(campanias.observarCampaniaActiva().first()) { "No tenés una campaña activa." }
         val vinilo = vinilos.observarVinilo().first()?.takeIf { it.fechaInstalacion != null }
             ?: throw IllegalStateException("Todavía no tenés un vinilo instalado.")
-        val viaje = viajes.iniciarViaje(campania.id, vinilo.tipo, fotoPath, intentosFoto, enRevision)
+        val viaje = viajes.iniciarViaje(campania.id, vinilo.tipo, vinilo.tarifaPorKm, fotoPath, intentosFoto, enRevision)
         registro.iniciar(viaje.id)
         return viaje
     }
