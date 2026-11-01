@@ -120,6 +120,7 @@ private fun EnCurso(viaje: ViajeEnCursoUi, onFinalizar: (viajeId: String) -> Uni
             MapaRecorrido(
                 puntos = viaje.puntos,
                 mensajeSinPuntos = stringResource(R.string.en_curso_esperando_ubicacion),
+                seguirUbicacion = true,
                 modifier = Modifier.fillMaxWidth().weight(1f)
             )
 
