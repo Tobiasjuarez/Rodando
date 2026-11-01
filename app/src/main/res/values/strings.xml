@@ -18,6 +18,7 @@
         <item quantity="one">ESTE MES · %d VIAJE</item>
         <item quantity="other">ESTE MES · %d VIAJES</item>
     </plurals>
+    <string name="inicio_km_pagos">Km pagos</string>
     <string name="inicio_iniciar_viaje">Iniciar viaje</string>
     <string name="inicio_ver_viaje_en_curso">Ver viaje en curso</string>
     <string name="inicio_aviso_en_curso">Tenés un viaje en curso. Finalizalo para empezar otro.</string>
@@ -103,7 +104,8 @@
     <string name="ganancias_sin_vinilo_mensaje">Cuando te coloquen el vinilo vas a ver el estimado del mes y cuánto te falta para cobrar el fijo entero.</string>
     <string name="ganancias_error_titulo">No pudimos calcular las ganancias</string>
     <string name="ganancias_objetivos">PARA COBRAR EL FIJO ENTERO (%1$s)</string>
-    <string name="ganancias_km">Km verificados</string>
+    <string name="ganancias_sin_minimo_km">No hay mínimo de km: cada km de tus viajes de siempre se paga aparte.</string>
+    <string name="ganancias_km_pagos">Km pagos del mes (tope %1$s)</string>
     <string name="ganancias_dias">Días con viajes</string>
     <string name="ganancias_computables">Viajes computables</string>
     <string name="ganancias_pendientes">Pendientes de envío</string>

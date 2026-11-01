@@ -59,7 +59,7 @@ class CalcularGananciaUseCaseTest {
     }
 
     @Test
-    fun con_400_km_y_12_dias_cobra_el_fijo_entero() {
+    fun con_12_dias_con_viajes_cobra_el_fijo_entero() {
         val resumen = calcular(viajesEnDias(12, 40.0), parcial) // 480 km en 12 días
 
         assertEquals(12, resumen.diasConViajes)
@@ -68,11 +68,20 @@ class CalcularGananciaUseCaseTest {
     }
 
     @Test
-    fun por_debajo_del_minimo_el_fijo_es_proporcional_a_la_condicion_mas_baja() {
+    fun con_menos_de_12_dias_el_fijo_es_proporcional_a_los_dias() {
         val resumen = calcular(viajesEnDias(6, 100.0), parcial) // 600 km pero solo 6 días
 
         assertEquals(25_000.0, resumen.fijoCobrado, 0.0001)
         assertEquals(25_000.0 + 600 * 50.0, resumen.totalEstimado, 0.0001)
+    }
+
+    @Test
+    fun hacer_pocos_km_no_reduce_el_fijo() {
+        // Recorridos cortos todos los días: no hay mínimo de km que obligue a manejar de más.
+        val resumen = calcular(viajesEnDias(12, 3.0), parcial) // 36 km en 12 días
+
+        assertEquals(50_000.0, resumen.fijoCobrado, 0.0001)
+        assertEquals(50_000.0 + 36 * 50.0, resumen.totalEstimado, 0.0001)
     }
 
     @Test
@@ -103,11 +112,9 @@ class CalcularGananciaUseCaseTest {
     fun informa_cuanto_falta_para_los_objetivos_del_mes() {
         val resumen = calcular(viajesEnDias(5, 37.2), parcial) // 186 km en 5 días
 
-        assertEquals(214.0, resumen.objetivoKm.faltante, 0.0001)
-        assertEquals(0.465, resumen.objetivoKm.progreso, 0.0001)
         assertEquals(7.0, resumen.objetivoDias.faltante, 0.0001)
         assertEquals(5.0 / 12, resumen.objetivoDias.progreso, 0.0001)
-        assertFalse(resumen.objetivoKm.cumplido)
+        assertFalse(resumen.objetivoDias.cumplido)
         assertEquals(1314.0, resumen.kmPagosRestantes, 0.0001)
     }
 
@@ -115,9 +122,8 @@ class CalcularGananciaUseCaseTest {
     fun con_los_objetivos_cumplidos_el_progreso_no_pasa_del_100() {
         val resumen = calcular(viajesEnDias(14, 45.0), parcial) // 630 km en 14 días
 
-        assertEquals(1.0, resumen.objetivoKm.progreso, 0.0001)
-        assertEquals(0.0, resumen.objetivoKm.faltante, 0.0001)
         assertEquals(1.0, resumen.objetivoDias.progreso, 0.0001)
+        assertEquals(0.0, resumen.objetivoDias.faltante, 0.0001)
         assertTrue(resumen.objetivoDias.cumplido)
         assertEquals(870.0, resumen.kmPagosRestantes, 0.0001)
     }

@@ -19,8 +19,9 @@ data class InicioUi(
     val pendientes: Int,
     val totalMes: String?,
     val viajesDelMes: Int,
-    val barraKm: BarraObjetivoUi?,
     val barraDias: BarraObjetivoUi?,
+    /** "186,0 km" pagos en el mes. */
+    val kmMes: String?,
     val puedeIniciarViaje: Boolean,
     val hayViajeEnCurso: Boolean
 )
@@ -49,8 +50,8 @@ fun armarInicio(campania: Campania, vinilo: Vinilo?, viajes: List<Viaje>, hoy: L
         pendientes = viajes.count { it.estado == EstadoViaje.PENDIENTE },
         totalMes = ganancias?.total,
         viajesDelMes = ganancias?.viajesComputables ?: 0,
-        barraKm = ganancias?.barraKm,
         barraDias = ganancias?.barraDias,
+        kmMes = ganancias?.kmPagos,
         puedeIniciarViaje = vinilo?.fechaInstalacion != null && !hayViajeEnCurso,
         hayViajeEnCurso = hayViajeEnCurso
     )

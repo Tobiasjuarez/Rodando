@@ -15,7 +15,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 
 /**
- * Barra de avance hacia un mínimo del mes (400 km o 12 días con viajes).
+ * Barra de avance hacia un mínimo del mes (12 días con viajes).
  * TalkBack lee la etiqueta, el valor y lo que falta como un solo elemento.
  */
 @Composable

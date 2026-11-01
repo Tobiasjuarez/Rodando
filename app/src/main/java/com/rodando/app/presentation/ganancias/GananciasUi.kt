@@ -14,14 +14,17 @@ data class GananciasUi(
     val total: String,
     val detalle: String,
     val fijoEntero: String,
-    val barraKm: BarraObjetivoUi,
     val barraDias: BarraObjetivoUi,
+    /** "186,0 km": km que se pagan este mes. */
+    val kmPagos: String,
+    /** "1.500": tope de km pagos por mes. */
+    val kmTope: String,
     val viajesComputables: Int,
     val pendientes: Int,
     val noComputables: Int
 )
 
-/** Una barra de avance hacia un mínimo del mes: "642,8 de 400 km", con lo que falta o "Cumplido". */
+/** Una barra de avance hacia un mínimo del mes: "5 de 12 días", con lo que falta o "Cumplido". */
 data class BarraObjetivoUi(
     val valor: String,
     val progreso: Float,
@@ -50,17 +53,6 @@ fun armarGanancias(
         "${Formato.monto(r.fijoCobrado)} de fijo + ${Formato.decimal(r.kmPagados)} km × ${Formato.monto(vinilo.tarifaPorKm)}"
     }
 
-    val barraKm = BarraObjetivoUi(
-        valor = "${Formato.decimal(r.objetivoKm.actual)} de ${Formato.miles(r.objetivoKm.meta.toLong())} km",
-        progreso = r.objetivoKm.progreso.toFloat(),
-        ayuda = if (r.objetivoKm.cumplido) {
-            "Cumplido · te quedan ${Formato.miles(r.kmPagosRestantes.toLong())} km pagos " +
-                "(tope ${Formato.miles(vinilo.kmTope.toLong())})"
-        } else {
-            "Te faltan ${Formato.miles(Math.ceil(r.objetivoKm.faltante).toLong())} km"
-        },
-        cumplido = r.objetivoKm.cumplido
-    )
     val diasFaltan = r.objetivoDias.faltante.toInt()
     val barraDias = BarraObjetivoUi(
         valor = "${r.diasConViajes} de ${vinilo.diasMinimos} días",
@@ -78,8 +70,9 @@ fun armarGanancias(
         total = Formato.monto(r.totalEstimado),
         detalle = detalle,
         fijoEntero = Formato.monto(vinilo.fijoMensual),
-        barraKm = barraKm,
         barraDias = barraDias,
+        kmPagos = Formato.km(r.kmPagados),
+        kmTope = Formato.miles(vinilo.kmTope.toLong()),
         viajesComputables = r.viajesComputables,
         pendientes = r.viajesPendientes,
         noComputables = delMes.count { it.estado == EstadoViaje.NO_COMPUTABLE }

@@ -31,11 +31,10 @@ class GananciasUiTest {
         assertEquals("OCTUBRE · ESTIMADO", ui.encabezado)
         assertEquals("$30.133", ui.total)
         assertEquals("$20.833 de fijo + 186,0 km × $50", ui.detalle)
-        assertEquals("186,0 de 400 km", ui.barraKm.valor)
-        assertEquals("Te faltan 214 km", ui.barraKm.ayuda)
+        assertEquals("186,0 km", ui.kmPagos)
         assertEquals("5 de 12 días", ui.barraDias.valor)
         assertEquals("Te faltan 7 días con viajes", ui.barraDias.ayuda)
-        assertFalse(ui.barraKm.cumplido)
+        assertFalse(ui.barraDias.cumplido)
     }
 
     @Test
@@ -47,10 +46,10 @@ class GananciasUiTest {
 
         assertEquals("$82.140", ui.total)
         assertEquals("$50.000 fijo + 642,8 km × $50", ui.detalle)
-        assertEquals("Cumplido · te quedan 857 km pagos (tope 1.500)", ui.barraKm.ayuda)
         assertEquals("Cumplido", ui.barraDias.ayuda)
-        assertTrue(ui.barraKm.cumplido)
-        assertEquals(1f, ui.barraKm.progreso)
+        assertTrue(ui.barraDias.cumplido)
+        assertEquals(1f, ui.barraDias.progreso)
+        assertEquals("1.500", ui.kmTope)
     }
 
     @Test
@@ -63,7 +62,7 @@ class GananciasUiTest {
         val ui = armarGanancias(viajes, parcial, hoy)
 
         assertEquals(1, ui.viajesComputables)
-        assertEquals("20,0 de 400 km", ui.barraKm.valor)
+        assertEquals("20,0 km", ui.kmPagos)
     }
 
     @Test

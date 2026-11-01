@@ -11,7 +11,10 @@ import java.time.ZoneId
 /**
  * Regla de negocio de RF04: ganancia estimada del mes.
  *
- * ganancia = fijo x min(km / kmMinimo, días / diasMinimos, 1) + tarifa por km x min(km, kmTope)
+ * ganancia = fijo x min(días / diasMinimos, 1) + tarifa por km x min(km, kmTope)
+ *
+ * El fijo depende solo de la constancia (días con viajes), no de los km: así no conviene
+ * salir a dar vueltas para llegar a un mínimo.
  *
  * Un viaje es computable si ya finalizó (pendiente de envío o sincronizado)
  * y recorrió al menos [DISTANCIA_MINIMA_KM]. Un día cuenta si tuvo al menos un viaje computable.
@@ -26,7 +29,7 @@ class CalcularGananciaUseCase(
         val km = computables.sumOf { it.distanciaKm }
         val dias = computables.map { Instant.ofEpochMilli(it.inicio).atZone(zona).toLocalDate() }.distinct().size
 
-        val proporcionFijo = minOf(km / vinilo.kmMinimo, dias.toDouble() / vinilo.diasMinimos, 1.0)
+        val proporcionFijo = minOf(dias.toDouble() / vinilo.diasMinimos, 1.0)
         val fijo = vinilo.fijoMensual * proporcionFijo
         val kmPagados = minOf(km, vinilo.kmTope)
 
@@ -38,7 +41,6 @@ class CalcularGananciaUseCase(
             viajesPendientes = computables.count { it.estado == EstadoViaje.PENDIENTE },
             fijoCobrado = fijo,
             totalEstimado = fijo + kmPagados * vinilo.tarifaPorKm,
-            objetivoKm = ObjetivoMensual(actual = km, meta = vinilo.kmMinimo),
             objetivoDias = ObjetivoMensual(actual = dias.toDouble(), meta = vinilo.diasMinimos.toDouble()),
             kmPagosRestantes = (vinilo.kmTope - km).coerceAtLeast(0.0)
         )
