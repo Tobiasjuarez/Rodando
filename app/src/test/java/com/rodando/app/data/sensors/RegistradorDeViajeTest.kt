@@ -75,4 +75,24 @@ class RegistradorDeViajeTest {
 
         assertEquals(listOf(1L, 3L), repositorio.observarPuntos("viaje-1").first().map { it.timestamp })
     }
+
+    @Test
+    fun descarta_la_ultima_ubicacion_conocida_si_es_de_antes_del_viaje() = runBlocking {
+        val inicioViaje = 10 * 60_000L
+        val conUnaVieja = object : FuenteUbicacion {
+            override fun ubicaciones(): Flow<PuntoGps> = flowOf(
+                PuntoGps(-34.639, -58.525, 0, 5f), // de un viaje anterior, 10 minutos antes
+                PuntoGps(-34.6415, -58.565, inicioViaje + 5_000, 5f),
+                PuntoGps(-34.6413, -58.564, inicioViaje + 10_000, 5f)
+            )
+        }
+        val registrador = RegistradorDeViaje(repositorio, conUnaVieja, CoroutineScope(Dispatchers.Unconfined))
+
+        registrador.iniciar("viaje-1", desde = inicioViaje)
+
+        assertEquals(
+            listOf(inicioViaje + 5_000, inicioViaje + 10_000),
+            repositorio.observarPuntos("viaje-1").first().map { it.timestamp }
+        )
+    }
 }

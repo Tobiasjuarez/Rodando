@@ -14,7 +14,8 @@ import kotlinx.coroutines.launch
  * aunque el conductor cambie de pantalla.
  *
  * Descarta las posiciones imprecisas (por ejemplo, dentro de un túnel o entre edificios altos)
- * para que no sumen km falsos.
+ * y las viejas: al encender el GPS, Android puede entregar primero la última ubicación conocida,
+ * que puede ser de horas antes y de otro lugar.
  */
 class RegistradorDeViaje(
     private val repositorio: ViajeRepository,
@@ -26,13 +27,17 @@ class RegistradorDeViaje(
 
     val registrando: Boolean get() = trabajo?.isActive == true
 
-    override fun iniciar(viajeId: String) {
+    override fun iniciar(viajeId: String) = iniciar(viajeId, desde = Long.MIN_VALUE)
+
+    /** Registra solo las posiciones tomadas desde [desde] (la hora de inicio del viaje). */
+    fun iniciar(viajeId: String, desde: Long) {
         if (registrando && viajeActual == viajeId) return
         detener()
         viajeActual = viajeId
+        val minimo = if (desde == Long.MIN_VALUE) desde else desde - TOLERANCIA_MS
         trabajo = alcance.launch {
             fuente.ubicaciones()
-                .filter { it.precisionMetros <= PRECISION_MAXIMA_METROS }
+                .filter { it.precisionMetros <= PRECISION_MAXIMA_METROS && it.timestamp >= minimo }
                 .collect { punto -> repositorio.registrarPunto(viajeId, punto) }
         }
     }
@@ -46,5 +51,8 @@ class RegistradorDeViaje(
     companion object {
         /** Posiciones con un margen de error mayor no se guardan. */
         const val PRECISION_MAXIMA_METROS = 50f
+
+        /** Margen para aceptar una posición tomada apenas antes de tocar "Iniciar". */
+        const val TOLERANCIA_MS = 30_000L
     }
 }

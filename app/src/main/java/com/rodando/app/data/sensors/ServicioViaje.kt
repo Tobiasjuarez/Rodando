@@ -51,7 +51,7 @@ class ServicioViaje : Service() {
                 return@launch
             }
             getSystemService(NotificationManager::class.java).notify(ID_NOTIFICACION, notificacion(viaje.inicio))
-            contenedor.registradorDeViaje.iniciar(viaje.id)
+            contenedor.registradorDeViaje.iniciar(viaje.id, desde = viaje.inicio)
         }
         return START_STICKY
     }
