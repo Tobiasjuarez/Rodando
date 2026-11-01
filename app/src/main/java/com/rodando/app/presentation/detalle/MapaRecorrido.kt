@@ -37,7 +37,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.rodando.app.R
 import com.rodando.app.domain.model.PuntoGps
 import org.osmdroid.config.Configuration
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.tileprovider.tilesource.XYTileSource
 import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
@@ -48,7 +48,7 @@ import org.osmdroid.views.overlay.Polyline
 import java.io.File
 
 /**
- * Mapa de OpenStreetMap (osmdroid) con el recorrido y la última posición.
+ * Mapa (osmdroid, con mosaicos de CARTO sobre datos de OpenStreetMap) con el recorrido y la última posición.
  *
  * - Con [seguirUbicacion] (viaje en curso) el mapa se centra en la última posición cada vez que llega una.
  * - Sin él (detalle) se encuadra el recorrido completo.
@@ -130,12 +130,14 @@ private class EstadoMapa {
 
 private fun crearMapa(contexto: Context): MapView {
     Configuration.getInstance().apply {
-        userAgentValue = contexto.packageName
-        osmdroidBasePath = File(contexto.cacheDir, "osmdroid")
-        osmdroidTileCache = File(osmdroidBasePath, "tiles")
+        load(contexto, contexto.getSharedPreferences("osmdroid", Context.MODE_PRIVATE))
+        // Los servidores de mosaicos rechazan pedidos que no identifican a la app.
+        userAgentValue = "Rodando/1.0 (${contexto.packageName}; TPO DAI UADE)"
+        osmdroidBasePath = File(contexto.cacheDir, "osmdroid").apply { mkdirs() }
+        osmdroidTileCache = File(osmdroidBasePath, "tiles").apply { mkdirs() }
     }
     return MapView(contexto).apply {
-        setTileSource(TileSourceFactory.MAPNIK)
+        setTileSource(CARTO_VOYAGER)
         setMultiTouchControls(true)
         isTilesScaledToDpi = true
         zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
@@ -209,6 +211,25 @@ private fun puntoActual(color: Int) = GradientDrawable().apply {
 }
 
 private val OBELISCO = GeoPoint(-34.6037, -58.3816)
+
+/**
+ * Mosaicos de CARTO (datos de OpenStreetMap), de uso libre para proyectos no comerciales.
+ * Se usan en lugar de los servidores de OpenStreetMap, que limitan a las apps.
+ */
+private val CARTO_VOYAGER = XYTileSource(
+    "CartoVoyager",
+    1,
+    19,
+    256,
+    ".png",
+    arrayOf(
+        "https://a.basemaps.cartocdn.com/rastertiles/voyager/",
+        "https://b.basemaps.cartocdn.com/rastertiles/voyager/",
+        "https://c.basemaps.cartocdn.com/rastertiles/voyager/",
+        "https://d.basemaps.cartocdn.com/rastertiles/voyager/"
+    ),
+    "© OpenStreetMap contributors © CARTO"
+)
 
 /** Dibujo simple del recorrido, sin mapa de fondo, para las vistas previas. */
 @Composable
