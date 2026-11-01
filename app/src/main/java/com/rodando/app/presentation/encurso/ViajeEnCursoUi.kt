@@ -13,8 +13,13 @@ data class ViajeEnCursoUi(
     val desde: String,
     val tiempo: String,
     val distancia: String,
-    val puntos: List<PuntoGps>
+    val puntos: List<PuntoGps>,
+    /** Pasó un rato desde el inicio y todavía no llegó ninguna posición. */
+    val sinSenal: Boolean = false
 )
+
+/** Tiempo sin ninguna posición a partir del cual se avisa que no hay señal. */
+const val ESPERA_SENAL_MS = 30_000L
 
 /** La distancia se calcula en vivo con los puntos registrados hasta [ahora]. */
 fun armarViajeEnCurso(
@@ -28,5 +33,6 @@ fun armarViajeEnCurso(
     desde = "Desde las ${Formato.hora(viaje.inicio)}",
     tiempo = Formato.cronometro(ahora - viaje.inicio),
     distancia = Formato.km(calcularDistancia(puntos)),
-    puntos = puntos
+    puntos = puntos,
+    sinSenal = puntos.isEmpty() && ahora - viaje.inicio >= ESPERA_SENAL_MS
 )

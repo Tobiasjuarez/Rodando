@@ -5,6 +5,8 @@ import com.rodando.app.domain.model.PuntoGps
 import com.rodando.app.domain.model.TipoVinilo
 import com.rodando.app.domain.model.Viaje
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ViajeEnCursoUiTest {
@@ -40,5 +42,16 @@ class ViajeEnCursoUiTest {
 
         assertEquals("1,1 km", ui.distancia)
         assertEquals(2, ui.puntos.size)
+    }
+
+    @Test
+    fun avisa_si_despues_de_30_segundos_no_llego_ninguna_posicion() {
+        val alArrancar = armarViajeEnCurso(viaje, emptyList(), ahora = inicio + 10_000)
+        val sinSenal = armarViajeEnCurso(viaje, emptyList(), ahora = inicio + 30_000)
+        val conPuntos = armarViajeEnCurso(viaje, listOf(PuntoGps(-34.60, -58.38, inicio, 5f)), ahora = inicio + 60_000)
+
+        assertFalse(alArrancar.sinSenal)
+        assertTrue(sinSenal.sinSenal)
+        assertFalse(conPuntos.sinSenal)
     }
 }

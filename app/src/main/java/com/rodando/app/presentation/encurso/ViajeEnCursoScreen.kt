@@ -123,6 +123,13 @@ private fun EnCurso(viaje: ViajeEnCursoUi, onFinalizar: (viajeId: String) -> Uni
                 modifier = Modifier.fillMaxWidth().weight(1f)
             )
 
+            if (viaje.sinSenal) {
+                Text(
+                    text = stringResource(R.string.en_curso_sin_senal),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
             if (viaje.estado == EstadoViaje.EN_REVISION) {
                 Text(
                     text = stringResource(R.string.en_curso_aviso_revision),
