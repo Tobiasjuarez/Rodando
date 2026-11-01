@@ -19,7 +19,20 @@ Trabajo Práctico Obligatorio — Desarrollo de Aplicaciones I (UADE), 2.º cuat
 - **RF01** — Iniciar un viaje con foto del vinilo, verificada en el teléfono (hasta 3 intentos; si no, viaje "En revisión").
 - **RF02** — Finalizar un viaje con foto; se calcula distancia y duración.
 - **RF03** — Consultar el historial de viajes, aun sin conexión.
-- **RF04** — Ver la ganancia estimada del mes: fijo mensual según el vinilo + monto por km (mínimos de 400 km y 12 días, tope de 1.500 km).
+- **RF04** — Ver la ganancia del mes, confirmada (viajes aprobados) y estimada (más los que esperan aprobación): fijo mensual según el vinilo, entero con 12 días con viajes y proporcional por debajo, + monto por km con la tarifa de cada viaje (tope de 1.500 km). No hay mínimo de km, para no incentivar recorridos extra.
+
+### Estados de un viaje
+
+Cada viaje tiene dos estados independientes:
+
+| Envío (técnico) | Verificación (negocio) |
+| --- | --- |
+| **Sin enviar**: está solo en el teléfono. | **Por aprobar**: la foto se reconoció; falta que el equipo lo apruebe. |
+| **Enviado**: llegó al servidor. | **En revisión**: la foto no se reconoció; el equipo la revisa a mano. |
+| | **Aprobado**: se cobra. |
+| | **Rechazado** / **No computable** (menos de 0,5 km): queda registrado pero no se paga. |
+
+Un viaje enviado puede seguir sin aprobar. Cada viaje guarda la tarifa por km vigente al iniciarse, así un cambio de tarifa no altera lo ya recorrido.
 
 ## Tecnologías
 
