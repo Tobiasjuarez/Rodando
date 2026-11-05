@@ -7,6 +7,8 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.rodando.app.domain.repository.AlmacenDeFotos
 import com.rodando.app.domain.usecase.FinalizarViajeUseCase
 import com.rodando.app.domain.usecase.IniciarViajeUseCase
+import com.rodando.app.domain.usecase.ResultadoFoto
+import com.rodando.app.domain.usecase.VerificarFotoUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,6 +24,12 @@ data class FotoUi(
     val sacando: Boolean = false,
     /** Foto ya sacada, esperando que el conductor la use o la repita. */
     val fotoTomada: String? = null,
+    /** Cuántas fotos se verificaron en este paso (máximo 3). */
+    val intento: Int = 0,
+    /** ML Kit está buscando el código del vinilo en la foto. */
+    val verificando: Boolean = false,
+    /** Qué dijo la verificación de la última foto; null mientras no hay foto o se está verificando. */
+    val resultado: ResultadoFoto? = null,
     /** Se está iniciando o finalizando el viaje. */
     val guardando: Boolean = false,
     val error: String? = null,
@@ -32,15 +40,18 @@ data class FotoUi(
 /**
  * RF01 / RF02: foto del vinilo al iniciar y al finalizar el viaje.
  *
- * La cámara (CameraX) vive en la pantalla; acá se decide dónde se guarda la foto y qué se hace
- * con ella: repetirla o usarla para iniciar o finalizar el viaje. La verificación con ML Kit
- * (hasta 3 intentos) se suma en la próxima etapa.
+ * La cámara (CameraX) vive en la pantalla; acá se decide dónde se guarda la foto, se verifica
+ * con ML Kit que tenga el código del vinilo y se decide qué sigue:
+ * - Reconocida: se puede usar para iniciar o finalizar el viaje.
+ * - No reconocida: se repite, hasta 3 intentos.
+ * - Tres intentos fallidos: se puede seguir igual y el viaje queda en revisión.
  */
 class FotoViniloViewModel(
     private val momento: MomentoFoto,
     private val viajeId: String?,
     private val iniciarViaje: IniciarViajeUseCase,
     private val finalizarViaje: FinalizarViajeUseCase,
+    private val verificarFoto: VerificarFotoUseCase,
     private val fotos: AlmacenDeFotos
 ) : ViewModel() {
 
@@ -54,7 +65,12 @@ class FotoViniloViewModel(
     }
 
     fun fotoGuardada(ruta: String) {
-        _estado.update { it.copy(sacando = false, fotoTomada = ruta) }
+        val intento = _estado.value.intento + 1
+        _estado.update { it.copy(sacando = false, fotoTomada = ruta, intento = intento, verificando = true, resultado = null) }
+        viewModelScope.launch {
+            val resultado = verificarFoto(ruta, intento)
+            _estado.update { it.copy(verificando = false, resultado = resultado) }
+        }
     }
 
     fun errorDeCamara(ruta: String) {
@@ -63,11 +79,24 @@ class FotoViniloViewModel(
     }
 
     fun repetir() {
-        _estado.value.fotoTomada?.let(fotos::borrar)
-        _estado.update { it.copy(fotoTomada = null, error = null) }
+        val actual = _estado.value
+        // Después del tercer intento fallido ya no se repite: se sigue en revisión o se cancela.
+        if (actual.resultado == ResultadoFoto.OfrecerRevision || actual.verificando) return
+        actual.fotoTomada?.let(fotos::borrar)
+        _estado.update { it.copy(fotoTomada = null, resultado = null, error = null) }
     }
 
+    /** Usa la foto verificada. */
     fun usarFoto() {
+        if (_estado.value.resultado == ResultadoFoto.Aprobada) guardar(enRevision = false)
+    }
+
+    /** Sigue sin poder verificar el vinilo: el viaje queda en revisión hasta que el equipo mire las fotos. */
+    fun seguirEnRevision() {
+        if (_estado.value.resultado == ResultadoFoto.OfrecerRevision) guardar(enRevision = true)
+    }
+
+    private fun guardar(enRevision: Boolean) {
         val actual = _estado.value
         val ruta = actual.fotoTomada ?: return
         if (actual.guardando || actual.viajeListo != null) return
@@ -75,8 +104,8 @@ class FotoViniloViewModel(
         viewModelScope.launch {
             runCatching {
                 when (momento) {
-                    MomentoFoto.INICIO -> iniciarViaje(ruta, intentosFoto = 1, enRevision = false).id
-                    MomentoFoto.FIN -> finalizarViaje(requireNotNull(viajeId), ruta).id
+                    MomentoFoto.INICIO -> iniciarViaje(ruta, intentosFoto = actual.intento, enRevision = enRevision).id
+                    MomentoFoto.FIN -> finalizarViaje(requireNotNull(viajeId), ruta, fotoVerificada = !enRevision).id
                 }
             }.onSuccess { id ->
                 _estado.update { it.copy(guardando = false, viajeListo = id) }
@@ -98,9 +127,10 @@ class FotoViniloViewModel(
             viajeId: String?,
             iniciarViaje: IniciarViajeUseCase,
             finalizarViaje: FinalizarViajeUseCase,
+            verificarFoto: VerificarFotoUseCase,
             fotos: AlmacenDeFotos
         ) = viewModelFactory {
-            initializer { FotoViniloViewModel(momento, viajeId, iniciarViaje, finalizarViaje, fotos) }
+            initializer { FotoViniloViewModel(momento, viajeId, iniciarViaje, finalizarViaje, verificarFoto, fotos) }
         }
     }
 }

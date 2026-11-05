@@ -8,7 +8,7 @@ import androidx.room.RoomDatabase
 /** Base de datos local de Rodando. Los enums (estados, tipo de vinilo) se guardan por nombre. */
 @Database(
     entities = [ViajeEntity::class, PuntoGpsEntity::class, CampaniaEntity::class, ViniloEntity::class],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class RodandoDatabase : RoomDatabase() {

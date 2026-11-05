@@ -21,7 +21,9 @@ data class Vinilo(
     val tarifaPorKm: Double,
     val fechaInstalacion: Long?,
     val diasMinimos: Int = DIAS_MINIMOS,
-    val kmTope: Double = KM_TOPE
+    val kmTope: Double = KM_TOPE,
+    /** Código QR impreso en el vinilo: la foto de inicio y de fin tiene que mostrarlo. */
+    val codigo: String = ""
 ) {
     companion object {
         const val DIAS_MINIMOS = 12

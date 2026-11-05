@@ -30,6 +30,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -45,6 +46,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -56,6 +58,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rodando.app.R
+import com.rodando.app.domain.usecase.ResultadoFoto
 import com.rodando.app.presentation.common.rememberFoto
 import com.rodando.app.presentation.theme.RodandoTheme
 import java.io.File
@@ -110,6 +113,7 @@ fun FotoViniloScreen(
         },
         onRepetir = viewModel::repetir,
         onUsar = viewModel::usarFoto,
+        onSeguirEnRevision = viewModel::seguirEnRevision,
         onPedirPermiso = { pedirPermiso.launch(Manifest.permission.CAMERA) },
         onVolver = onVolver,
         modifier = modifier
@@ -150,12 +154,13 @@ fun FotoViniloContenido(
     onSacar: () -> Unit,
     onRepetir: () -> Unit,
     onUsar: () -> Unit,
+    onSeguirEnRevision: () -> Unit,
     onPedirPermiso: () -> Unit,
     onVolver: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val esInicio = estado.momento == MomentoFoto.INICIO
-    val ocupado = estado.sacando || estado.guardando
+    val ocupado = estado.sacando || estado.guardando || estado.verificando
     Column(modifier = modifier.fillMaxSize()) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -191,19 +196,57 @@ fun FotoViniloContenido(
                 permisoCamara -> Visor(camara, visor)
                 else -> SinPermiso(onPedirPermiso, visor)
             }
-            Text(
-                text = stringResource(
-                    if (estado.fotoTomada != null) R.string.foto_revisar else R.string.foto_consejo
-                ),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            if (estado.fotoTomada != null) {
+                AvisoVerificacion(estado.verificando, estado.resultado, esInicio)
+            } else {
+                Text(
+                    text = stringResource(R.string.foto_consejo),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
             estado.error?.let {
                 Text(text = it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
             }
         }
 
-        if (estado.fotoTomada == null) {
+        val botones = Modifier.padding(24.dp)
+        val resultado = estado.resultado
+        if (resultado is ResultadoFoto.Reintentar && !ocupado) {
+            Button(
+                onClick = onRepetir,
+                modifier = botones
+                    .fillMaxWidth()
+                    .height(56.dp)
+            ) {
+                Text(stringResource(R.string.foto_otra))
+            }
+        } else if (resultado == ResultadoFoto.OfrecerRevision) {
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = botones) {
+                OutlinedButton(
+                    onClick = onVolver,
+                    enabled = !estado.guardando,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp)
+                ) {
+                    Text(stringResource(R.string.foto_cancelar))
+                }
+                Button(
+                    onClick = onSeguirEnRevision,
+                    enabled = !estado.guardando,
+                    modifier = Modifier
+                        .weight(2f)
+                        .height(56.dp)
+                ) {
+                    if (estado.guardando) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                    } else {
+                        Text(stringResource(if (esInicio) R.string.foto_revision_inicio else R.string.foto_revision_fin))
+                    }
+                }
+            }
+        } else if (estado.fotoTomada == null) {
             Button(
                 onClick = onSacar,
                 enabled = permisoCamara && !ocupado,
@@ -234,7 +277,7 @@ fun FotoViniloContenido(
                 }
                 Button(
                     onClick = onUsar,
-                    enabled = !ocupado,
+                    enabled = !ocupado && resultado == ResultadoFoto.Aprobada,
                     modifier = Modifier
                         .weight(2f)
                         .height(56.dp)
@@ -246,6 +289,36 @@ fun FotoViniloContenido(
                     }
                 }
             }
+        }
+    }
+}
+
+/** Qué encontró ML Kit en la foto, siempre con texto y no solo con color (RNF06). */
+@Composable
+private fun AvisoVerificacion(verificando: Boolean, resultado: ResultadoFoto?, esInicio: Boolean) {
+    val colores = MaterialTheme.colorScheme
+    val (fondo, texto) = when {
+        verificando || resultado == null -> colores.surfaceContainer to colores.onSurface
+        resultado == ResultadoFoto.Aprobada -> colores.secondaryContainer to colores.onSecondaryContainer
+        else -> colores.errorContainer to colores.onErrorContainer
+    }
+    val mensaje = when {
+        verificando || resultado == null -> stringResource(R.string.foto_verificando)
+        resultado == ResultadoFoto.Aprobada -> stringResource(R.string.foto_verificada)
+        resultado is ResultadoFoto.Reintentar -> pluralStringResource(
+            R.plurals.foto_reintentar, resultado.intentosRestantes, resultado.intentosRestantes
+        )
+        esInicio -> stringResource(R.string.foto_revision_mensaje_inicio)
+        else -> stringResource(R.string.foto_revision_mensaje_fin)
+    }
+    Surface(color = fondo, contentColor = texto, shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(16.dp)
+        ) {
+            if (verificando) CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+            Text(text = mensaje, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
@@ -345,6 +418,7 @@ private fun FotoPreview() {
             onSacar = {},
             onRepetir = {},
             onUsar = {},
+            onSeguirEnRevision = {},
             onPedirPermiso = {},
             onVolver = {}
         )

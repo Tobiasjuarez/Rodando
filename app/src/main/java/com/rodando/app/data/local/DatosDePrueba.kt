@@ -59,7 +59,8 @@ class DatosDePrueba(
                 tipo = TipoVinilo.PARCIAL,
                 fijoMensual = 50_000.0,
                 tarifaPorKm = TARIFA_DEMO,
-                fechaInstalacion = mes.atStartOfDay(zona).toInstant().toEpochMilli()
+                fechaInstalacion = mes.atStartOfDay(zona).toInstant().toEpochMilli(),
+                codigo = CODIGO_DEMO
             ).aEntidad()
         )
     }
@@ -125,6 +126,9 @@ class DatosDePrueba(
     companion object {
         const val CAMPANIA_DEMO = "campania-demo"
         private const val TARIFA_DEMO = 50.0
+
+        /** Es el código del QR de docs/emulador/qr-vinilo-demo.png. */
+        const val CODIGO_DEMO = "RODANDO-VINILO-0001"
         private val RAMOS_MEJIA = Pair(-34.6415, -58.5650)
         private val MICROCENTRO = Pair(-34.6037, -58.3816)
     }

@@ -61,7 +61,8 @@ fun ViniloEntity.aDominio(): Vinilo = Vinilo(
     tarifaPorKm = tarifaPorKm,
     fechaInstalacion = fechaInstalacion,
     diasMinimos = diasMinimos,
-    kmTope = kmTope
+    kmTope = kmTope,
+    codigo = codigo
 )
 
 fun Vinilo.aEntidad(): ViniloEntity = ViniloEntity(
@@ -70,5 +71,6 @@ fun Vinilo.aEntidad(): ViniloEntity = ViniloEntity(
     tarifaPorKm = tarifaPorKm,
     fechaInstalacion = fechaInstalacion,
     diasMinimos = diasMinimos,
-    kmTope = kmTope
+    kmTope = kmTope,
+    codigo = codigo
 )

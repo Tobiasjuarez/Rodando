@@ -16,7 +16,8 @@ data class ViniloEntity(
     val tarifaPorKm: Double,
     val fechaInstalacion: Long?,
     val diasMinimos: Int,
-    val kmTope: Double
+    val kmTope: Double,
+    val codigo: String
 ) {
     companion object {
         const val VIGENTE = 1
