@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -37,6 +38,7 @@ import com.rodando.app.presentation.common.EstadoVacio
 import com.rodando.app.presentation.common.FilaDato
 import com.rodando.app.presentation.common.UiState
 import com.rodando.app.presentation.theme.RodandoTheme
+import com.rodando.app.presentation.common.encabezado
 
 @Composable
 fun ViajeGuardadoScreen(
@@ -77,7 +79,7 @@ fun ViajeGuardadoContenido(
             modifier = Modifier.padding(vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Button(onClick = onVolverAlInicio, modifier = Modifier.fillMaxWidth().height(56.dp)) {
+            Button(onClick = onVolverAlInicio, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
                 Text(stringResource(R.string.guardado_volver_inicio))
             }
             val viajeId = when (estado) {
@@ -88,7 +90,7 @@ fun ViajeGuardadoContenido(
             if (viajeId != null) {
                 OutlinedButton(
                     onClick = { onVerDetalle(viajeId) },
-                    modifier = Modifier.fillMaxWidth().height(56.dp)
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)
                 ) {
                     Text(stringResource(R.string.guardado_ver_detalle))
                 }
@@ -114,7 +116,12 @@ private fun Guardado(viaje: ViajeGuardadoUi) {
                 Icon(painterResource(R.drawable.ic_listo), contentDescription = null, modifier = Modifier.size(40.dp))
             }
         }
-        Text(viaje.titulo, style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center)
+        Text(
+            viaje.titulo,
+            style = MaterialTheme.typography.headlineSmall,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.encabezado()
+        )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             ChipEstado(enCurso = false, verificacion = viaje.verificacion)
             ChipEnvio(viaje.envio)

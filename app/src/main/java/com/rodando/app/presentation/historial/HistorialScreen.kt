@@ -37,6 +37,7 @@ import com.rodando.app.presentation.common.ChipEstado
 import com.rodando.app.presentation.common.EstadoVacio
 import com.rodando.app.presentation.common.UiState
 import com.rodando.app.presentation.theme.RodandoTheme
+import com.rodando.app.presentation.common.encabezado
 
 @Composable
 fun HistorialScreen(
@@ -44,10 +45,18 @@ fun HistorialScreen(
     onAbrirViaje: (String) -> Unit,
     modifier: Modifier = Modifier,
     /** Envía lo pendiente y trae las aprobaciones del equipo. */
-    onActualizar: (() -> Unit)? = null
+    onActualizar: (() -> Unit)? = null,
+    /** "hoy a las 15:04", o null si nunca se sincronizó. */
+    ultimaSincronizacion: String? = null
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
-    HistorialContenido(estado = estado, onAbrirViaje = onAbrirViaje, modifier = modifier, onActualizar = onActualizar)
+    HistorialContenido(
+        estado = estado,
+        onAbrirViaje = onAbrirViaje,
+        modifier = modifier,
+        onActualizar = onActualizar,
+        ultimaSincronizacion = ultimaSincronizacion
+    )
 }
 
 /** Versión sin ViewModel: dibuja cualquier estado (sirve para las vistas previas). */
@@ -56,7 +65,8 @@ fun HistorialContenido(
     estado: UiState<HistorialUi>,
     onAbrirViaje: (String) -> Unit,
     modifier: Modifier = Modifier,
-    onActualizar: (() -> Unit)? = null
+    onActualizar: (() -> Unit)? = null,
+    ultimaSincronizacion: String? = null
 ) {
     Column(modifier = modifier.fillMaxSize()) {
         Row(
@@ -66,11 +76,19 @@ fun HistorialContenido(
             Text(
                 text = stringResource(R.string.historial_titulo),
                 style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f).encabezado()
             )
             if (onActualizar != null) {
                 TextButton(onClick = onActualizar) { Text(stringResource(R.string.historial_actualizar)) }
             }
+        }
+        ultimaSincronizacion?.let {
+            Text(
+                text = stringResource(R.string.historial_ultima, it),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 24.dp, end = 24.dp, bottom = 4.dp)
+            )
         }
         when (estado) {
             UiState.Cargando -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

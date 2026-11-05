@@ -40,6 +40,7 @@ import com.rodando.app.presentation.common.FilaDato
 import com.rodando.app.presentation.common.UiState
 import com.rodando.app.presentation.common.rememberFoto
 import com.rodando.app.presentation.theme.RodandoTheme
+import com.rodando.app.presentation.common.encabezado
 
 @Composable
 fun DetalleViajeScreen(
@@ -65,7 +66,11 @@ fun DetalleViajeContenido(
             IconButton(onClick = onVolver) {
                 Icon(painterResource(R.drawable.ic_volver), contentDescription = stringResource(R.string.volver))
             }
-            Text(text = stringResource(R.string.detalle_titulo), style = MaterialTheme.typography.headlineSmall)
+            Text(
+                text = stringResource(R.string.detalle_titulo),
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.encabezado()
+            )
         }
         when (estado) {
             UiState.Cargando -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

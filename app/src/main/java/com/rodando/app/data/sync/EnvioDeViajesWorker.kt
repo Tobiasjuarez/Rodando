@@ -20,6 +20,7 @@ class EnvioDeViajesWorker(contexto: Context, parametros: WorkerParameters) : Cor
         // Por si cambió la campaña o no se pudo bajar al iniciar sesión.
         runCatching { contenedor.campaniaRepository.actualizarCampania() }
         val resultado = contenedor.viajeRepository.sincronizarPendientes()
+        if (resultado.completo) contenedor.sincronizacion.registrar(System.currentTimeMillis())
         return when {
             resultado.completo -> Result.success()
             // Después de varios intentos se deja para la sincronización periódica.

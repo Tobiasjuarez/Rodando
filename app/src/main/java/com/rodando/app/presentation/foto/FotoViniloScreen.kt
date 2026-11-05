@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -70,6 +71,7 @@ import com.rodando.app.domain.usecase.ResultadoFoto
 import com.rodando.app.presentation.common.rememberFoto
 import com.rodando.app.presentation.theme.RodandoTheme
 import java.io.File
+import com.rodando.app.presentation.common.encabezado
 
 @Composable
 fun FotoViniloScreen(
@@ -203,7 +205,8 @@ fun FotoViniloContenido(
             Column {
                 Text(
                     text = stringResource(if (esInicio) R.string.foto_titulo_inicio else R.string.foto_titulo_fin),
-                    style = MaterialTheme.typography.headlineSmall
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.encabezado()
                 )
                 Text(
                     text = stringResource(if (esInicio) R.string.foto_subtitulo_inicio else R.string.foto_subtitulo_fin),
@@ -248,7 +251,7 @@ fun FotoViniloContenido(
                 onClick = onRepetir,
                 modifier = botones
                     .fillMaxWidth()
-                    .height(56.dp)
+                    .heightIn(min = 56.dp)
             ) {
                 Text(stringResource(R.string.foto_otra))
             }
@@ -259,7 +262,7 @@ fun FotoViniloContenido(
                     enabled = !estado.guardando,
                     modifier = Modifier
                         .weight(1f)
-                        .height(56.dp)
+                        .heightIn(min = 56.dp)
                 ) {
                     Text(stringResource(R.string.foto_cancelar))
                 }
@@ -268,7 +271,7 @@ fun FotoViniloContenido(
                     enabled = !estado.guardando,
                     modifier = Modifier
                         .weight(2f)
-                        .height(56.dp)
+                        .heightIn(min = 56.dp)
                 ) {
                     if (estado.guardando) {
                         CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
@@ -305,7 +308,7 @@ fun FotoViniloContenido(
                     enabled = !ocupado,
                     modifier = Modifier
                         .weight(1f)
-                        .height(56.dp)
+                        .heightIn(min = 56.dp)
                 ) {
                     Text(stringResource(R.string.foto_repetir))
                 }
@@ -314,7 +317,7 @@ fun FotoViniloContenido(
                     enabled = !ocupado && resultado == ResultadoFoto.Aprobada,
                     modifier = Modifier
                         .weight(2f)
-                        .height(56.dp)
+                        .heightIn(min = 56.dp)
                 ) {
                     if (estado.guardando) {
                         CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
@@ -341,7 +344,7 @@ private fun BotonSacar(enabled: Boolean, sacando: Boolean, onClick: () -> Unit, 
         shape = CircleShape,
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp)
+            .heightIn(min = 56.dp)
             .clip(CircleShape)
             .combinedClickable(
                 enabled = enabled,

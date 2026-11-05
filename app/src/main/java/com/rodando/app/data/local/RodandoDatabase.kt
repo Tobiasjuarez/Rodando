@@ -5,11 +5,16 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-/** Base de datos local de Rodando. Los enums (estados, tipo de vinilo) se guardan por nombre. */
+/**
+ * Base de datos local de Rodando. Los enums (estados, tipo de vinilo) se guardan por nombre.
+ *
+ * Room exporta el esquema de cada versión a `app/schemas/` (se sube a git): así se ve qué cambió
+ * entre versiones y se pueden probar las migraciones.
+ */
 @Database(
     entities = [ViajeEntity::class, PuntoGpsEntity::class, CampaniaEntity::class, ViniloEntity::class],
     version = 5,
-    exportSchema = false
+    exportSchema = true
 )
 abstract class RodandoDatabase : RoomDatabase() {
 
@@ -20,9 +25,11 @@ abstract class RodandoDatabase : RoomDatabase() {
     companion object {
         fun crear(context: Context): RodandoDatabase =
             Room.databaseBuilder(context, RodandoDatabase::class.java, "rodando.db")
-                // Mientras se desarrolla, un cambio de versión borra la base y se vuelven a cargar
-                // los datos de ejemplo. Antes de la entrega final se reemplaza por migraciones.
-                .fallbackToDestructiveMigration(dropAllTables = true)
+                .addMigrations(*Migraciones.TODAS)
+                // Las versiones 1 a 4 fueron de desarrollo, antes de que la app se usara: si alguien
+                // tiene una, se borra y se vuelve a bajar todo. Desde la 5, un cambio de versión sin
+                // migración hace fallar la app al abrir, a propósito: los viajes sin enviar no se pierden.
+                .fallbackToDestructiveMigrationFrom(dropAllTables = true, 1, 2, 3, 4)
                 .build()
     }
 }

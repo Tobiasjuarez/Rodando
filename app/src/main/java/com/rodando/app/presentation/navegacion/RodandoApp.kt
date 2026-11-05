@@ -36,10 +36,13 @@ import androidx.navigation.navArgument
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import com.rodando.app.AppContainer
 import com.rodando.app.RodandoApplication
 import com.rodando.app.data.sensors.Permisos
 import com.rodando.app.domain.model.Sesion
+import com.rodando.app.presentation.common.AvisoSinConexion
+import com.rodando.app.presentation.common.Formato
 import com.rodando.app.presentation.detalle.DetalleViajeScreen
 import com.rodando.app.presentation.detalle.DetalleViajeViewModel
 import com.rodando.app.presentation.encurso.ViajeEnCursoScreen
@@ -108,8 +111,14 @@ private fun AppConSesion(contenedor: AppContainer, navController: NavHostControl
         if (enCurso != null && Permisos.tieneUbicacion(contexto)) contenedor.registroDeRecorrido.iniciar(enCurso.id)
     }
 
+    val conectado by contenedor.conexion.conectado.collectAsStateWithLifecycle(initialValue = true)
+    val ultima by contenedor.sincronizacion.ultima.collectAsStateWithLifecycle(initialValue = null)
+    val ultimaTexto = ultima?.let { Formato.momento(it, LocalDate.now(Formato.zona)) }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        // Sin red, una franja arriba de todas las pantallas lo avisa.
+        topBar = { if (!conectado) AvisoSinConexion(ultimaTexto) },
         bottomBar = {
             // La barra solo se ve en las tres pestañas; el resto de las pantallas ocupa toda la pantalla.
             val enPestania = destinoActual == null || Destino.entries.any { it.ruta == destinoActual.route }
@@ -152,7 +161,8 @@ private fun AppConSesion(contenedor: AppContainer, navController: NavHostControl
                 HistorialScreen(
                     viewModel = viewModel,
                     onAbrirViaje = { id -> navController.navigate(Rutas.detalleViaje(id)) },
-                    onActualizar = contenedor.envios::enviarAhora
+                    onActualizar = contenedor.envios::enviarAhora,
+                    ultimaSincronizacion = ultimaTexto
                 )
             }
             composable(Destino.GANANCIAS.ruta) {

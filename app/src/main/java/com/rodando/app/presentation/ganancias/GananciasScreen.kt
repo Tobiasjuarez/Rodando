@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -27,6 +28,7 @@ import com.rodando.app.presentation.common.EstadoVacio
 import com.rodando.app.presentation.common.FilaDato
 import com.rodando.app.presentation.common.UiState
 import com.rodando.app.presentation.theme.RodandoTheme
+import com.rodando.app.presentation.common.encabezado
 
 @Composable
 fun GananciasScreen(
@@ -48,7 +50,9 @@ fun GananciasContenido(
         Text(
             text = stringResource(R.string.ganancias_titulo),
             style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 24.dp, bottom = 8.dp)
+            modifier = Modifier
+                .padding(start = 24.dp, end = 24.dp, top = 24.dp, bottom = 8.dp)
+                .encabezado()
         )
         when (estado) {
             UiState.Cargando -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -138,7 +142,7 @@ private fun Resumen(ganancias: GananciasUi, onVerViajes: () -> Unit) {
             onClick = onVerViajes,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp)
+                .heightIn(min = 48.dp)
         ) {
             Text(stringResource(R.string.ganancias_ver_viajes))
         }

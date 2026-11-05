@@ -62,6 +62,16 @@ object Formato {
         return "%02d:%02d".format(t.hour, t.minute)
     }
 
+    /** "hoy a las 15:04", "ayer a las 09:10" o "el 3 de noviembre a las 10:00" */
+    fun momento(millis: Long, hoy: LocalDate): String {
+        val dia = when (val fecha = fecha(millis)) {
+            hoy -> "hoy"
+            hoy.minusDays(1) -> "ayer"
+            else -> "el ${fecha.dayOfMonth} de ${meses[fecha.monthValue - 1]}"
+        }
+        return "$dia a las ${hora(millis)}"
+    }
+
     /** "Hoy", "Ayer" o "Lun 28" */
     fun diaCorto(fecha: LocalDate, hoy: LocalDate): String = when (fecha) {
         hoy -> "Hoy"

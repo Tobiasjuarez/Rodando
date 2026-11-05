@@ -118,4 +118,4 @@ Otra forma: en la configuración del emulador (*Device Manager → Edit → Adva
 
 ## Documentación
 
-Preentrega, diagramas y diseño en Figma: ver [`docs/`](docs/).
+Plan de desarrollo con todas las etapas, decisiones y pendientes: [`docs/PLAN.md`](docs/PLAN.md). Preentrega, diagramas y diseño en Figma: ver [`docs/`](docs/).
