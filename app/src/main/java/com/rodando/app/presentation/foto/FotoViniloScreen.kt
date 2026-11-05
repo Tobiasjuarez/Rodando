@@ -94,7 +94,13 @@ fun FotoViniloScreen(
         permisoCamara = permisoCamara,
         camara = { mod ->
             AndroidView(
-                factory = { PreviewView(it).apply { controller = controlador } },
+                factory = {
+                    PreviewView(it).apply {
+                        // COMPATIBLE respeta las esquinas redondeadas del visor.
+                        implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+                        controller = controlador
+                    }
+                },
                 modifier = mod
             )
         },
