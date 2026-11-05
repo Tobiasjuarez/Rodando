@@ -68,7 +68,7 @@ app/src/main/java/com/rodando/app/
 └── data/
     ├── local/         # Room (entidades, DAO, mappers) y viajes de ejemplo
     ├── remote/        # Retrofit (API simulada) y DTOs
-    ├── sensors/       # GPS (Fused Location), servicio en primer plano del viaje, permisos y cámara
+    ├── sensors/       # GPS (Fused Location), servicio en primer plano del viaje, permisos y fotos
     └── repository/    # Implementaciones de los repositorios
 ```
 
@@ -80,7 +80,7 @@ app/src/main/java/com/rodando/app/
 
 La primera vez que se abre, la app carga viajes de ejemplo en Room para poder probar Historial y Detalle sin GPS ni cámara. También carga una campaña (Pampa Bebidas) y un vinilo Parcial ($50.000/mes + $50/km) para Inicio y Ganancias. Para empezar de cero: *Settings → Apps → Rodando → Storage → Clear storage*.
 
-**Probar un viaje:** en Inicio, *Iniciar viaje*. La primera vez la app pide permiso de ubicación y de notificaciones. Después viene *Sacar foto e iniciar* (la cámara todavía es simulada y la foto siempre se acepta). El recorrido se registra con el GPS dentro de un servicio en primer plano, con una notificación fija, así que sigue aunque se bloquee el teléfono. Mientras dura el viaje, un mapa de OpenStreetMap (osmdroid, sin clave de API) sigue la posición y va dibujando el recorrido; sin conexión no se ven las calles, pero el recorrido se dibuja igual. *Finalizar viaje* pide la foto final y muestra el viaje guardado.
+**Probar un viaje:** en Inicio, *Iniciar viaje*. La primera vez la app pide permiso de ubicación y de notificaciones. Después se saca la foto del vinilo con la cámara (CameraX), se revisa y se usa con *Usar foto e iniciar*, o se repite. Las fotos se guardan en la carpeta privada de la app y se ven en el detalle del viaje. Todavía no se verifica qué hay en la foto: eso llega con ML Kit. El recorrido se registra con el GPS dentro de un servicio en primer plano, con una notificación fija, así que sigue aunque se bloquee el teléfono. Mientras dura el viaje, un mapa de OpenStreetMap (osmdroid, sin clave de API) sigue la posición y va dibujando el recorrido; sin conexión no se ven las calles, pero el recorrido se dibuja igual. *Finalizar viaje* pide la foto final y muestra el viaje guardado.
 
 En el emulador la ubicación no cambia sola, así que un viaje queda en 0 km y "No computable". Para que se mueva hay dos formas:
 
@@ -89,7 +89,7 @@ En el emulador la ubicación no cambia sola, así que un viaje queda en 0 km y "
 
 Las horas se muestran siempre en hora argentina, aunque el emulador esté en otra zona horaria. Los textos del sistema (diálogos de permisos, opciones de la notificación) salen en el idioma del teléfono: para verlos en español, cambiar el idioma del emulador en *Settings → System → Languages*.
 
-CameraX y la verificación con ML Kit se suman en las próximas ramas.
+En el emulador la cámara trasera muestra una escena virtual (una sala que se recorre con Alt + WASD y el mouse); sirve para probar el flujo. La verificación del vinilo con ML Kit se suma en la próxima rama.
 
 La API simulada y sus instrucciones se agregan en la carpeta `api-mock/` cuando se implemente la sincronización.
 
