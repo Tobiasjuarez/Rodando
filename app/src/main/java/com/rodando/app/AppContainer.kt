@@ -13,6 +13,7 @@ import com.rodando.app.data.sensors.FotosEnArchivos
 import com.rodando.app.data.sensors.RegistradorDeViaje
 import com.rodando.app.data.sensors.RegistroConServicio
 import com.rodando.app.data.sensors.UbicacionGps
+import com.rodando.app.data.sensors.VerificadorMlKit
 import com.rodando.app.data.sensors.UbicacionSimulada
 import com.rodando.app.domain.repository.AlmacenDeFotos
 import com.rodando.app.domain.repository.CampaniaRepository
@@ -22,6 +23,7 @@ import com.rodando.app.domain.repository.ViajeRepository
 import com.rodando.app.domain.repository.ViniloRepository
 import com.rodando.app.domain.usecase.FinalizarViajeUseCase
 import com.rodando.app.domain.usecase.IniciarViajeUseCase
+import com.rodando.app.domain.usecase.VerificarFotoUseCase
 
 /**
  * Inyección de dependencias manual: crea una sola vez la base de datos y los repositorios
@@ -50,6 +52,8 @@ class AppContainer(context: Context) {
     val registroDeRecorrido: RegistroDeRecorrido = RegistroConServicio(context.applicationContext, registradorDeViaje)
 
     val fotos: AlmacenDeFotos = FotosEnArchivos(context.applicationContext)
+
+    val verificarFoto = VerificarFotoUseCase(viniloRepository, VerificadorMlKit(context.applicationContext))
 
     val iniciarViaje = IniciarViajeUseCase(campaniaRepository, viniloRepository, viajeRepository, registroDeRecorrido)
 
