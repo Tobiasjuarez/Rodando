@@ -89,12 +89,13 @@ El profesor observó que reconocer el código no prueba que el auto circuló con
 - Permiso de red local de Android 17 (sin él, la app no llega a la computadora).
 - App bloqueada en vertical y modo prueba en desarrollo (mantener apretado "Sacar foto" usa el QR de ejemplo).
 
-### Etapa 6 · Calidad (en curso)
+### Etapa 6 · Calidad (rama `feature/etapa6-calidad`)
 
-- [ ] Aviso sin conexión y hora de la última sincronización.
-- [ ] Accesibilidad: títulos como encabezados para TalkBack, descripciones y tamaños táctiles.
-- [ ] Más tests: ViewModels (foto y login) y pantallas.
-- [ ] Migraciones de Room reales en lugar de borrar la base al cambiar de versión.
+- [x] Aviso sin conexión arriba de todas las pantallas y hora de la última sincronización en Historial.
+- [x] Accesibilidad: títulos marcados como encabezados para TalkBack, aviso sin conexión que TalkBack anuncia solo, botones que crecen con la letra grande en vez de cortar el texto.
+- [x] Tests de ViewModels con `kotlinx-coroutines-test`: la foto del vinilo (aprobada, repetir, 3 intentos y en revisión, error de cámara) y el login.
+- [x] Migraciones de Room: el esquema de cada versión se exporta a `app/schemas/` y desde la versión 5 un cambio de base necesita una migración (`data/local/Migraciones.kt`) en lugar de borrar los datos.
+- [ ] Revisión final con TalkBack en el emulador y con letra al máximo (*Settings → Accessibility*).
 
 ## Decisiones importantes
 
@@ -127,7 +128,7 @@ El profesor observó que reconocer el código no prueba que el auto circuló con
 | `./gradlew` pide un Java 25 | Borrar `gradle/gradle-daemon-jvm.properties` (lo crea Android Studio) |
 | El viaje queda en 0 km en el emulador | Reproducir una ruta de `docs/emulador` o usar `USAR_UBICACION_SIMULADA = true` en `AppContainer` |
 | El QR no aparece en la sala virtual | Cargarlo en *Extended controls → Camera → Wall*; está en una pared, no en la TV. O usar el modo prueba |
-| Cambió la base de datos y la app falla al abrir | *Settings → Apps → Rodando → Storage → Clear storage* (hasta que estén las migraciones de la etapa 6) |
+| La app falla al abrir después de cambiar una entidad de Room | Falta la migración: subir `version`, agregarla en `data/local/Migraciones.kt` y compilar para que se genere el esquema nuevo en `app/schemas/`. En desarrollo también sirve *Clear storage* |
 
 ## Pendientes del equipo (fuera del código)
 
