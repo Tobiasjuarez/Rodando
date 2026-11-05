@@ -99,6 +99,8 @@ En el emulador la cámara trasera muestra una sala virtual que se recorre manten
 2. Con la cámara abierta en la app, caminar hasta la pared y encuadrar el QR: la foto queda "Vinilo verificado".
 3. Para probar los 3 intentos, sacarle fotos a cualquier otra parte de la sala.
 
+**Modo prueba (solo en desarrollo):** mantener apretado *Sacar foto* usa el QR de ejemplo en lugar de la cámara, y la foto se verifica igual con ML Kit. Sirve para la defensa o para probar rápido; la imagen está en `app/src/debug/assets`, así que no existe en la versión final.
+
 Otra forma: en la configuración del emulador (*Device Manager → Edit → Advanced → Camera*), usar la webcam de la Mac como cámara trasera y mostrarle el QR desde el celular.
 
 **Envío y aprobación de viajes:** cada viaje se guarda primero en el teléfono (Room) y WorkManager lo envía a la API apenas hay conexión, aunque la app esté cerrada; si falla, reintenta con espera creciente y además repite cada 15 minutos. La página del equipo, en <http://localhost:3000>, muestra los viajes recibidos con sus fotos y permite aprobarlos o rechazarlos; *Actualizar* en Historial trae esos cambios. Para la defensa:

@@ -53,6 +53,8 @@
     <string name="foto_encuadre">Encuadrá el código QR del vinilo</string>
     <string name="foto_consejo">Acercate hasta que el código QR del vinilo se vea entero y nítido, con buena luz.</string>
     <string name="foto_sacar">Sacar foto</string>
+    <string name="foto_modo_prueba">Desarrollo: mantené apretado para usar el QR de ejemplo</string>
+    <string name="foto_modo_prueba_accion">usar el QR de ejemplo</string>
     <string name="foto_repetir">Repetir</string>
     <string name="foto_usar_inicio">Usar foto e iniciar</string>
     <string name="foto_usar_fin">Usar foto y finalizar</string>
