@@ -134,7 +134,8 @@ fun RodandoApp(navController: NavHostController = rememberNavController()) {
             composable(Rutas.FOTO_INICIO) {
                 val viewModel: FotoViniloViewModel = viewModel(
                     factory = FotoViniloViewModel.fabrica(
-                        MomentoFoto.INICIO, null, contenedor.iniciarViaje, contenedor.finalizarViaje, contenedor.fotos
+                        MomentoFoto.INICIO, null, contenedor.iniciarViaje, contenedor.finalizarViaje,
+                        contenedor.verificarFoto, contenedor.fotos
                     )
                 )
                 FotoViniloScreen(
@@ -163,7 +164,8 @@ fun RodandoApp(navController: NavHostController = rememberNavController()) {
                 val viajeId = entrada.arguments?.getString(Rutas.ARG_VIAJE_ID).orEmpty()
                 val viewModel: FotoViniloViewModel = viewModel(
                     factory = FotoViniloViewModel.fabrica(
-                        MomentoFoto.FIN, viajeId, contenedor.iniciarViaje, contenedor.finalizarViaje, contenedor.fotos
+                        MomentoFoto.FIN, viajeId, contenedor.iniciarViaje, contenedor.finalizarViaje,
+                        contenedor.verificarFoto, contenedor.fotos
                     )
                 )
                 FotoViniloScreen(
