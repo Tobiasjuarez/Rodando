@@ -53,6 +53,7 @@ app/src/main/java/com/rodando/app/
 ├── presentation/      # Pantallas Compose, ViewModels, UiState, tema
 │   ├── common/        # UiState y componentes compartidos (estado vacío)
 │   ├── navegacion/    # Barra inferior y NavHost (Inicio, Historial, Ganancias)
+│   ├── login/         # Inicio de sesión contra la API simulada
 │   ├── inicio/        # Campaña activa, vinilo y resumen del mes
 │   ├── foto/          # RF01 / RF02: foto del vinilo al iniciar y al finalizar
 │   ├── encurso/       # RF01: viaje en curso con tiempo, distancia y recorrido
@@ -62,21 +63,24 @@ app/src/main/java/com/rodando/app/
 │   ├── ganancias/     # RF04: ganancia estimada y barras de objetivos
 │   └── theme/         # Paleta de colores del diseño (Material 3)
 ├── domain/            # Kotlin puro: no depende de Android
-│   ├── model/         # Viaje, Campania, PuntoGps, Vinilo, ResumenGanancia, ObjetivoMensual
+│   ├── model/         # Viaje, Campania, PuntoGps, Vinilo, Sesion, ResumenGanancia, ObjetivoMensual
 │   ├── repository/    # Interfaces de repositorio
 │   └── usecase/       # Reglas de negocio (iniciar y finalizar viaje, distancia, ganancia, intentos de foto)
 └── data/
-    ├── local/         # Room (entidades, DAO, mappers) y viajes de ejemplo
-    ├── remote/        # Retrofit (API simulada) y DTOs
+    ├── local/         # Room (entidades, DAO, mappers), sesión en DataStore y viajes de ejemplo
+    ├── remote/        # Retrofit (API simulada), DTOs y preparación de fotos para enviar
+    ├── sync/          # WorkManager: envío de viajes y consulta de aprobaciones
     ├── sensors/       # GPS (Fused Location), servicio en primer plano del viaje, permisos y fotos
     └── repository/    # Implementaciones de los repositorios
 ```
 
 ## Cómo ejecutar
 
-1. Abrir la carpeta del proyecto en Android Studio y esperar el *Gradle Sync*.
-2. Elegir un emulador (Android 8.0 / API 26 o superior) y tocar **Run**.
-3. Tests unitarios: clic derecho en `app/src/test` → **Run Tests**, o `./gradlew test`.
+1. Levantar la API simulada: instalar [Node](https://nodejs.org) (una vez) y, en una terminal dentro de `api-mock/`, correr `node server.js`. Funciona igual en Mac y en Windows. Más detalles en [`api-mock/README.md`](api-mock/README.md).
+2. Abrir la carpeta del proyecto en Android Studio y esperar el *Gradle Sync*.
+3. Elegir un emulador (Android 8.0 / API 26 o superior) y tocar **Run**.
+4. Iniciar sesión con `lucia@rodando.com.ar` / `rodando123`.
+5. Tests unitarios: clic derecho en `app/src/test` → **Run Tests**, o `./gradlew test`.
 
 La primera vez que se abre, la app carga viajes de ejemplo en Room para poder probar Historial y Detalle sin GPS ni cámara. También carga una campaña (Pampa Bebidas) y un vinilo Parcial ($50.000/mes + $50/km) para Inicio y Ganancias. Para empezar de cero: *Settings → Apps → Rodando → Storage → Clear storage*.
 
@@ -97,7 +101,11 @@ En el emulador la cámara trasera muestra una sala virtual que se recorre manten
 
 Otra forma: en la configuración del emulador (*Device Manager → Edit → Advanced → Camera*), usar la webcam de la Mac como cámara trasera y mostrarle el QR desde el celular.
 
-La API simulada y sus instrucciones se agregan en la carpeta `api-mock/` cuando se implemente la sincronización.
+**Envío y aprobación de viajes:** cada viaje se guarda primero en el teléfono (Room) y WorkManager lo envía a la API apenas hay conexión, aunque la app esté cerrada; si falla, reintenta con espera creciente y además repite cada 15 minutos. La página del equipo, en <http://localhost:3000>, muestra los viajes recibidos con sus fotos y permite aprobarlos o rechazarlos; *Actualizar* en Historial trae esos cambios. Para la defensa:
+
+- **Sin conexión:** cortar el servidor (Ctrl + C). La app sigue funcionando y los viajes quedan "Sin enviar"; al levantarlo de nuevo se envían solos.
+- **Envíos parciales:** en la página del equipo, *Simular fallas → Falla uno de cada dos*. De varios pendientes llegan algunos y el resto se reintenta, sin duplicarse.
+- **Aprobación:** aprobar un viaje en la página y tocar *Actualizar*: pasa a "Aprobado" y suma a lo confirmado en Ganancias.
 
 ## Forma de trabajo
 
