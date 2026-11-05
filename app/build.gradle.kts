@@ -35,6 +35,11 @@ android {
     }
 }
 
+ksp {
+    // Room guarda acá el esquema de cada versión de la base (se sube a git).
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 kotlin {
     compilerOptions {
         // Igual que compileOptions de Java (11).
