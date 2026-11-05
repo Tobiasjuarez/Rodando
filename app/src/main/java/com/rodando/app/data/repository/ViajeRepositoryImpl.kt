@@ -72,13 +72,13 @@ class ViajeRepositoryImpl(
         dao.guardarPunto(punto.aEntidad(viajeId))
     }
 
-    override suspend fun finalizarViaje(viajeId: String, fotoFinPath: String): Viaje {
+    override suspend fun finalizarViaje(viajeId: String, fotoFinPath: String, fotoVerificada: Boolean): Viaje {
         val entidad = requireNotNull(dao.obtenerPorId(viajeId)) { "No existe el viaje $viajeId" }
         // Los saltos imposibles del GPS no suman km.
         val distancia = limpiarRecorrido.distanciaKm(obtenerPuntos(viajeId))
         val verificacion = when {
             // Un viaje en revisión sigue así hasta que el equipo apruebe las fotos.
-            entidad.verificacion == EstadoVerificacion.EN_REVISION -> EstadoVerificacion.EN_REVISION
+            entidad.verificacion == EstadoVerificacion.EN_REVISION || !fotoVerificada -> EstadoVerificacion.EN_REVISION
             distancia < CalcularGananciaUseCase.DISTANCIA_MINIMA_KM -> EstadoVerificacion.NO_COMPUTABLE
             else -> EstadoVerificacion.POR_APROBAR
         }

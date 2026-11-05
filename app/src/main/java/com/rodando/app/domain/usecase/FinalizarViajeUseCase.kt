@@ -13,9 +13,9 @@ class FinalizarViajeUseCase(
     private val registro: RegistroDeRecorrido
 ) {
 
-    suspend operator fun invoke(viajeId: String, fotoPath: String): Viaje {
+    suspend operator fun invoke(viajeId: String, fotoPath: String, fotoVerificada: Boolean = true): Viaje {
         // Primero se apaga la ubicación para que no entren puntos después de la hora de fin.
         registro.detener()
-        return viajes.finalizarViaje(viajeId, fotoPath)
+        return viajes.finalizarViaje(viajeId, fotoPath, fotoVerificada)
     }
 }

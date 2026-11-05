@@ -34,8 +34,11 @@ interface ViajeRepository {
 
     suspend fun registrarPunto(viajeId: String, punto: PuntoGps)
 
-    /** Cierra el viaje, calcula la distancia y lo deja pendiente de envío (o no computable). */
-    suspend fun finalizarViaje(viajeId: String, fotoFinPath: String): Viaje
+    /**
+     * Cierra el viaje, calcula la distancia y lo deja pendiente de envío (o no computable).
+     * Si la foto final no se pudo verificar, el viaje queda en revisión.
+     */
+    suspend fun finalizarViaje(viajeId: String, fotoFinPath: String, fotoVerificada: Boolean = true): Viaje
 
     suspend fun sincronizarPendientes()
 }

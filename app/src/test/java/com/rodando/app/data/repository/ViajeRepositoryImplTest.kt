@@ -91,4 +91,16 @@ class ViajeRepositoryImplTest {
         assertEquals(EstadoVerificacion.NO_COMPUTABLE, viaje.verificacion)
         assertEquals(1, repositorio.observarViajes().first().size)
     }
+
+    @Test
+    fun si_la_foto_final_no_se_verifico_el_viaje_queda_en_revision() = runBlocking {
+        iniciar()
+        repositorio.registrarPunto("viaje-1", punto(-34.60, 60_000))
+        repositorio.registrarPunto("viaje-1", punto(-34.61, 180_000))
+
+        val viaje = repositorio.finalizarViaje("viaje-1", "fin.jpg", fotoVerificada = false)
+
+        assertEquals(EstadoVerificacion.EN_REVISION, viaje.verificacion)
+        assertEquals(1.11, viaje.distanciaKm, 0.01)
+    }
 }
