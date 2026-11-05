@@ -1,6 +1,7 @@
 package com.rodando.app.domain.repository
 
 import com.rodando.app.domain.model.PuntoGps
+import com.rodando.app.domain.model.ResultadoSincronizacion
 import com.rodando.app.domain.model.TipoVinilo
 import com.rodando.app.domain.model.Viaje
 import kotlinx.coroutines.flow.Flow
@@ -40,5 +41,9 @@ interface ViajeRepository {
      */
     suspend fun finalizarViaje(viajeId: String, fotoFinPath: String, fotoVerificada: Boolean = true): Viaje
 
-    suspend fun sincronizarPendientes()
+    /**
+     * Envía los viajes terminados que siguen sin enviar y trae las aprobaciones del equipo.
+     * Si un envío falla sigue con los demás: un corte a mitad de camino deja enviados los que llegaron.
+     */
+    suspend fun sincronizarPendientes(): ResultadoSincronizacion
 }

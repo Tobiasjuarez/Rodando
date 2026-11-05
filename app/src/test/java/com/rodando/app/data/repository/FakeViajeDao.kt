@@ -3,6 +3,7 @@ package com.rodando.app.data.repository
 import com.rodando.app.data.local.PuntoGpsEntity
 import com.rodando.app.data.local.ViajeDao
 import com.rodando.app.data.local.ViajeEntity
+import com.rodando.app.domain.model.EstadoEnvio
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
@@ -26,6 +27,9 @@ class FakeViajeDao : ViajeDao {
 
     override suspend fun obtenerEnCurso(): ViajeEntity? =
         viajes.value.find { it.fin == null }
+
+    override suspend fun pendientesDeEnvio(): List<ViajeEntity> =
+        viajes.value.filter { it.fin != null && it.envio == EstadoEnvio.PENDIENTE }.sortedBy { it.inicio }
 
     override suspend fun contar(): Int = viajes.value.size
 

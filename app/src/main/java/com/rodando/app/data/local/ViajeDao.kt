@@ -26,6 +26,10 @@ interface ViajeDao {
     @Query("SELECT * FROM viajes WHERE fin IS NULL LIMIT 1")
     suspend fun obtenerEnCurso(): ViajeEntity?
 
+    /** Viajes terminados que todavía no llegaron al servidor, del más viejo al más nuevo. */
+    @Query("SELECT * FROM viajes WHERE fin IS NOT NULL AND envio = 'PENDIENTE' ORDER BY inicio")
+    suspend fun pendientesDeEnvio(): List<ViajeEntity>
+
     @Query("SELECT COUNT(*) FROM viajes")
     suspend fun contar(): Int
 
