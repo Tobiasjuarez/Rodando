@@ -1,5 +1,6 @@
 package com.rodando.app.presentation.detalle
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,6 +22,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,6 +38,7 @@ import com.rodando.app.presentation.common.ChipEstado
 import com.rodando.app.presentation.common.EstadoVacio
 import com.rodando.app.presentation.common.FilaDato
 import com.rodando.app.presentation.common.UiState
+import com.rodando.app.presentation.common.rememberFoto
 import com.rodando.app.presentation.theme.RodandoTheme
 
 @Composable
@@ -119,17 +123,38 @@ private fun Detalle(detalle: DetalleViajeUi) {
             modifier = Modifier.padding(top = 8.dp)
         )
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            Foto(stringResource(R.string.detalle_foto_inicio, detalle.horaInicio), Modifier.weight(1f))
+            Foto(detalle.fotoInicio, stringResource(R.string.detalle_foto_inicio, detalle.horaInicio), Modifier.weight(1f))
             detalle.horaFin?.let { hora ->
-                Foto(stringResource(R.string.detalle_foto_fin, hora), Modifier.weight(1f))
+                Foto(detalle.fotoFin, stringResource(R.string.detalle_foto_fin, hora), Modifier.weight(1f))
             }
         }
     }
 }
 
-/** Lugar de la foto del vinilo. La imagen real se muestra cuando la app saque fotos con CameraX. */
+/** Foto del vinilo guardada en el teléfono; si no hay archivo (viajes de ejemplo), un ícono. */
 @Composable
-private fun Foto(texto: String, modifier: Modifier = Modifier) {
+private fun Foto(ruta: String?, texto: String, modifier: Modifier = Modifier) {
+    val foto = rememberFoto(ruta, maximo = 512)
+    if (foto != null) {
+        Column(modifier = modifier) {
+            Image(
+                bitmap = foto,
+                contentDescription = stringResource(R.string.detalle_foto_descripcion, texto),
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(104.dp)
+                    .clip(RoundedCornerShape(12.dp))
+            )
+            Text(
+                text = texto,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
+        return
+    }
     Column(
         modifier = modifier
             .height(104.dp)

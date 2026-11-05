@@ -98,6 +98,7 @@
     <string name="detalle_error_titulo">No encontramos el viaje</string>
     <string name="detalle_foto_inicio">Inicio · %1$s</string>
     <string name="detalle_foto_fin">Fin · %1$s</string>
+    <string name="detalle_foto_descripcion">Foto del vinilo, %1$s</string>
 
     <!-- Estados de un viaje -->
     <string name="estado_en_curso">En curso</string>
