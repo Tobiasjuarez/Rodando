@@ -28,6 +28,11 @@ class LoginViewModel(private val iniciarSesion: IniciarSesionUseCase) : ViewMode
 
     fun cambiarPassword(password: String) = _estado.update { it.copy(password = password, error = null) }
 
+    /** El conductor no dio el permiso de red local: sin él no se llega a la API simulada. */
+    fun sinPermisoDeRedLocal() = _estado.update {
+        it.copy(error = "Sin el permiso de red local la app no puede conectarse a la API simulada. Activalo en Ajustes → Apps → Rodando → Permisos.")
+    }
+
     fun ingresar() {
         val actual = _estado.value
         if (actual.ingresando) return

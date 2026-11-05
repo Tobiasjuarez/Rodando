@@ -17,6 +17,8 @@ La app se conecta a `http://10.0.2.2:3000`, que es como el emulador de Android v
 
 **Usuario de prueba:** `lucia@rodando.com.ar` / `rodando123`
 
+En Android 17 o más nuevo, la app pide el permiso de **red local** (o "Dispositivos cercanos") antes de iniciar sesión: sin él Android corta las conexiones a la computadora y el login da "No hay conexión con el servidor".
+
 ## Rutas
 
 | Método y ruta | Para qué |

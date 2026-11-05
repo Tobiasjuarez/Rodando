@@ -1,5 +1,7 @@
 package com.rodando.app.presentation.navegacion
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -92,7 +94,13 @@ private fun AppConSesion(contenedor: AppContainer, navController: NavHostControl
     val contexto = LocalContext.current
 
     // Al entrar se envía lo que haya quedado pendiente y se traen las aprobaciones.
-    LaunchedEffect(Unit) { contenedor.envios.enviarAhora() }
+    // Si falta el permiso de red local (Android 17+), se pide antes; sin él los envíos no llegan.
+    val pedirRedLocal = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+        contenedor.envios.enviarAhora()
+    }
+    LaunchedEffect(Unit) {
+        if (Permisos.necesitaRedLocal(contexto)) pedirRedLocal.launch(Permisos.RED_LOCAL) else contenedor.envios.enviarAhora()
+    }
 
     // RNF02: si la app se cerró con un viaje en curso, al abrirla se vuelve a encender el registro.
     LaunchedEffect(Unit) {

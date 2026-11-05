@@ -1,5 +1,7 @@
 package com.rodando.app.presentation.login
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -32,16 +35,24 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rodando.app.R
+import com.rodando.app.data.sensors.Permisos
 import com.rodando.app.presentation.theme.RodandoTheme
 
 @Composable
 fun LoginScreen(viewModel: LoginViewModel, modifier: Modifier = Modifier) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
+    val contexto = LocalContext.current
+    // Antes de hablar con la API se pide el permiso de red local (Android 17+).
+    val pedirRedLocal = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { concedido ->
+        if (concedido) viewModel.ingresar() else viewModel.sinPermisoDeRedLocal()
+    }
     LoginContenido(
         estado = estado,
         onEmail = viewModel::cambiarEmail,
         onPassword = viewModel::cambiarPassword,
-        onIngresar = viewModel::ingresar,
+        onIngresar = {
+            if (Permisos.necesitaRedLocal(contexto)) pedirRedLocal.launch(Permisos.RED_LOCAL) else viewModel.ingresar()
+        },
         modifier = modifier
     )
 }
