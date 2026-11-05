@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -40,6 +41,7 @@ import com.rodando.app.presentation.common.EstadoVacio
 import com.rodando.app.presentation.common.UiState
 import com.rodando.app.presentation.detalle.MapaRecorrido
 import com.rodando.app.presentation.theme.RodandoTheme
+import com.rodando.app.presentation.common.encabezado
 
 @Composable
 fun ViajeEnCursoScreen(
@@ -67,7 +69,11 @@ fun ViajeEnCursoContenido(
             IconButton(onClick = onVolver) {
                 Icon(painterResource(R.drawable.ic_volver), contentDescription = stringResource(R.string.volver))
             }
-            Text(text = stringResource(R.string.en_curso_titulo), style = MaterialTheme.typography.headlineSmall)
+            Text(
+                text = stringResource(R.string.en_curso_titulo),
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.encabezado()
+            )
         }
         when (estado) {
             UiState.Cargando -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -148,7 +154,7 @@ private fun EnCurso(viaje: ViajeEnCursoUi, onFinalizar: (viajeId: String) -> Uni
         Spacer(Modifier.height(16.dp))
         Button(
             onClick = { confirmando = true },
-            modifier = Modifier.fillMaxWidth().height(56.dp)
+            modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)
         ) {
             Text(stringResource(R.string.en_curso_finalizar))
         }

@@ -37,6 +37,7 @@ import com.rodando.app.presentation.common.ChipEstado
 import com.rodando.app.presentation.common.EstadoVacio
 import com.rodando.app.presentation.common.UiState
 import com.rodando.app.presentation.theme.RodandoTheme
+import com.rodando.app.presentation.common.encabezado
 
 @Composable
 fun HistorialScreen(
@@ -75,7 +76,7 @@ fun HistorialContenido(
             Text(
                 text = stringResource(R.string.historial_titulo),
                 style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f).encabezado()
             )
             if (onActualizar != null) {
                 TextButton(onClick = onActualizar) { Text(stringResource(R.string.historial_actualizar)) }

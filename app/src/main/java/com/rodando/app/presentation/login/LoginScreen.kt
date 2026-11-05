@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -37,6 +38,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rodando.app.R
 import com.rodando.app.data.sensors.Permisos
 import com.rodando.app.presentation.theme.RodandoTheme
+import com.rodando.app.presentation.common.encabezado
 
 @Composable
 fun LoginScreen(viewModel: LoginViewModel, modifier: Modifier = Modifier) {
@@ -80,7 +82,11 @@ fun LoginContenido(
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(64.dp)
         )
-        Text(stringResource(R.string.app_name), style = MaterialTheme.typography.headlineMedium)
+        Text(
+            stringResource(R.string.app_name),
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier.encabezado()
+        )
         Text(
             text = stringResource(R.string.login_bajada),
             style = MaterialTheme.typography.bodyMedium,
@@ -115,7 +121,7 @@ fun LoginContenido(
             enabled = !estado.ingresando,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
+                .heightIn(min = 56.dp)
         ) {
             if (estado.ingresando) {
                 CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)

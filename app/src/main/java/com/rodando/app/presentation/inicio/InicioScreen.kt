@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -42,6 +43,7 @@ import com.rodando.app.presentation.common.EstadoVacio
 import com.rodando.app.presentation.common.UiState
 import com.rodando.app.presentation.ganancias.BarraObjetivoUi
 import com.rodando.app.presentation.theme.RodandoTheme
+import com.rodando.app.presentation.common.encabezado
 
 @Composable
 fun InicioScreen(
@@ -140,7 +142,7 @@ private fun Inicio(
                 Text(
                     text = stringResource(R.string.inicio_saludo),
                     style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f).encabezado()
                 )
                 // No se puede salir con un viaje en curso: se perdería quién lo hizo.
                 if (onCerrarSesion != null && !inicio.hayViajeEnCurso) {
@@ -250,7 +252,7 @@ private fun Inicio(
                 enabled = inicio.hayViajeEnCurso || inicio.puedeIniciarViaje,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp)
+                    .heightIn(min = 56.dp)
             ) {
                 Text(
                     stringResource(
@@ -313,7 +315,7 @@ private fun SinCampania() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(24.dp)
-                .height(56.dp)
+                .heightIn(min = 56.dp)
         ) {
             Text(stringResource(R.string.inicio_iniciar_viaje))
         }
