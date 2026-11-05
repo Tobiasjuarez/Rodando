@@ -54,4 +54,13 @@ class FormatoTest {
         assertEquals("00:42:15", Formato.cronometro((42 * 60 + 15) * 1000L))
         assertEquals("01:05:09", Formato.cronometro((3600 + 5 * 60 + 9) * 1000L))
     }
+
+    @Test
+    fun la_ultima_sincronizacion_dice_el_dia_y_la_hora() {
+        val millis = { dia: LocalDate -> dia.atTime(15, 4).atZone(Formato.zona).toInstant().toEpochMilli() }
+
+        assertEquals("hoy a las 15:04", Formato.momento(millis(hoy), hoy))
+        assertEquals("ayer a las 15:04", Formato.momento(millis(hoy.minusDays(1)), hoy))
+        assertEquals("el 28 de septiembre a las 15:04", Formato.momento(millis(LocalDate.of(2026, 9, 28)), hoy))
+    }
 }

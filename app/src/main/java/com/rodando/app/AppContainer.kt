@@ -7,12 +7,14 @@ import kotlinx.coroutines.SupervisorJob
 import com.rodando.app.data.local.DatosDePrueba
 import com.rodando.app.data.local.RodandoDatabase
 import com.rodando.app.data.local.SesionLocal
+import com.rodando.app.data.local.SincronizacionLocal
 import com.rodando.app.data.remote.ClienteApi
 import com.rodando.app.data.remote.RemotoDeViajesApi
 import com.rodando.app.data.repository.CampaniaRepositoryImpl
 import com.rodando.app.data.repository.SesionRepositoryImpl
 import com.rodando.app.data.repository.ViajeRepositoryImpl
 import com.rodando.app.data.repository.ViniloRepositoryImpl
+import com.rodando.app.data.sensors.ConexionAndroid
 import com.rodando.app.data.sensors.FotosEnArchivos
 import com.rodando.app.data.sensors.RegistradorDeViaje
 import com.rodando.app.data.sensors.RegistroConServicio
@@ -23,8 +25,10 @@ import com.rodando.app.data.sync.ProgramadorWorkManager
 import com.rodando.app.domain.repository.AlmacenDeFotos
 import com.rodando.app.domain.repository.CampaniaRepository
 import com.rodando.app.domain.repository.FuenteUbicacion
+import com.rodando.app.domain.repository.MonitorDeConexion
 import com.rodando.app.domain.repository.ProgramadorDeEnvios
 import com.rodando.app.domain.repository.RegistroDeRecorrido
+import com.rodando.app.domain.repository.RegistroDeSincronizacion
 import com.rodando.app.domain.repository.SesionRepository
 import com.rodando.app.domain.repository.ViajeRepository
 import com.rodando.app.domain.repository.ViniloRepository
@@ -57,6 +61,10 @@ class AppContainer(context: Context) {
         CampaniaRepositoryImpl(database.campaniaDao(), database.viniloDao(), api)
 
     val iniciarSesion = IniciarSesionUseCase(sesionRepository, campaniaRepository)
+
+    val conexion: MonitorDeConexion = ConexionAndroid(context)
+
+    val sincronizacion: RegistroDeSincronizacion = SincronizacionLocal(context)
 
     /** Envío de viajes en segundo plano con WorkManager. */
     val envios: ProgramadorDeEnvios = ProgramadorWorkManager(context)
