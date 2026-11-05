@@ -2,6 +2,7 @@ package com.rodando.app.presentation.guardado
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,7 +29,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rodando.app.R
-import com.rodando.app.domain.model.EstadoViaje
+import com.rodando.app.domain.model.EstadoEnvio
+import com.rodando.app.domain.model.EstadoVerificacion
+import com.rodando.app.presentation.common.ChipEnvio
 import com.rodando.app.presentation.common.ChipEstado
 import com.rodando.app.presentation.common.EstadoVacio
 import com.rodando.app.presentation.common.FilaDato
@@ -112,7 +115,10 @@ private fun Guardado(viaje: ViajeGuardadoUi) {
             }
         }
         Text(viaje.titulo, style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center)
-        ChipEstado(estado = viaje.estado)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            ChipEstado(enCurso = false, verificacion = viaje.verificacion)
+            ChipEnvio(viaje.envio)
+        }
         Text(
             text = viaje.mensaje,
             style = MaterialTheme.typography.bodyMedium,
@@ -135,8 +141,9 @@ private fun GuardadoPreview() {
         ViajeGuardadoContenido(
             estado = UiState.Contenido(
                 ViajeGuardadoUi(
-                    "viaje-1", EstadoViaje.PENDIENTE, "¡Viaje guardado!",
-                    "Quedó en el teléfono y se va a enviar solo cuando haya conexión.", "18,4 km", "42 min", "+$920"
+                    "viaje-1", EstadoVerificacion.POR_APROBAR, EstadoEnvio.PENDIENTE, "¡Viaje guardado!",
+                    "Suma cuando el equipo lo apruebe. Se va a enviar solo cuando haya conexión.",
+                    "18,4 km", "42 min", "+$920"
                 )
             ),
             onVolverAlInicio = {},

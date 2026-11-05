@@ -92,6 +92,15 @@ private fun Resumen(ganancias: GananciasUi, onVerViajes: () -> Unit) {
                 Text(text = ganancias.encabezado, style = MaterialTheme.typography.labelMedium)
                 Text(text = ganancias.total, style = MaterialTheme.typography.displaySmall)
                 Text(text = ganancias.detalle, style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    text = stringResource(R.string.ganancias_confirmado, ganancias.confirmado),
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+                Text(
+                    text = stringResource(R.string.ganancias_aclaracion_estimado),
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
         }
 
@@ -107,15 +116,22 @@ private fun Resumen(ganancias: GananciasUi, onVerViajes: () -> Unit) {
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                BarraObjetivo(stringResource(R.string.ganancias_km), ganancias.barraKm)
                 BarraObjetivo(stringResource(R.string.ganancias_dias), ganancias.barraDias)
+                Text(
+                    text = stringResource(R.string.ganancias_sin_minimo_km),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
 
         Column {
-            FilaDato(stringResource(R.string.ganancias_computables), ganancias.viajesComputables.toString())
-            FilaDato(stringResource(R.string.ganancias_pendientes), ganancias.pendientes.toString())
-            FilaDato(stringResource(R.string.ganancias_no_computables), ganancias.noComputables.toString())
+            FilaDato(stringResource(R.string.ganancias_km_pagos, ganancias.kmTope), ganancias.kmPagos)
+            FilaDato(stringResource(R.string.ganancias_aprobados), ganancias.aprobados.toString())
+            FilaDato(stringResource(R.string.ganancias_por_aprobar), ganancias.porAprobar.toString())
+            FilaDato(stringResource(R.string.ganancias_en_revision), ganancias.enRevision.toString())
+            FilaDato(stringResource(R.string.ganancias_sin_pago), ganancias.sinPago.toString())
+            FilaDato(stringResource(R.string.ganancias_sin_enviar), ganancias.sinEnviar.toString())
         }
 
         OutlinedButton(
@@ -138,13 +154,17 @@ private fun GananciasPreview() {
                 GananciasUi(
                     encabezado = "OCTUBRE · ESTIMADO",
                     total = "$30.133",
-                    detalle = "$20.833 de fijo + 186,0 km × $50",
+                    confirmado = "$21.400",
+                    detalle = "$20.833 de fijo + $9.300 por 186,0 km",
                     fijoEntero = "$50.000",
-                    barraKm = BarraObjetivoUi("186,0 de 400 km", 0.465f, "Te faltan 214 km", false),
                     barraDias = BarraObjetivoUi("5 de 12 días", 0.42f, "Te faltan 7 días con viajes", false),
-                    viajesComputables = 9,
-                    pendientes = 0,
-                    noComputables = 0
+                    kmPagos = "186,0 km",
+                    kmTope = "1.500",
+                    aprobados = 7,
+                    porAprobar = 2,
+                    enRevision = 0,
+                    sinPago = 1,
+                    sinEnviar = 1
                 )
             ),
             onVerViajes = {}

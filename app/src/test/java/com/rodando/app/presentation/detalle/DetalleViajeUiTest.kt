@@ -1,9 +1,7 @@
 package com.rodando.app.presentation.detalle
 
-import com.rodando.app.domain.model.EstadoViaje
-import com.rodando.app.domain.model.TipoVinilo
-import com.rodando.app.domain.model.Viaje
-import com.rodando.app.domain.model.Vinilo
+import com.rodando.app.domain.model.EstadoVerificacion
+import com.rodando.app.domain.model.viajeDePrueba
 import com.rodando.app.presentation.common.Formato
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -15,8 +13,8 @@ class DetalleViajeUiTest {
     private val hoy = LocalDate.of(2026, 10, 1)
     private val inicio = hoy.atTime(8, 42).atZone(Formato.zona).toInstant().toEpochMilli()
 
-    private fun viaje(fin: Long?) =
-        Viaje("v", "c", TipoVinilo.PARCIAL, inicio, fin, 18.4, EstadoViaje.SINCRONIZADO, "", null, 1)
+    private fun viaje(fin: Long?, tarifa: Double = 50.0) =
+        viajeDePrueba(inicio = inicio, fin = fin, km = 18.4, tarifaPorKm = tarifa)
 
     @Test
     fun un_viaje_finalizado_muestra_horario_distancia_y_duracion() {
@@ -29,21 +27,20 @@ class DetalleViajeUiTest {
     }
 
     @Test
-    fun un_viaje_en_curso_no_tiene_hora_de_fin() {
+    fun un_viaje_en_curso_no_tiene_hora_de_fin_ni_suma_todavia() {
         val detalle = armarDetalle(viaje(fin = null), emptyList(), hoy)
 
         assertEquals("Hoy · desde las 08:42", detalle.horario)
         assertNull(detalle.horaFin)
+        assertNull(detalle.ganancia)
     }
 
     @Test
-    fun con_el_vinilo_muestra_lo_que_suma_el_viaje_por_km() {
-        val vinilo = Vinilo(TipoVinilo.PARCIAL, 50_000.0, 50.0, fechaInstalacion = 0)
+    fun muestra_la_tarifa_conservada_y_lo_que_suma_por_km() {
+        val detalle = armarDetalle(viaje(fin = inicio + 1, tarifa = 45.0), emptyList(), hoy)
 
-        val computable = armarDetalle(viaje(fin = inicio + 1), emptyList(), hoy, vinilo)
-        val enCurso = armarDetalle(viaje(fin = null).copy(estado = EstadoViaje.EN_CURSO), emptyList(), hoy, vinilo)
-
-        assertEquals("+$920", computable.ganancia)
-        assertNull(enCurso.ganancia)
+        assertEquals("$45/km", detalle.tarifa)
+        assertEquals("+$828", detalle.ganancia) // 18,4 km × $45
+        assertEquals(EstadoVerificacion.APROBADO, detalle.verificacion)
     }
 }

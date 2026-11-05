@@ -3,7 +3,8 @@ package com.rodando.app.domain.usecase
 import com.rodando.app.data.repository.FakeViajeDao
 import com.rodando.app.data.repository.ViajeRepositoryImpl
 import com.rodando.app.domain.model.Campania
-import com.rodando.app.domain.model.EstadoViaje
+import com.rodando.app.domain.model.EstadoEnvio
+import com.rodando.app.domain.model.EstadoVerificacion
 import com.rodando.app.domain.model.PuntoGps
 import com.rodando.app.domain.model.TipoVinilo
 import com.rodando.app.domain.model.Vinilo
@@ -51,7 +52,9 @@ class IniciarYFinalizarViajeTest {
 
         assertEquals("campania-1", viaje.campaniaId)
         assertEquals(TipoVinilo.PARCIAL, viaje.tipoVinilo)
-        assertEquals(EstadoViaje.EN_CURSO, viaje.estado)
+        assertTrue(viaje.enCurso)
+        assertEquals(EstadoVerificacion.POR_APROBAR, viaje.verificacion)
+        assertEquals(50.0, viaje.tarifaPorKm, 0.0)
         assertEquals("viaje-1", registro.viajeActual)
     }
 
@@ -75,7 +78,8 @@ class IniciarYFinalizarViajeTest {
         val viaje = FinalizarViajeUseCase(viajes, registro)("viaje-1", "fin.jpg")
 
         assertNull(registro.viajeActual)
-        assertEquals(EstadoViaje.PENDIENTE, viaje.estado)
+        assertEquals(EstadoVerificacion.POR_APROBAR, viaje.verificacion)
+        assertEquals(EstadoEnvio.PENDIENTE, viaje.envio)
         assertEquals("fin.jpg", viaje.fotoFinPath)
         assertNull(viajes.observarViajeEnCurso().first())
     }

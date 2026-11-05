@@ -27,7 +27,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rodando.app.R
-import com.rodando.app.domain.model.EstadoViaje
+import com.rodando.app.domain.model.EstadoEnvio
+import com.rodando.app.domain.model.EstadoVerificacion
+import com.rodando.app.presentation.common.ChipEnvio
 import com.rodando.app.domain.model.PuntoGps
 import com.rodando.app.presentation.common.ChipEstado
 import com.rodando.app.presentation.common.EstadoVacio
@@ -93,12 +95,23 @@ private fun Detalle(detalle: DetalleViajeUi) {
                 .fillMaxWidth()
                 .height(184.dp)
         )
-        ChipEstado(estado = detalle.estado)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            ChipEstado(enCurso = detalle.enCurso, verificacion = detalle.verificacion)
+            if (!detalle.enCurso) ChipEnvio(detalle.envio)
+        }
         Text(text = detalle.horario, style = MaterialTheme.typography.titleMedium)
         Column {
             FilaDato(stringResource(R.string.detalle_distancia), detalle.distancia)
             FilaDato(stringResource(R.string.detalle_duracion), detalle.duracion)
-            detalle.ganancia?.let { FilaDato(stringResource(R.string.guardado_ganancia), it) }
+            FilaDato(stringResource(R.string.detalle_tarifa), detalle.tarifa)
+            detalle.ganancia?.let { ganancia ->
+                val etiqueta = if (detalle.verificacion == EstadoVerificacion.APROBADO) {
+                    R.string.detalle_ganancia
+                } else {
+                    R.string.guardado_ganancia
+                }
+                FilaDato(stringResource(etiqueta), ganancia)
+            }
         }
         Text(
             text = stringResource(R.string.detalle_fotos),
@@ -148,7 +161,10 @@ private fun DetallePreview() {
     RodandoTheme {
         DetalleViajeContenido(
             estado = UiState.Contenido(
-                DetalleViajeUi("Hoy · 08:42 a 09:24", "18,4 km", "42 min", EstadoViaje.SINCRONIZADO, "08:42", "09:24", puntos, "+$920")
+                DetalleViajeUi(
+                    "Hoy · 08:42 a 09:24", "18,4 km", "42 min", false, EstadoVerificacion.APROBADO,
+                    EstadoEnvio.ENVIADO, "08:42", "09:24", puntos, "$50/km", "+$920"
+                )
             ),
             onVolver = {}
         )

@@ -1,7 +1,7 @@
 package com.rodando.app.domain.model
 
 /**
- * Avance hacia un objetivo del mes (400 km verificados o 12 días con viajes).
+ * Avance hacia un objetivo del mes (por ejemplo, 12 días con viajes).
  * Lo usan las barras de progreso de Inicio y Ganancias.
  */
 data class ObjetivoMensual(

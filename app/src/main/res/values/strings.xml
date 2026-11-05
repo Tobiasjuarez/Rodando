@@ -18,6 +18,7 @@
         <item quantity="one">ESTE MES · %d VIAJE</item>
         <item quantity="other">ESTE MES · %d VIAJES</item>
     </plurals>
+    <string name="inicio_km_pagos">Km pagos</string>
     <string name="inicio_iniciar_viaje">Iniciar viaje</string>
     <string name="inicio_ver_viaje_en_curso">Ver viaje en curso</string>
     <string name="inicio_aviso_en_curso">Tenés un viaje en curso. Finalizalo para empezar otro.</string>
@@ -58,7 +59,7 @@
     <string name="en_curso_error_titulo">No pudimos cargar el viaje</string>
 
     <!-- Viaje guardado -->
-    <string name="guardado_ganancia">Suma por km (estimado)</string>
+    <string name="guardado_ganancia">Suma por km (a confirmar)</string>
     <string name="guardado_volver_inicio">Volver al inicio</string>
     <string name="guardado_ver_detalle">Ver detalle del viaje</string>
 
@@ -83,6 +84,8 @@
     <string name="detalle_titulo">Detalle del viaje</string>
     <string name="detalle_distancia">Distancia</string>
     <string name="detalle_duracion">Duración</string>
+    <string name="detalle_ganancia">Suma por km</string>
+    <string name="detalle_tarifa">Tarifa del viaje</string>
     <string name="detalle_fotos">Fotos del vinilo</string>
     <string name="detalle_mapa">Mapa del recorrido</string>
     <string name="detalle_sin_puntos">Este viaje no tiene puntos GPS</string>
@@ -92,10 +95,15 @@
 
     <!-- Estados de un viaje -->
     <string name="estado_en_curso">En curso</string>
+    <string name="estado_por_aprobar">Por aprobar</string>
     <string name="estado_en_revision">En revisión</string>
-    <string name="estado_pendiente">Pendiente de envío</string>
-    <string name="estado_sincronizado">Sincronizado</string>
+    <string name="estado_aprobado">Aprobado</string>
+    <string name="estado_rechazado">Rechazado</string>
     <string name="estado_no_computable">No computable</string>
+
+    <!-- Envío de un viaje (independiente de la aprobación) -->
+    <string name="envio_pendiente">Sin enviar</string>
+    <string name="envio_enviado">Enviado</string>
 
     <!-- Ganancias -->
     <string name="ganancias_titulo">Ganancias</string>
@@ -103,10 +111,15 @@
     <string name="ganancias_sin_vinilo_mensaje">Cuando te coloquen el vinilo vas a ver el estimado del mes y cuánto te falta para cobrar el fijo entero.</string>
     <string name="ganancias_error_titulo">No pudimos calcular las ganancias</string>
     <string name="ganancias_objetivos">PARA COBRAR EL FIJO ENTERO (%1$s)</string>
-    <string name="ganancias_km">Km verificados</string>
+    <string name="ganancias_sin_minimo_km">No hay mínimo de km: cada km de tus viajes de siempre se paga aparte.</string>
+    <string name="ganancias_km_pagos">Km pagos del mes (tope %1$s)</string>
     <string name="ganancias_dias">Días con viajes</string>
-    <string name="ganancias_computables">Viajes computables</string>
-    <string name="ganancias_pendientes">Pendientes de envío</string>
-    <string name="ganancias_no_computables">No computables</string>
+    <string name="ganancias_confirmado">%1$s ya confirmados</string>
+    <string name="ganancias_aclaracion_estimado">El estimado suma los viajes que esperan aprobación. Los viajes en revisión suman recién cuando se aprueban.</string>
+    <string name="ganancias_aprobados">Viajes aprobados</string>
+    <string name="ganancias_por_aprobar">Por aprobar</string>
+    <string name="ganancias_en_revision">En revisión</string>
+    <string name="ganancias_sin_pago">Sin pago (rechazados o muy cortos)</string>
+    <string name="ganancias_sin_enviar">Sin enviar</string>
     <string name="ganancias_ver_viajes">Ver viajes del mes</string>
 </resources>

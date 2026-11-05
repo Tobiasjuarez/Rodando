@@ -15,7 +15,6 @@ data class ViniloEntity(
     val fijoMensual: Double,
     val tarifaPorKm: Double,
     val fechaInstalacion: Long?,
-    val kmMinimo: Double,
     val diasMinimos: Int,
     val kmTope: Double
 ) {

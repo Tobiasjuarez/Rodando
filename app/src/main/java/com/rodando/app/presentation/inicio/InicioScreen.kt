@@ -156,7 +156,7 @@ private fun Inicio(
             }
 
             // Resumen del mes con barras compactas
-            if (inicio.totalMes != null && inicio.barraKm != null && inicio.barraDias != null) {
+            if (inicio.totalMes != null && inicio.barraDias != null && inicio.kmMes != null) {
                 Surface(
                     color = MaterialTheme.colorScheme.surfaceContainer,
                     shape = MaterialTheme.shapes.large,
@@ -169,12 +169,26 @@ private fun Inicio(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(inicio.totalMes, style = MaterialTheme.typography.displaySmall)
+                        inicio.confirmadoMes?.let {
+                            Text(
+                                text = stringResource(R.string.ganancias_confirmado, it),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(16.dp),
                             modifier = Modifier.padding(top = 8.dp)
                         ) {
-                            BarraCompacta(inicio.barraKm, Modifier.weight(1f))
                             BarraCompacta(inicio.barraDias, Modifier.weight(1f))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = stringResource(R.string.inicio_km_pagos),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(inicio.kmMes, style = MaterialTheme.typography.titleMedium)
+                            }
                         }
                     }
                 }
@@ -275,9 +289,10 @@ private fun InicioPreview() {
                     tarifa = "$50.000/mes + $50/km",
                     pendientes = 2,
                     totalMes = "$82.140",
+                    confirmadoMes = "$71.300",
                     viajesDelMes = 31,
-                    barraKm = BarraObjetivoUi("642,8 de 400 km", 1f, "Cumplido", true),
                     barraDias = BarraObjetivoUi("14 de 12 días", 1f, "Cumplido", true),
+                    kmMes = "642,8 km",
                     puedeIniciarViaje = true,
                     hayViajeEnCurso = false
                 )

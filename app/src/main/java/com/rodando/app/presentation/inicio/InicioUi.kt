@@ -1,7 +1,7 @@
 package com.rodando.app.presentation.inicio
 
 import com.rodando.app.domain.model.Campania
-import com.rodando.app.domain.model.EstadoViaje
+import com.rodando.app.domain.model.EstadoEnvio
 import com.rodando.app.domain.model.TipoVinilo
 import com.rodando.app.domain.model.Viaje
 import com.rodando.app.domain.model.Vinilo
@@ -18,9 +18,12 @@ data class InicioUi(
     val tarifa: String?,
     val pendientes: Int,
     val totalMes: String?,
+    /** Parte del total ya aprobada por el equipo. */
+    val confirmadoMes: String?,
     val viajesDelMes: Int,
-    val barraKm: BarraObjetivoUi?,
     val barraDias: BarraObjetivoUi?,
+    /** "186,0 km" pagos en el mes. */
+    val kmMes: String?,
     val puedeIniciarViaje: Boolean,
     val hayViajeEnCurso: Boolean
 )
@@ -46,11 +49,12 @@ fun armarInicio(campania: Campania, vinilo: Vinilo?, viajes: List<Viaje>, hoy: L
         },
         vinilo = vinilo?.tipo?.nombre(),
         tarifa = vinilo?.let { "${Formato.monto(it.fijoMensual)}/mes + ${Formato.monto(it.tarifaPorKm)}/km" },
-        pendientes = viajes.count { it.estado == EstadoViaje.PENDIENTE },
+        pendientes = viajes.count { !it.enCurso && it.envio == EstadoEnvio.PENDIENTE },
         totalMes = ganancias?.total,
-        viajesDelMes = ganancias?.viajesComputables ?: 0,
-        barraKm = ganancias?.barraKm,
+        confirmadoMes = ganancias?.confirmado,
+        viajesDelMes = ganancias?.let { it.aprobados + it.porAprobar } ?: 0,
         barraDias = ganancias?.barraDias,
+        kmMes = ganancias?.kmPagos,
         puedeIniciarViaje = vinilo?.fechaInstalacion != null && !hayViajeEnCurso,
         hayViajeEnCurso = hayViajeEnCurso
     )

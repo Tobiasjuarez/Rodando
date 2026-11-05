@@ -1,6 +1,7 @@
 package com.rodando.app.presentation.historial
 
-import com.rodando.app.domain.model.EstadoViaje
+import com.rodando.app.domain.model.EstadoEnvio
+import com.rodando.app.domain.model.EstadoVerificacion
 import com.rodando.app.domain.model.Viaje
 import com.rodando.app.presentation.common.Formato
 import java.time.LocalDate
@@ -17,7 +18,9 @@ data class ItemViaje(
     val id: String,
     val fecha: String,
     val detalle: String,
-    val estado: EstadoViaje
+    val enCurso: Boolean,
+    val verificacion: EstadoVerificacion,
+    val envio: EstadoEnvio
 )
 
 /**
@@ -36,10 +39,15 @@ fun armarHistorial(viajes: List<Viaje>, hoy: LocalDate): HistorialUi {
                         id = viaje.id,
                         fecha = "${Formato.diaCorto(dia, hoy)} · ${Formato.hora(viaje.inicio)}",
                         detalle = "${Formato.km(viaje.distanciaKm)} · ${Formato.duracion(viaje.inicio, viaje.fin)}",
-                        estado = viaje.estado
+                        enCurso = viaje.enCurso,
+                        verificacion = viaje.verificacion,
+                        envio = viaje.envio
                     )
                 }
             )
         }
-    return HistorialUi(grupos = grupos, pendientes = viajes.count { it.estado == EstadoViaje.PENDIENTE })
+    return HistorialUi(
+        grupos = grupos,
+        pendientes = viajes.count { !it.enCurso && it.envio == EstadoEnvio.PENDIENTE }
+    )
 }

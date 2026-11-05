@@ -3,7 +3,8 @@ package com.rodando.app.data.repository
 import com.rodando.app.data.local.ViajeDao
 import com.rodando.app.data.local.aDominio
 import com.rodando.app.data.local.aEntidad
-import com.rodando.app.domain.model.EstadoViaje
+import com.rodando.app.domain.model.EstadoEnvio
+import com.rodando.app.domain.model.EstadoVerificacion
 import com.rodando.app.domain.model.PuntoGps
 import com.rodando.app.domain.model.TipoVinilo
 import com.rodando.app.domain.model.Viaje
@@ -43,6 +44,7 @@ class ViajeRepositoryImpl(
     override suspend fun iniciarViaje(
         campaniaId: String,
         tipoVinilo: TipoVinilo,
+        tarifaPorKm: Double,
         fotoInicioPath: String,
         intentosFoto: Int,
         enRevision: Boolean
@@ -52,10 +54,12 @@ class ViajeRepositoryImpl(
             id = nuevoId(),
             campaniaId = campaniaId,
             tipoVinilo = tipoVinilo,
+            tarifaPorKm = tarifaPorKm,
             inicio = ahora(),
             fin = null,
             distanciaKm = 0.0,
-            estado = if (enRevision) EstadoViaje.EN_REVISION else EstadoViaje.EN_CURSO,
+            envio = EstadoEnvio.PENDIENTE,
+            verificacion = if (enRevision) EstadoVerificacion.EN_REVISION else EstadoVerificacion.POR_APROBAR,
             fotoInicioPath = fotoInicioPath,
             fotoFinPath = null,
             intentosFoto = intentosFoto
@@ -72,16 +76,17 @@ class ViajeRepositoryImpl(
         val entidad = requireNotNull(dao.obtenerPorId(viajeId)) { "No existe el viaje $viajeId" }
         // Los saltos imposibles del GPS no suman km.
         val distancia = limpiarRecorrido.distanciaKm(obtenerPuntos(viajeId))
-        val estado = when {
+        val verificacion = when {
             // Un viaje en revisión sigue así hasta que el equipo apruebe las fotos.
-            entidad.estado == EstadoViaje.EN_REVISION -> EstadoViaje.EN_REVISION
-            distancia < CalcularGananciaUseCase.DISTANCIA_MINIMA_KM -> EstadoViaje.NO_COMPUTABLE
-            else -> EstadoViaje.PENDIENTE
+            entidad.verificacion == EstadoVerificacion.EN_REVISION -> EstadoVerificacion.EN_REVISION
+            distancia < CalcularGananciaUseCase.DISTANCIA_MINIMA_KM -> EstadoVerificacion.NO_COMPUTABLE
+            else -> EstadoVerificacion.POR_APROBAR
         }
         val finalizado = entidad.copy(
             fin = ahora(),
             distanciaKm = distancia,
-            estado = estado,
+            envio = EstadoEnvio.PENDIENTE,
+            verificacion = verificacion,
             fotoFinPath = fotoFinPath
         )
         dao.guardar(finalizado)

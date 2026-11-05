@@ -20,12 +20,13 @@ interface ViajeRepository {
     suspend fun obtenerPuntos(viajeId: String): List<PuntoGps>
 
     /**
-     * Crea el viaje "En curso" (o "En revisión" si la foto no se pudo verificar).
-     * Falla si ya hay otro viaje en curso.
+     * Crea el viaje en curso, por aprobar (o en revisión si la foto no se pudo verificar),
+     * con la tarifa vigente. Falla si ya hay otro viaje en curso.
      */
     suspend fun iniciarViaje(
         campaniaId: String,
         tipoVinilo: TipoVinilo,
+        tarifaPorKm: Double,
         fotoInicioPath: String,
         intentosFoto: Int,
         enRevision: Boolean
