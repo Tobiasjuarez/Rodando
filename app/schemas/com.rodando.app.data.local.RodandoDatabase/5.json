@@ -1,0 +1,267 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 5,
+    "identityHash": "c5e384bf26a6ad0e2b36c8805f6b8c11",
+    "entities": [
+      {
+        "tableName": "viajes",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `campaniaId` TEXT NOT NULL, `tipoVinilo` TEXT NOT NULL, `tarifaPorKm` REAL NOT NULL, `inicio` INTEGER NOT NULL, `fin` INTEGER, `distanciaKm` REAL NOT NULL, `envio` TEXT NOT NULL, `verificacion` TEXT NOT NULL, `fotoInicioPath` TEXT NOT NULL, `fotoFinPath` TEXT, `intentosFoto` INTEGER NOT NULL, `remoteId` TEXT, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "campaniaId",
+            "columnName": "campaniaId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tipoVinilo",
+            "columnName": "tipoVinilo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tarifaPorKm",
+            "columnName": "tarifaPorKm",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "inicio",
+            "columnName": "inicio",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fin",
+            "columnName": "fin",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "distanciaKm",
+            "columnName": "distanciaKm",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "envio",
+            "columnName": "envio",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "verificacion",
+            "columnName": "verificacion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fotoInicioPath",
+            "columnName": "fotoInicioPath",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fotoFinPath",
+            "columnName": "fotoFinPath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "intentosFoto",
+            "columnName": "intentosFoto",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "remoteId",
+            "columnName": "remoteId",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "puntos_gps",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `viajeId` TEXT NOT NULL, `latitud` REAL NOT NULL, `longitud` REAL NOT NULL, `timestamp` INTEGER NOT NULL, `precisionMetros` REAL NOT NULL, FOREIGN KEY(`viajeId`) REFERENCES `viajes`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "viajeId",
+            "columnName": "viajeId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "latitud",
+            "columnName": "latitud",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "longitud",
+            "columnName": "longitud",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "precisionMetros",
+            "columnName": "precisionMetros",
+            "affinity": "REAL",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_puntos_gps_viajeId",
+            "unique": false,
+            "columnNames": [
+              "viajeId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_puntos_gps_viajeId` ON `${TABLE_NAME}` (`viajeId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "viajes",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "viajeId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "campanias",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `marca` TEXT NOT NULL, `fechaInicio` INTEGER NOT NULL, `fechaFin` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "marca",
+            "columnName": "marca",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fechaInicio",
+            "columnName": "fechaInicio",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fechaFin",
+            "columnName": "fechaFin",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "vinilo",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `tipo` TEXT NOT NULL, `fijoMensual` REAL NOT NULL, `tarifaPorKm` REAL NOT NULL, `fechaInstalacion` INTEGER, `diasMinimos` INTEGER NOT NULL, `kmTope` REAL NOT NULL, `codigo` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tipo",
+            "columnName": "tipo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fijoMensual",
+            "columnName": "fijoMensual",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tarifaPorKm",
+            "columnName": "tarifaPorKm",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fechaInstalacion",
+            "columnName": "fechaInstalacion",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "diasMinimos",
+            "columnName": "diasMinimos",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kmTope",
+            "columnName": "kmTope",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "codigo",
+            "columnName": "codigo",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c5e384bf26a6ad0e2b36c8805f6b8c11')"
+    ]
+  }
+}
