@@ -3,24 +3,28 @@ package com.rodando.app.data.repository
 import com.rodando.app.data.local.ViajeDao
 import com.rodando.app.data.local.aDominio
 import com.rodando.app.data.local.aEntidad
+import com.rodando.app.data.remote.RemotoDeViajes
 import com.rodando.app.domain.model.EstadoEnvio
 import com.rodando.app.domain.model.EstadoVerificacion
 import com.rodando.app.domain.model.PuntoGps
+import com.rodando.app.domain.model.ResultadoSincronizacion
 import com.rodando.app.domain.model.TipoVinilo
 import com.rodando.app.domain.model.Viaje
 import com.rodando.app.domain.repository.ViajeRepository
 import com.rodando.app.domain.usecase.CalcularGananciaUseCase
 import com.rodando.app.domain.usecase.LimpiarRecorridoUseCase
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.UUID
 
 /**
- * Implementación Offline First: todo se escribe primero en Room.
- * El envío a la API (sincronizarPendientes) se suma cuando exista la API simulada.
+ * Implementación Offline First: todo se escribe primero en Room y la UI lee de ahí.
+ * El envío al servidor ([remoto]) pasa después, cuando hay conexión.
  */
 class ViajeRepositoryImpl(
     private val dao: ViajeDao,
+    private val remoto: RemotoDeViajes? = null,
     private val limpiarRecorrido: LimpiarRecorridoUseCase = LimpiarRecorridoUseCase(),
     private val ahora: () -> Long = System::currentTimeMillis,
     private val nuevoId: () -> String = { UUID.randomUUID().toString() }
@@ -93,7 +97,37 @@ class ViajeRepositoryImpl(
         return finalizado.aDominio()
     }
 
-    override suspend fun sincronizarPendientes() {
-        // Se implementa en la etapa de sincronización (Retrofit + WorkManager).
+    override suspend fun sincronizarPendientes(): ResultadoSincronizacion {
+        val remoto = remoto ?: return ResultadoSincronizacion(0, 0, estadosActualizados = true)
+
+        var enviados = 0
+        var fallidos = 0
+        for (pendiente in dao.pendientesDeEnvio()) {
+            try {
+                val remoteId = remoto.enviar(pendiente.aDominio(), obtenerPuntos(pendiente.id))
+                // Se relee por si cambió mientras se enviaba; solo se marca el envío.
+                val actual = dao.obtenerPorId(pendiente.id) ?: continue
+                dao.guardar(actual.copy(envio = EstadoEnvio.ENVIADO, remoteId = remoteId))
+                enviados++
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                fallidos++
+            }
+        }
+
+        // Aprobaciones y rechazos del equipo.
+        val estadosActualizados = try {
+            remoto.estados().forEach { (id, verificacion) ->
+                val viaje = dao.obtenerPorId(id)
+                if (viaje != null && viaje.verificacion != verificacion) dao.guardar(viaje.copy(verificacion = verificacion))
+            }
+            true
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            false
+        }
+        return ResultadoSincronizacion(enviados, fallidos, estadosActualizados)
     }
 }

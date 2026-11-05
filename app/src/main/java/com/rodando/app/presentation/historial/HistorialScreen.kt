@@ -18,6 +18,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -41,10 +42,12 @@ import com.rodando.app.presentation.theme.RodandoTheme
 fun HistorialScreen(
     viewModel: HistorialViewModel,
     onAbrirViaje: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** Envía lo pendiente y trae las aprobaciones del equipo. */
+    onActualizar: (() -> Unit)? = null
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
-    HistorialContenido(estado = estado, onAbrirViaje = onAbrirViaje, modifier = modifier)
+    HistorialContenido(estado = estado, onAbrirViaje = onAbrirViaje, modifier = modifier, onActualizar = onActualizar)
 }
 
 /** Versión sin ViewModel: dibuja cualquier estado (sirve para las vistas previas). */
@@ -52,14 +55,23 @@ fun HistorialScreen(
 fun HistorialContenido(
     estado: UiState<HistorialUi>,
     onAbrirViaje: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onActualizar: (() -> Unit)? = null
 ) {
     Column(modifier = modifier.fillMaxSize()) {
-        Text(
-            text = stringResource(R.string.historial_titulo),
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 24.dp, bottom = 8.dp)
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(start = 24.dp, end = 12.dp, top = 24.dp, bottom = 8.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.historial_titulo),
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.weight(1f)
+            )
+            if (onActualizar != null) {
+                TextButton(onClick = onActualizar) { Text(stringResource(R.string.historial_actualizar)) }
+            }
+        }
         when (estado) {
             UiState.Cargando -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()

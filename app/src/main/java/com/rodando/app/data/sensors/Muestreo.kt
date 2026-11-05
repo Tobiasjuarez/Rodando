@@ -1,4 +1,4 @@
-package com.rodando.app.presentation.common
+package com.rodando.app.data.sensors
 
 // Cuentas para mostrar las fotos del vinilo: Kotlin puro, para poder probarlas sin Android.
 

@@ -6,7 +6,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import com.rodando.app.data.local.DatosDePrueba
 import com.rodando.app.data.local.RodandoDatabase
+import com.rodando.app.data.local.SesionLocal
+import com.rodando.app.data.remote.ClienteApi
+import com.rodando.app.data.remote.RemotoDeViajesApi
 import com.rodando.app.data.repository.CampaniaRepositoryImpl
+import com.rodando.app.data.repository.SesionRepositoryImpl
 import com.rodando.app.data.repository.ViajeRepositoryImpl
 import com.rodando.app.data.repository.ViniloRepositoryImpl
 import com.rodando.app.data.sensors.FotosEnArchivos
@@ -15,13 +19,17 @@ import com.rodando.app.data.sensors.RegistroConServicio
 import com.rodando.app.data.sensors.UbicacionGps
 import com.rodando.app.data.sensors.VerificadorMlKit
 import com.rodando.app.data.sensors.UbicacionSimulada
+import com.rodando.app.data.sync.ProgramadorWorkManager
 import com.rodando.app.domain.repository.AlmacenDeFotos
 import com.rodando.app.domain.repository.CampaniaRepository
 import com.rodando.app.domain.repository.FuenteUbicacion
+import com.rodando.app.domain.repository.ProgramadorDeEnvios
 import com.rodando.app.domain.repository.RegistroDeRecorrido
+import com.rodando.app.domain.repository.SesionRepository
 import com.rodando.app.domain.repository.ViajeRepository
 import com.rodando.app.domain.repository.ViniloRepository
 import com.rodando.app.domain.usecase.FinalizarViajeUseCase
+import com.rodando.app.domain.usecase.IniciarSesionUseCase
 import com.rodando.app.domain.usecase.IniciarViajeUseCase
 import com.rodando.app.domain.usecase.VerificarFotoUseCase
 
@@ -36,9 +44,22 @@ class AppContainer(context: Context) {
 
     private val database = RodandoDatabase.crear(context)
 
-    val viajeRepository: ViajeRepository = ViajeRepositoryImpl(database.viajeDao())
+    private val sesionLocal = SesionLocal(context)
 
-    val campaniaRepository: CampaniaRepository = CampaniaRepositoryImpl(database.campaniaDao())
+    /** Cliente de la API simulada; cada pedido lleva el token de la sesión guardada. */
+    private val api = ClienteApi.crear(sesionLocal::token)
+
+    val sesionRepository: SesionRepository = SesionRepositoryImpl(api, sesionLocal)
+
+    val viajeRepository: ViajeRepository = ViajeRepositoryImpl(database.viajeDao(), RemotoDeViajesApi(api))
+
+    val campaniaRepository: CampaniaRepository =
+        CampaniaRepositoryImpl(database.campaniaDao(), database.viniloDao(), api)
+
+    val iniciarSesion = IniciarSesionUseCase(sesionRepository, campaniaRepository)
+
+    /** Envío de viajes en segundo plano con WorkManager. */
+    val envios: ProgramadorDeEnvios = ProgramadorWorkManager(context)
 
     val viniloRepository: ViniloRepository = ViniloRepositoryImpl(database.viniloDao())
 
@@ -57,7 +78,7 @@ class AppContainer(context: Context) {
 
     val iniciarViaje = IniciarViajeUseCase(campaniaRepository, viniloRepository, viajeRepository, registroDeRecorrido)
 
-    val finalizarViaje = FinalizarViajeUseCase(viajeRepository, registroDeRecorrido)
+    val finalizarViaje = FinalizarViajeUseCase(viajeRepository, registroDeRecorrido, envios)
 
     val datosDePrueba = DatosDePrueba(database.viajeDao(), database.campaniaDao(), database.viniloDao())
 

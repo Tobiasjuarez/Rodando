@@ -6,8 +6,21 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.content.ContextCompat
 
-/** Permisos que necesita un viaje: ubicación para el recorrido y, desde Android 13, notificaciones. */
+/**
+ * Permisos de la app: ubicación y notificaciones para el viaje, y red local para hablar
+ * con la API simulada que corre en la computadora.
+ */
 object Permisos {
+
+    /**
+     * Desde Android 17 (API 37), una app necesita este permiso para conectarse a direcciones
+     * de la red local, como 10.0.2.2 (la computadora vista desde el emulador). Sin él, Android
+     * descarta la conexión en silencio y el pedido termina en un timeout.
+     */
+    const val RED_LOCAL = "android.permission.ACCESS_LOCAL_NETWORK"
+
+    fun necesitaRedLocal(context: Context): Boolean =
+        Build.VERSION.SDK_INT >= 37 && !concedido(context, RED_LOCAL)
 
     val paraViaje: Array<String> = buildList {
         add(Manifest.permission.ACCESS_FINE_LOCATION)

@@ -9,6 +9,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import com.rodando.app.data.sensors.esFotoReal
+import com.rodando.app.data.sensors.gradosSegunExif
+import com.rodando.app.data.sensors.muestreoPara
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File

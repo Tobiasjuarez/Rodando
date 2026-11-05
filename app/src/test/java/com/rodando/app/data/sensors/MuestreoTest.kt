@@ -1,4 +1,4 @@
-package com.rodando.app.presentation.common
+package com.rodando.app.data.sensors
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

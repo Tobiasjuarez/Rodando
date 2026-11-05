@@ -12,5 +12,8 @@ class RodandoApplication : Application() {
         super.onCreate()
         container = AppContainer(this)
         container.alcance.launch { container.datosDePrueba.cargarSiHaceFalta() }
+        // Al abrir la app se envía lo que haya quedado pendiente y se programa el envío periódico.
+        container.envios.programarPeriodico()
+        container.envios.enviarAhora()
     }
 }

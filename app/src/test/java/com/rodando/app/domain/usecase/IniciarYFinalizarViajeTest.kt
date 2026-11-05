@@ -9,6 +9,7 @@ import com.rodando.app.domain.model.PuntoGps
 import com.rodando.app.domain.model.TipoVinilo
 import com.rodando.app.domain.model.Vinilo
 import com.rodando.app.domain.repository.CampaniaRepository
+import com.rodando.app.domain.repository.ProgramadorDeEnvios
 import com.rodando.app.domain.repository.RegistroDeRecorrido
 import com.rodando.app.domain.repository.ViniloRepository
 import kotlinx.coroutines.flow.Flow
@@ -39,6 +40,14 @@ class IniciarYFinalizarViajeTest {
     private class Vinilos(private val v: Vinilo?) : ViniloRepository {
         override fun observarVinilo(): Flow<Vinilo?> = flowOf(v)
     }
+
+    private class EnviosFalsos : ProgramadorDeEnvios {
+        var pedidos = 0
+        override fun enviarAhora() { pedidos++ }
+        override fun programarPeriodico() = Unit
+    }
+
+    private val envios = EnviosFalsos()
 
     private val viajes = ViajeRepositoryImpl(FakeViajeDao(), nuevoId = { "viaje-1" })
     private val registro = RegistroFalso()
@@ -75,9 +84,10 @@ class IniciarYFinalizarViajeTest {
         viajes.registrarPunto("viaje-1", PuntoGps(-34.60, -58.38, 60_000, 5f))
         viajes.registrarPunto("viaje-1", PuntoGps(-34.61, -58.38, 180_000, 5f))
 
-        val viaje = FinalizarViajeUseCase(viajes, registro)("viaje-1", "fin.jpg")
+        val viaje = FinalizarViajeUseCase(viajes, registro, envios)("viaje-1", "fin.jpg")
 
         assertNull(registro.viajeActual)
+        assertEquals(1, envios.pedidos) // se pide enviarlo apenas haya conexión
         assertEquals(EstadoVerificacion.POR_APROBAR, viaje.verificacion)
         assertEquals(EstadoEnvio.PENDIENTE, viaje.envio)
         assertEquals("fin.jpg", viaje.fotoFinPath)

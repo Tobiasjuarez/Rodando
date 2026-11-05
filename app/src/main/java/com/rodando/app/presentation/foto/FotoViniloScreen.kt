@@ -2,7 +2,10 @@ package com.rodando.app.presentation.foto
 
 import android.Manifest
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
@@ -11,9 +14,11 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +28,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -48,7 +54,9 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -111,6 +119,15 @@ fun FotoViniloScreen(
             val ruta = viewModel.empezarCaptura()
             sacarFoto(controlador, contexto, ruta, viewModel::fotoGuardada, viewModel::errorDeCamara)
         },
+        // Modo prueba, solo en las versiones de desarrollo: usa el QR de ejemplo en vez de la cámara.
+        onSacarPrueba = if (esVersionDeDesarrollo(contexto)) {
+            {
+                val ruta = viewModel.empezarCaptura()
+                if (copiarQrDePrueba(contexto, ruta)) viewModel.fotoGuardada(ruta) else viewModel.errorDeCamara(ruta)
+            }
+        } else {
+            null
+        },
         onRepetir = viewModel::repetir,
         onUsar = viewModel::usarFoto,
         onSeguirEnRevision = viewModel::seguirEnRevision,
@@ -122,6 +139,18 @@ fun FotoViniloScreen(
 
 private fun tienePermisoDeCamara(contexto: Context) =
     ContextCompat.checkSelfPermission(contexto, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+
+private fun esVersionDeDesarrollo(contexto: Context) =
+    (contexto.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+
+/**
+ * Guarda en [ruta], como JPEG, el QR de ejemplo que trae la versión de desarrollo
+ * (app/src/debug/assets). En la versión final el archivo no existe y devuelve false.
+ */
+private fun copiarQrDePrueba(contexto: Context, ruta: String): Boolean = runCatching {
+    val imagen = contexto.assets.open("qr-vinilo-demo.png").use { BitmapFactory.decodeStream(it) }
+    File(ruta).outputStream().use { imagen.compress(Bitmap.CompressFormat.JPEG, 90, it) }
+}.getOrDefault(false)
 
 /** Saca la foto con CameraX y la guarda en [ruta]. Los callbacks llegan en el hilo principal. */
 private fun sacarFoto(
@@ -157,7 +186,9 @@ fun FotoViniloContenido(
     onSeguirEnRevision: () -> Unit,
     onPedirPermiso: () -> Unit,
     onVolver: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** Mantener apretado "Sacar foto" usa el QR de ejemplo (solo en desarrollo); null en la versión final. */
+    onSacarPrueba: (() -> Unit)? = null
 ) {
     val esInicio = estado.momento == MomentoFoto.INICIO
     val ocupado = estado.sacando || estado.guardando || estado.verificando
@@ -247,18 +278,21 @@ fun FotoViniloContenido(
                 }
             }
         } else if (estado.fotoTomada == null) {
-            Button(
-                onClick = onSacar,
-                enabled = permisoCamara && !ocupado,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp)
-                    .height(56.dp)
-            ) {
-                if (estado.sacando) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
-                } else {
-                    Text(stringResource(R.string.foto_sacar))
+            Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                BotonSacar(
+                    enabled = permisoCamara && !ocupado,
+                    sacando = estado.sacando,
+                    onClick = onSacar,
+                    onLongClick = onSacarPrueba
+                )
+                if (onSacarPrueba != null) {
+                    Text(
+                        text = stringResource(R.string.foto_modo_prueba),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
         } else {
@@ -288,6 +322,41 @@ fun FotoViniloContenido(
                         Text(stringResource(if (esInicio) R.string.foto_usar_inicio else R.string.foto_usar_fin))
                     }
                 }
+            }
+        }
+    }
+}
+
+/**
+ * "Sacar foto" con la forma de un Button de Material, pero que además acepta mantenerlo
+ * apretado (Button no lo permite): así se activa el modo prueba en desarrollo.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun BotonSacar(enabled: Boolean, sacando: Boolean, onClick: () -> Unit, onLongClick: (() -> Unit)?) {
+    val colores = MaterialTheme.colorScheme
+    Surface(
+        color = if (enabled) colores.primary else colores.onSurface.copy(alpha = 0.12f),
+        contentColor = if (enabled) colores.onPrimary else colores.onSurface.copy(alpha = 0.38f),
+        shape = CircleShape,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .clip(CircleShape)
+            .combinedClickable(
+                enabled = enabled,
+                onClickLabel = stringResource(R.string.foto_sacar),
+                onLongClickLabel = onLongClick?.let { stringResource(R.string.foto_modo_prueba_accion) },
+                onClick = onClick,
+                onLongClick = onLongClick
+            )
+            .semantics { role = Role.Button }
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            if (sacando) {
+                CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp, color = colores.onPrimary)
+            } else {
+                Text(stringResource(R.string.foto_sacar), style = MaterialTheme.typography.labelLarge)
             }
         }
     }
