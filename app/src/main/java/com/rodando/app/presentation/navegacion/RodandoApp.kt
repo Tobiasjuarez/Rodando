@@ -1,5 +1,6 @@
 package com.rodando.app.presentation.navegacion
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
@@ -9,6 +10,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -17,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -29,8 +32,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import com.rodando.app.AppContainer
 import com.rodando.app.RodandoApplication
 import com.rodando.app.data.sensors.Permisos
+import com.rodando.app.domain.model.Sesion
 import com.rodando.app.presentation.detalle.DetalleViajeScreen
 import com.rodando.app.presentation.detalle.DetalleViajeViewModel
 import com.rodando.app.presentation.encurso.ViajeEnCursoScreen
@@ -48,17 +55,44 @@ import com.rodando.app.presentation.inicio.InicioScreen
 import com.rodando.app.presentation.inicio.InicioViewModel
 import com.rodando.app.presentation.inicio.SinUbicacion
 import com.rodando.app.presentation.inicio.rememberPedidoDeUbicacion
+import com.rodando.app.presentation.login.LoginScreen
+import com.rodando.app.presentation.login.LoginViewModel
+
+/** Lectura de la sesión guardada; mientras es null todavía no se leyó DataStore. */
+private data class EstadoSesion(val sesion: Sesion?)
 
 /**
- * Raíz de la app: Scaffold con la barra de navegación inferior (Inicio, Historial, Ganancias)
- * y el NavHost con las pantallas.
+ * Raíz de la app: sin sesión muestra el login; con sesión, la app con la barra inferior.
+ * Al cerrar sesión se vuelve solo al login, porque la pantalla sigue a la sesión guardada.
  */
 @Composable
-fun RodandoApp(navController: NavHostController = rememberNavController()) {
+fun RodandoApp() {
+    val contenedor = (LocalContext.current.applicationContext as RodandoApplication).container
+    val estado by remember { contenedor.sesionRepository.sesion.map<Sesion?, EstadoSesion?> { EstadoSesion(it) } }
+        .collectAsStateWithLifecycle(initialValue = null)
+    val actual = estado
+    when {
+        // Todavía leyendo: no se muestra nada, así no aparece el login un instante si ya hay sesión.
+        actual == null -> Box(Modifier.fillMaxSize())
+        actual.sesion == null -> {
+            val viewModel: LoginViewModel = viewModel(factory = LoginViewModel.fabrica(contenedor.iniciarSesion))
+            Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                LoginScreen(viewModel = viewModel, modifier = Modifier.padding(innerPadding))
+            }
+        }
+        else -> AppConSesion(contenedor)
+    }
+}
+
+/** Scaffold con la barra de navegación inferior (Inicio, Historial, Ganancias) y el NavHost con las pantallas. */
+@Composable
+private fun AppConSesion(contenedor: AppContainer, navController: NavHostController = rememberNavController()) {
     val entradaActual by navController.currentBackStackEntryAsState()
     val destinoActual = entradaActual?.destination
     val contexto = LocalContext.current
-    val contenedor = (contexto.applicationContext as RodandoApplication).container
+
+    // Al entrar se envía lo que haya quedado pendiente y se traen las aprobaciones.
+    LaunchedEffect(Unit) { contenedor.envios.enviarAhora() }
 
     // RNF02: si la app se cerró con un viaje en curso, al abrirla se vuelve a encender el registro.
     LaunchedEffect(Unit) {
@@ -100,7 +134,8 @@ fun RodandoApp(navController: NavHostController = rememberNavController()) {
                     viewModel = viewModel,
                     onIniciarViaje = iniciarViaje,
                     onVerViajeEnCurso = { navController.navigate(Rutas.VIAJE_EN_CURSO) { launchSingleTop = true } },
-                    sinUbicacion = sinUbicacion
+                    sinUbicacion = sinUbicacion,
+                    onCerrarSesion = { contenedor.alcance.launch { contenedor.sesionRepository.cerrarSesion() } }
                 )
             }
             composable(Destino.HISTORIAL.ruta) {
@@ -108,7 +143,8 @@ fun RodandoApp(navController: NavHostController = rememberNavController()) {
                     viewModel(factory = HistorialViewModel.fabrica(contenedor.viajeRepository))
                 HistorialScreen(
                     viewModel = viewModel,
-                    onAbrirViaje = { id -> navController.navigate(Rutas.detalleViaje(id)) }
+                    onAbrirViaje = { id -> navController.navigate(Rutas.detalleViaje(id)) },
+                    onActualizar = contenedor.envios::enviarAhora
                 )
             }
             composable(Destino.GANANCIAS.ruta) {

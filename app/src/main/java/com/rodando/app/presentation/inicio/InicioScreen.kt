@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -20,8 +21,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -45,7 +50,8 @@ fun InicioScreen(
     onVerViajeEnCurso: () -> Unit,
     modifier: Modifier = Modifier,
     /** Motivo por el que no se pudo iniciar el viaje, si lo hubo. */
-    sinUbicacion: SinUbicacion? = null
+    sinUbicacion: SinUbicacion? = null,
+    onCerrarSesion: (() -> Unit)? = null
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     InicioContenido(
@@ -53,7 +59,8 @@ fun InicioScreen(
         onIniciarViaje = onIniciarViaje,
         onVerViajeEnCurso = onVerViajeEnCurso,
         modifier = modifier,
-        sinUbicacion = sinUbicacion
+        sinUbicacion = sinUbicacion,
+        onCerrarSesion = onCerrarSesion
     )
 }
 
@@ -63,7 +70,8 @@ fun InicioContenido(
     onIniciarViaje: () -> Unit,
     onVerViajeEnCurso: () -> Unit,
     modifier: Modifier = Modifier,
-    sinUbicacion: SinUbicacion? = null
+    sinUbicacion: SinUbicacion? = null,
+    onCerrarSesion: (() -> Unit)? = null
 ) {
     Column(modifier = modifier.fillMaxSize()) {
         when (estado) {
@@ -77,8 +85,8 @@ fun InicioContenido(
                 mensaje = estado.mensaje,
                 modifier = Modifier.padding(top = 96.dp)
             )
-            is UiState.Contenido -> Inicio(estado.datos, onIniciarViaje, onVerViajeEnCurso, sinUbicacion)
-            is UiState.Offline -> Inicio(estado.datosLocales, onIniciarViaje, onVerViajeEnCurso, sinUbicacion)
+            is UiState.Contenido -> Inicio(estado.datos, onIniciarViaje, onVerViajeEnCurso, sinUbicacion, onCerrarSesion)
+            is UiState.Offline -> Inicio(estado.datosLocales, onIniciarViaje, onVerViajeEnCurso, sinUbicacion, onCerrarSesion)
         }
     }
 }
@@ -88,8 +96,34 @@ private fun Inicio(
     inicio: InicioUi,
     onIniciarViaje: () -> Unit,
     onVerViajeEnCurso: () -> Unit,
-    sinUbicacion: SinUbicacion?
+    sinUbicacion: SinUbicacion?,
+    onCerrarSesion: (() -> Unit)?
 ) {
+    var confirmandoSalida by rememberSaveable { mutableStateOf(false) }
+    if (confirmandoSalida && onCerrarSesion != null) {
+        AlertDialog(
+            onDismissRequest = { confirmandoSalida = false },
+            title = { Text(stringResource(R.string.inicio_salir_titulo)) },
+            text = {
+                Text(
+                    if (inicio.pendientes > 0) {
+                        pluralStringResource(R.plurals.inicio_salir_con_pendientes, inicio.pendientes, inicio.pendientes)
+                    } else {
+                        stringResource(R.string.inicio_salir_mensaje)
+                    }
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmandoSalida = false
+                    onCerrarSesion()
+                }) { Text(stringResource(R.string.inicio_salir)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmandoSalida = false }) { Text(stringResource(R.string.cancelar)) }
+            }
+        )
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -102,8 +136,18 @@ private fun Inicio(
                 .padding(top = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = stringResource(R.string.inicio_saludo),
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.weight(1f)
+                )
+                // No se puede salir con un viaje en curso: se perdería quién lo hizo.
+                if (onCerrarSesion != null && !inicio.hayViajeEnCurso) {
+                    TextButton(onClick = { confirmandoSalida = true }) { Text(stringResource(R.string.inicio_salir)) }
+                }
+            }
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(text = stringResource(R.string.inicio_saludo), style = MaterialTheme.typography.headlineSmall)
                 Text(
                     text = if (inicio.pendientes > 0) {
                         pluralStringResource(R.plurals.inicio_pendientes, inicio.pendientes, inicio.pendientes)
