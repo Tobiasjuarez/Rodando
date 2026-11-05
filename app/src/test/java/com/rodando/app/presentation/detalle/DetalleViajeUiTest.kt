@@ -43,4 +43,12 @@ class DetalleViajeUiTest {
         assertEquals("+$828", detalle.ganancia) // 18,4 km × $45
         assertEquals(EstadoVerificacion.APROBADO, detalle.verificacion)
     }
+
+    @Test
+    fun lleva_las_rutas_de_las_fotos_del_vinilo() {
+        val detalle = armarDetalle(viaje(fin = inicio + 1), emptyList(), hoy)
+
+        assertEquals("inicio.jpg", detalle.fotoInicio)
+        assertEquals("fin.jpg", detalle.fotoFin)
+    }
 }

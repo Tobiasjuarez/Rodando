@@ -23,7 +23,10 @@ data class DetalleViajeUi(
     /** "$50/km": la tarifa con la que se paga este viaje, aunque después cambie. */
     val tarifa: String,
     /** Lo que suma el viaje por km; null si no suma. */
-    val ganancia: String? = null
+    val ganancia: String? = null,
+    /** Rutas de las fotos del vinilo en el teléfono (vacías en los viajes de ejemplo). */
+    val fotoInicio: String? = null,
+    val fotoFin: String? = null
 )
 
 fun armarDetalle(
@@ -47,6 +50,8 @@ fun armarDetalle(
         horaFin = horaFin,
         puntos = limpiarRecorrido(puntos),
         tarifa = "${Formato.monto(viaje.tarifaPorKm)}/km",
-        ganancia = calcular.gananciaPorKm(viaje)?.let { "+" + Formato.monto(it) }
+        ganancia = calcular.gananciaPorKm(viaje)?.let { "+" + Formato.monto(it) },
+        fotoInicio = viaje.fotoInicioPath,
+        fotoFin = viaje.fotoFinPath
     )
 }

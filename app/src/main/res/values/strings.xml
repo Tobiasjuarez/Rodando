@@ -36,10 +36,16 @@
     <string name="foto_subtitulo_fin">Para cerrar el viaje</string>
     <string name="foto_visor">Vista de la cámara</string>
     <string name="foto_encuadre">Encuadrá el vinilo completo</string>
-    <string name="foto_simulada">Cámara simulada · la real llega con CameraX</string>
     <string name="foto_consejo">Buscá buena luz y que se vea toda la puerta del auto.</string>
-    <string name="foto_sacar_inicio">Sacar foto e iniciar</string>
-    <string name="foto_sacar_fin">Sacar foto y finalizar</string>
+    <string name="foto_sacar">Sacar foto</string>
+    <string name="foto_repetir">Repetir</string>
+    <string name="foto_usar_inicio">Usar foto e iniciar</string>
+    <string name="foto_usar_fin">Usar foto y finalizar</string>
+    <string name="foto_revisar">Revisá que se vea todo el vinilo. Si no, repetila.</string>
+    <string name="foto_tomada">Foto del vinilo que acabás de sacar</string>
+    <string name="foto_sin_permiso_titulo">Necesitamos la cámara</string>
+    <string name="foto_sin_permiso_mensaje">Para iniciar y finalizar un viaje hay que sacarle una foto al vinilo. Si no aparece el pedido, activala en Ajustes → Apps → Rodando → Permisos.</string>
+    <string name="foto_dar_permiso">Dar permiso</string>
 
     <!-- Viaje en curso -->
     <string name="en_curso_titulo">Viaje en curso</string>
@@ -92,6 +98,7 @@
     <string name="detalle_error_titulo">No encontramos el viaje</string>
     <string name="detalle_foto_inicio">Inicio · %1$s</string>
     <string name="detalle_foto_fin">Fin · %1$s</string>
+    <string name="detalle_foto_descripcion">Foto del vinilo, %1$s</string>
 
     <!-- Estados de un viaje -->
     <string name="estado_en_curso">En curso</string>
