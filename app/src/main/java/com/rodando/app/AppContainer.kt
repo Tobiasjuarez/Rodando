@@ -9,10 +9,12 @@ import com.rodando.app.data.local.RodandoDatabase
 import com.rodando.app.data.repository.CampaniaRepositoryImpl
 import com.rodando.app.data.repository.ViajeRepositoryImpl
 import com.rodando.app.data.repository.ViniloRepositoryImpl
+import com.rodando.app.data.sensors.FotosEnArchivos
 import com.rodando.app.data.sensors.RegistradorDeViaje
 import com.rodando.app.data.sensors.RegistroConServicio
 import com.rodando.app.data.sensors.UbicacionGps
 import com.rodando.app.data.sensors.UbicacionSimulada
+import com.rodando.app.domain.repository.AlmacenDeFotos
 import com.rodando.app.domain.repository.CampaniaRepository
 import com.rodando.app.domain.repository.FuenteUbicacion
 import com.rodando.app.domain.repository.RegistroDeRecorrido
@@ -46,6 +48,8 @@ class AppContainer(context: Context) {
 
     /** El registro corre dentro de un servicio en primer plano para seguir con la pantalla apagada. */
     val registroDeRecorrido: RegistroDeRecorrido = RegistroConServicio(context.applicationContext, registradorDeViaje)
+
+    val fotos: AlmacenDeFotos = FotosEnArchivos(context.applicationContext)
 
     val iniciarViaje = IniciarViajeUseCase(campaniaRepository, viniloRepository, viajeRepository, registroDeRecorrido)
 
