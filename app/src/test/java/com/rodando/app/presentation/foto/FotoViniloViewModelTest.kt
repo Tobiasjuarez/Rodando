@@ -13,12 +13,14 @@ import com.rodando.app.fakes.EnviosFalsos
 import com.rodando.app.fakes.FotosFalsas
 import com.rodando.app.fakes.LectorFalso
 import com.rodando.app.fakes.RegistroFalso
+import com.rodando.app.fakes.ReportesFalsos
 import com.rodando.app.fakes.ReglaDeHiloPrincipal
 import com.rodando.app.fakes.VinilosFalsos
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -30,6 +32,7 @@ class FotoViniloViewModelTest {
     private val viajes = ViajeRepositoryImpl(FakeViajeDao(), nuevoId = { "viaje-1" })
     private val fotos = FotosFalsas()
     private val registro = RegistroFalso()
+    private val reportes = ReportesFalsos()
 
     /** [reconocidas]: rutas de las fotos en las que "se lee" el QR del vinilo. */
     private fun viewModel(vararg reconocidas: String) = FotoViniloViewModel(
@@ -38,7 +41,9 @@ class FotoViniloViewModelTest {
         iniciarViaje = IniciarViajeUseCase(CampaniasFalsas(), VinilosFalsos(), viajes, registro),
         finalizarViaje = FinalizarViajeUseCase(viajes, registro, EnviosFalsos()),
         verificarFoto = VerificarFotoUseCase(VinilosFalsos(), LectorFalso(reconocidas.associateWith { CODIGO_DE_PRUEBA })),
-        fotos = fotos
+        fotos = fotos,
+        reportes = reportes,
+        idDeReporte = "reporte-1"
     )
 
     /** Lo que hace la pantalla al tocar "Sacar foto" y que la cámara la guarde bien. */
@@ -93,6 +98,45 @@ class FotoViniloViewModelTest {
         assertEquals(EstadoVerificacion.EN_REVISION, viaje.verificacion)
         assertEquals(3, viaje.intentosFoto)
         assertEquals("foto-3.jpg", viaje.fotoInicioPath)
+    }
+
+    @Test
+    fun tras_tres_intentos_se_puede_reportar_el_vinilo_danado_con_la_ultima_foto() {
+        val vm = viewModel()
+        vm.sacarFoto()
+        vm.reportarDanio() // con el primer intento todavía no se ofrece
+        assertTrue(reportes.enviados.isEmpty())
+        vm.repetir()
+        vm.sacarFoto()
+        vm.repetir()
+        vm.sacarFoto()
+
+        vm.reportarDanio()
+        vm.reportarDanio() // un solo reporte por pantalla
+
+        assertEquals(listOf(ReportesFalsos.Reporte("reporte-1", "foto-3.jpg", "INICIO", null)), reportes.enviados)
+        assertTrue(vm.estado.value.reporteEnviado)
+        assertNull(vm.estado.value.viajeListo) // reportar no inicia el viaje: el conductor sigue decidiendo
+    }
+
+    @Test
+    fun si_el_reporte_no_sale_se_avisa_y_se_puede_reintentar_con_el_mismo_id() {
+        val vm = viewModel()
+        repeat(2) {
+            vm.sacarFoto()
+            vm.repetir()
+        }
+        vm.sacarFoto()
+
+        reportes.fallar = true
+        vm.reportarDanio()
+        assertEquals("No pudimos enviar el reporte. Revisá la conexión y probá de nuevo.", vm.estado.value.error)
+        assertEquals(false, vm.estado.value.reporteEnviado)
+
+        reportes.fallar = false
+        vm.reportarDanio()
+        assertEquals("reporte-1", reportes.enviados.single().id)
+        assertTrue(vm.estado.value.reporteEnviado)
     }
 
     @Test

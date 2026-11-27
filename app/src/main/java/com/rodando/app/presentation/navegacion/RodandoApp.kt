@@ -199,7 +199,7 @@ private fun AppConSesion(
                 val viewModel: FotoViniloViewModel = viewModel(
                     factory = FotoViniloViewModel.fabrica(
                         MomentoFoto.INICIO, null, contenedor.iniciarViaje, contenedor.finalizarViaje,
-                        contenedor.verificarFoto, contenedor.fotos
+                        contenedor.verificarFoto, contenedor.fotos, contenedor.reportes
                     )
                 )
                 FotoViniloScreen(
@@ -229,7 +229,7 @@ private fun AppConSesion(
                 val viewModel: FotoViniloViewModel = viewModel(
                     factory = FotoViniloViewModel.fabrica(
                         MomentoFoto.FIN, viajeId, contenedor.iniciarViaje, contenedor.finalizarViaje,
-                        contenedor.verificarFoto, contenedor.fotos
+                        contenedor.verificarFoto, contenedor.fotos, contenedor.reportes
                     )
                 )
                 FotoViniloScreen(

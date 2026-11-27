@@ -39,6 +39,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -56,7 +57,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -133,6 +136,7 @@ fun FotoViniloScreen(
         onRepetir = viewModel::repetir,
         onUsar = viewModel::usarFoto,
         onSeguirEnRevision = viewModel::seguirEnRevision,
+        onReportarDanio = viewModel::reportarDanio,
         onPedirPermiso = { pedirPermiso.launch(Manifest.permission.CAMERA) },
         onVolver = onVolver,
         modifier = modifier
@@ -190,7 +194,8 @@ fun FotoViniloContenido(
     onVolver: () -> Unit,
     modifier: Modifier = Modifier,
     /** Mantener apretado "Sacar foto" usa el QR de ejemplo (solo en desarrollo); null en la versión final. */
-    onSacarPrueba: (() -> Unit)? = null
+    onSacarPrueba: (() -> Unit)? = null,
+    onReportarDanio: () -> Unit = {}
 ) {
     val esInicio = estado.momento == MomentoFoto.INICIO
     val ocupado = estado.sacando || estado.guardando || estado.verificando
@@ -256,27 +261,53 @@ fun FotoViniloContenido(
                 Text(stringResource(R.string.foto_otra))
             }
         } else if (resultado == ResultadoFoto.OfrecerRevision) {
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = botones) {
-                OutlinedButton(
-                    onClick = onVolver,
-                    enabled = !estado.guardando,
-                    modifier = Modifier
-                        .weight(1f)
-                        .heightIn(min = 56.dp)
-                ) {
-                    Text(stringResource(R.string.foto_cancelar))
+            Column(modifier = botones, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (estado.reporteEnviado) {
+                    Text(
+                        text = stringResource(R.string.foto_reporte_enviado),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .semantics { liveRegion = LiveRegionMode.Polite }
+                    )
+                } else {
+                    TextButton(
+                        onClick = onReportarDanio,
+                        enabled = !estado.reportando && !estado.guardando,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 48.dp)
+                    ) {
+                        if (estado.reportando) {
+                            CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                        } else {
+                            Text(stringResource(R.string.foto_reportar_danio))
+                        }
+                    }
                 }
-                Button(
-                    onClick = onSeguirEnRevision,
-                    enabled = !estado.guardando,
-                    modifier = Modifier
-                        .weight(2f)
-                        .heightIn(min = 56.dp)
-                ) {
-                    if (estado.guardando) {
-                        CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
-                    } else {
-                        Text(stringResource(if (esInicio) R.string.foto_revision_inicio else R.string.foto_revision_fin))
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+                    OutlinedButton(
+                        onClick = onVolver,
+                        enabled = !estado.guardando,
+                        modifier = Modifier
+                            .weight(1f)
+                            .heightIn(min = 56.dp)
+                    ) {
+                        Text(stringResource(R.string.foto_cancelar))
+                    }
+                    Button(
+                        onClick = onSeguirEnRevision,
+                        enabled = !estado.guardando,
+                        modifier = Modifier
+                            .weight(2f)
+                            .heightIn(min = 56.dp)
+                    ) {
+                        if (estado.guardando) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                        } else {
+                            Text(stringResource(if (esInicio) R.string.foto_revision_inicio else R.string.foto_revision_fin))
+                        }
                     }
                 }
             }

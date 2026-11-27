@@ -15,6 +15,7 @@ import com.rodando.app.data.repository.SesionRepositoryImpl
 import com.rodando.app.data.repository.ViajeRepositoryImpl
 import com.rodando.app.data.repository.ViniloRepositoryImpl
 import com.rodando.app.data.sensors.ConexionAndroid
+import com.rodando.app.data.remote.ReportesDeViniloApi
 import com.rodando.app.data.sensors.FotosEnArchivos
 import com.rodando.app.data.sensors.RegistradorDeViaje
 import com.rodando.app.data.sensors.RegistroConServicio
@@ -23,6 +24,7 @@ import com.rodando.app.data.sensors.VerificadorMlKit
 import com.rodando.app.data.sensors.UbicacionSimulada
 import com.rodando.app.data.sync.ProgramadorWorkManager
 import com.rodando.app.domain.repository.AlmacenDeFotos
+import com.rodando.app.domain.repository.ReportesDeVinilo
 import com.rodando.app.domain.repository.CampaniaRepository
 import com.rodando.app.domain.repository.FuenteUbicacion
 import com.rodando.app.domain.repository.MonitorDeConexion
@@ -81,6 +83,8 @@ class AppContainer(context: Context) {
     val registroDeRecorrido: RegistroDeRecorrido = RegistroConServicio(context.applicationContext, registradorDeViaje)
 
     val fotos: AlmacenDeFotos = FotosEnArchivos(context.applicationContext)
+
+    val reportes: ReportesDeVinilo = ReportesDeViniloApi(api)
 
     val verificarFoto = VerificarFotoUseCase(viniloRepository, VerificadorMlKit(context.applicationContext))
 

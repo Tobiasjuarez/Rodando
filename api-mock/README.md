@@ -27,6 +27,7 @@ En Android 17 o más nuevo, la app pide el permiso de **red local** (o "Disposit
 | `GET /campania` | Campaña y vinilo vigentes (tarifas y código QR) |
 | `POST /viajes` | Recibe un viaje con su recorrido y fotos. Si el id ya llegó, no lo duplica |
 | `GET /viajes/estados` | Qué viajes aprobó o rechazó el equipo |
+| `POST /reportes` | Reporte de vinilo dañado con la última foto (después de 3 intentos fallidos). Aparece abajo en la página del equipo |
 | `GET /` | Página del equipo: ver viajes y fotos, aprobar, rechazar, simular fallas |
 
 Todas menos `/login` y la página del equipo piden `Authorization: Bearer <token>`.

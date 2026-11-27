@@ -8,6 +8,7 @@ import com.rodando.app.domain.repository.AlmacenDeFotos
 import com.rodando.app.domain.repository.CampaniaRepository
 import com.rodando.app.domain.repository.ProgramadorDeEnvios
 import com.rodando.app.domain.repository.RegistroDeRecorrido
+import com.rodando.app.domain.repository.ReportesDeVinilo
 import com.rodando.app.domain.repository.SesionRepository
 import com.rodando.app.domain.repository.VerificadorDeVinilo
 import com.rodando.app.domain.repository.ViniloRepository
@@ -72,5 +73,15 @@ class SesionesFalsas(private val passwordCorrecta: String = "rodando123") : Sesi
     }
     override suspend fun cerrarSesion() {
         sesion.value = null
+    }
+}
+
+/** Guarda los reportes de vinilo dañado; con [fallar] en true simula que no hay conexión. */
+class ReportesFalsos(var fallar: Boolean = false) : ReportesDeVinilo {
+    data class Reporte(val id: String, val rutaFoto: String?, val momento: String, val viajeId: String?)
+    val enviados = mutableListOf<Reporte>()
+    override suspend fun reportarDanio(id: String, rutaFoto: String?, momento: String, viajeId: String?) {
+        if (fallar) throw java.io.IOException("sin conexión")
+        enviados += Reporte(id, rutaFoto, momento, viajeId)
     }
 }

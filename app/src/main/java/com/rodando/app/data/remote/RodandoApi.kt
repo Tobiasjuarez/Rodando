@@ -22,4 +22,8 @@ interface RodandoApi {
 
     @GET("viajes/estados")
     suspend fun estados(): List<EstadoDto>
+
+    /** Reporte de vinilo dañado. Mismo id dos veces: responde 200 y no lo duplica. */
+    @POST("reportes")
+    suspend fun reportarVinilo(@Body reporte: ReporteDto): ReporteRespuesta
 }
