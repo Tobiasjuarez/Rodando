@@ -95,7 +95,7 @@ El profesor observó que reconocer el código no prueba que el auto circuló con
 - [x] Accesibilidad: títulos marcados como encabezados para TalkBack, aviso sin conexión que TalkBack anuncia solo, botones que crecen con la letra grande en vez de cortar el texto.
 - [x] Tests de ViewModels con `kotlinx-coroutines-test`: la foto del vinilo (aprobada, repetir, 3 intentos y en revisión, error de cámara) y el login.
 - [x] Migraciones de Room: el esquema de cada versión se exporta a `app/schemas/` y desde la versión 5 un cambio de base necesita una migración (`data/local/Migraciones.kt`) en lugar de borrar los datos.
-- [ ] Revisión final con TalkBack en el emulador y con letra al máximo (*Settings → Accessibility*).
+- [x] Revisión con TalkBack y con la letra al máximo en el emulador: los títulos se anuncian como encabezados y el contenido de Inicio se desplaza sin cortarse.
 
 ## Decisiones importantes
 
