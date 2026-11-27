@@ -20,6 +20,8 @@
 
     <!-- Inicio -->
     <string name="inicio_saludo">Hola</string>
+    <string name="inicio_saludo_nombre">Hola, %1$s</string>
+    <string name="inicio_sincronizado_a">Todo sincronizado · %1$s</string>
     <string name="inicio_todo_sincronizado">Todo sincronizado</string>
     <plurals name="inicio_pendientes">
         <item quantity="one">%d viaje pendiente de envío</item>

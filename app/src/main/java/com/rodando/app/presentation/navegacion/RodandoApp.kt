@@ -87,13 +87,17 @@ fun RodandoApp() {
                 LoginScreen(viewModel = viewModel, modifier = Modifier.padding(innerPadding), sesionVencida = vencida)
             }
         }
-        else -> AppConSesion(contenedor)
+        else -> AppConSesion(contenedor, actual.sesion.nombre)
     }
 }
 
 /** Scaffold con la barra de navegación inferior (Inicio, Historial, Ganancias) y el NavHost con las pantallas. */
 @Composable
-private fun AppConSesion(contenedor: AppContainer, navController: NavHostController = rememberNavController()) {
+private fun AppConSesion(
+    contenedor: AppContainer,
+    nombre: String,
+    navController: NavHostController = rememberNavController()
+) {
     val entradaActual by navController.currentBackStackEntryAsState()
     val destinoActual = entradaActual?.destination
     val contexto = LocalContext.current
@@ -155,7 +159,9 @@ private fun AppConSesion(contenedor: AppContainer, navController: NavHostControl
                     onIniciarViaje = iniciarViaje,
                     onVerViajeEnCurso = { navController.navigate(Rutas.VIAJE_EN_CURSO) { launchSingleTop = true } },
                     sinUbicacion = sinUbicacion,
-                    onCerrarSesion = { contenedor.alcance.launch { contenedor.sesionRepository.cerrarSesion() } }
+                    onCerrarSesion = { contenedor.alcance.launch { contenedor.sesionRepository.cerrarSesion() } },
+                    nombre = nombre,
+                    ultimaSincronizacion = ultimaTexto
                 )
             }
             composable(Destino.HISTORIAL.ruta) {
