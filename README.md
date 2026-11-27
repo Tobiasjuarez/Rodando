@@ -16,10 +16,25 @@ Trabajo Práctico Obligatorio — Desarrollo de Aplicaciones I (UADE), 2.º cuat
 
 ## Requisitos funcionales (v1)
 
-- **RF01** — Iniciar un viaje con foto del vinilo, verificada en el teléfono (hasta 3 intentos; si no, viaje "En revisión").
-- **RF02** — Finalizar un viaje con foto; se calcula distancia y duración.
-- **RF03** — Consultar el historial de viajes, aun sin conexión.
-- **RF04** — Ver la ganancia del mes, confirmada (viajes aprobados) y estimada (más los que esperan aprobación): fijo mensual según el vinilo, entero con 12 días con viajes y proporcional por debajo, + monto por km con la tarifa de cada viaje (tope de 1.500 km). No hay mínimo de km, para no incentivar recorridos extra.
+Los cuatro requisitos de la v1 están implementados. Lo que cambió respecto de la preentrega viene de la devolución del profesor y está explicado en [`docs/PLAN.md`](docs/PLAN.md#cambios-por-la-devolución-de-la-preentrega-11).
+
+| RF | Qué hace | Estado |
+| --- | --- | --- |
+| **RF01** — Iniciar viaje | Foto del vinilo con CameraX, verificada en el teléfono con ML Kit (código QR). Hasta 3 intentos; después se inicia igual con el viaje "En revisión" o se reporta el vinilo dañado. El GPS registra el recorrido en un servicio en primer plano, con mapa. | Hecho |
+| **RF02** — Finalizar viaje | Foto final con la misma verificación. Se calculan distancia (limpiando saltos y posiciones imprecisas) y duración. Menos de 0,5 km queda "No computable". | Hecho |
+| **RF03** — Historial | Viajes agrupados por día con su estado de envío y de verificación, y detalle con el recorrido y las fotos. Funciona sin conexión. Muestra si se está enviando, si espera conexión o si reintenta. | Hecho |
+| **RF04** — Ganancias | Ganancia del mes confirmada (viajes aprobados) y estimada (más los que esperan aprobación): fijo mensual según el vinilo, entero con 12 días con viajes y proporcional por debajo, + monto por km con la tarifa de cada viaje (tope de 1.500 km). No hay mínimo de km, para no incentivar recorridos extra. Inicio muestra la última sincronización. | Hecho |
+
+Además: login contra la API simulada (si el servidor rechaza la sesión, vuelve al login con un aviso), envío automático de viajes con WorkManager y aprobación desde la página del equipo.
+
+### Requisitos no funcionales
+
+- **Offline First:** todas las pantallas leen de Room. Sin conexión se puede iniciar, finalizar y consultar viajes; un aviso arriba lo indica y los viajes se envían solos al volver la red.
+- **Envíos confiables:** cada viaje tiene un id generado en el teléfono, así un reintento no lo duplica. Si fallan algunos, se envían los demás (envíos parciales).
+- **Accesibilidad:** títulos marcados como encabezados para TalkBack, avisos que TalkBack anuncia solo, botones de al menos 48 dp que crecen con la letra grande. Revisado con TalkBack y con la letra al máximo.
+- **Compatibilidad:** Android 8.0 (API 26) en adelante, probado en Android 17.
+- **Batería y privacidad:** el GPS solo corre durante un viaje, con notificación fija. Las fotos quedan en la carpeta privada de la app. La red se anota en Logcat solo en desarrollo y el token no entra en el backup de Android.
+- **Tests:** más de 100 tests unitarios (casos de uso, repositorio, sincronización, ViewModels y pantallas sin Android). `./gradlew test`.
 
 ### Estados de un viaje
 
@@ -108,6 +123,20 @@ Otra forma: en la configuración del emulador (*Device Manager → Edit → Adva
 - **Sin conexión:** cortar el servidor (Ctrl + C). La app sigue funcionando y los viajes quedan "Sin enviar"; al levantarlo de nuevo se envían solos.
 - **Envíos parciales:** en la página del equipo, *Simular fallas → Falla uno de cada dos*. De varios pendientes llegan algunos y el resto se reintenta, sin duplicarse.
 - **Aprobación:** aprobar un viaje en la página y tocar *Actualizar*: pasa a "Aprobado" y suma a lo confirmado en Ganancias.
+- **Vinilo dañado:** después de 3 fotos sin verificar, *Reportar vinilo dañado* manda la última foto al equipo; aparece abajo en la página, en "Vinilos reportados".
+
+## Limitaciones conocidas
+
+Lo que sabemos que la v1 no resuelve, y por qué:
+
+- **La verificación no es una prueba total.** Reconocer el QR muestra que el vinilo estaba en la foto, no que siguió puesto todo el viaje. Por eso el viaje queda "Por aprobar" hasta que el equipo mira las fotos, y lo confirmado en Ganancias son solo los aprobados.
+- **La API es simulada.** `api-mock/server.js` hace de servidor de la empresa en la computadora, con un solo conductor de ejemplo y sin registro de cuentas. El token no vence por tiempo; si se reinicia la API con datos nuevos, la app vuelve al login.
+- **Diseñado pero no implementado en la v1:** alta del conductor con turno de instalación del vinilo y cambio de vinilo (el reporte de vinilo dañado avisa al equipo, pero la coordinación sigue por fuera de la app).
+- **Ubicación de la foto:** la foto no guarda sus propias coordenadas; se usa el primer y el último punto del recorrido.
+- **Fotos en el teléfono:** se conservan después de enviarse, para verlas en el detalle sin conexión. No hay limpieza automática.
+- **Reporte de vinilo dañado:** necesita conexión en el momento; si no hay, la app avisa y se puede reintentar.
+- **Datos de ejemplo:** la primera vez se cargan viajes, campaña y vinilo de ejemplo para poder probar sin GPS ni cámara.
+- **Gradle:** `android.builtInKotlin=false` y `android.newDsl=false` en `gradle.properties` hacen falta para que KSP (Room) funcione con AGP 9. Las advertencias de "deprecated" al compilar son esperables.
 
 ## Forma de trabajo
 
@@ -118,4 +147,6 @@ Otra forma: en la configuración del emulador (*Device Manager → Edit → Adva
 
 ## Documentación
 
-Plan de desarrollo con todas las etapas, decisiones y pendientes: [`docs/PLAN.md`](docs/PLAN.md). Preentrega, diagramas y diseño en Figma: ver [`docs/`](docs/).
+- Plan de desarrollo con todas las etapas, decisiones y pendientes: [`docs/PLAN.md`](docs/PLAN.md).
+- Guía para la demo y la defensa: [`docs/DEFENSA.md`](docs/DEFENSA.md).
+- Preentrega, diagramas y diseño en Figma: ver [`docs/`](docs/).
