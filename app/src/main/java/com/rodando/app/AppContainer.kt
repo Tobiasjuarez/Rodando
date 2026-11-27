@@ -51,7 +51,7 @@ class AppContainer(context: Context) {
     private val sesionLocal = SesionLocal(context)
 
     /** Cliente de la API simulada; cada pedido lleva el token de la sesión guardada. */
-    private val api = ClienteApi.crear(sesionLocal::token)
+    private val api = ClienteApi.crear(sesionLocal::token, sesionLocal::marcarVencida)
 
     val sesionRepository: SesionRepository = SesionRepositoryImpl(api, sesionLocal)
 

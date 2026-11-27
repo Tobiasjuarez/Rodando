@@ -16,6 +16,8 @@ class SesionRepositoryImpl(
 
     override val sesion: Flow<Sesion?> = local.sesion
 
+    override val sesionVencida: Flow<Boolean> = local.vencida
+
     override suspend fun iniciarSesion(email: String, password: String): Sesion {
         val respuesta = try {
             api.login(LoginPedido(email, password))

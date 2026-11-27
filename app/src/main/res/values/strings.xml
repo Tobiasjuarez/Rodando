@@ -10,6 +10,7 @@
     <string name="login_email">Email</string>
     <string name="login_password">Contraseña</string>
     <string name="login_ingresar">Ingresar</string>
+    <string name="login_sesion_vencida">Tu sesión venció. Volvé a ingresar: los viajes que no se enviaron siguen guardados en el teléfono.</string>
     <string name="login_usuario_prueba">Usuario de prueba de la API simulada: lucia@rodando.com.ar / rodando123</string>
 
     <!-- Navegación inferior -->

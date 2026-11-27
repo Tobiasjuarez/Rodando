@@ -82,7 +82,8 @@ fun RodandoApp() {
         actual.sesion == null -> {
             val viewModel: LoginViewModel = viewModel(factory = LoginViewModel.fabrica(contenedor.iniciarSesion))
             Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                LoginScreen(viewModel = viewModel, modifier = Modifier.padding(innerPadding))
+                val vencida by contenedor.sesionRepository.sesionVencida.collectAsStateWithLifecycle(initialValue = false)
+                LoginScreen(viewModel = viewModel, modifier = Modifier.padding(innerPadding), sesionVencida = vencida)
             }
         }
         else -> AppConSesion(contenedor)

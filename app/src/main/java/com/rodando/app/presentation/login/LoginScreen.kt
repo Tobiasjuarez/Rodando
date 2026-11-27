@@ -41,7 +41,12 @@ import com.rodando.app.presentation.theme.RodandoTheme
 import com.rodando.app.presentation.common.encabezado
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel, modifier: Modifier = Modifier) {
+fun LoginScreen(
+    viewModel: LoginViewModel,
+    modifier: Modifier = Modifier,
+    /** La sesión anterior se cerró porque el servidor ya no la reconocía. */
+    sesionVencida: Boolean = false
+) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     val contexto = LocalContext.current
     // Antes de hablar con la API se pide el permiso de red local (Android 17+).
@@ -55,7 +60,8 @@ fun LoginScreen(viewModel: LoginViewModel, modifier: Modifier = Modifier) {
         onIngresar = {
             if (Permisos.necesitaRedLocal(contexto)) pedirRedLocal.launch(Permisos.RED_LOCAL) else viewModel.ingresar()
         },
-        modifier = modifier
+        modifier = modifier,
+        sesionVencida = sesionVencida
     )
 }
 
@@ -65,7 +71,8 @@ fun LoginContenido(
     onEmail: (String) -> Unit,
     onPassword: (String) -> Unit,
     onIngresar: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    sesionVencida: Boolean = false
 ) {
     Column(
         modifier = modifier
@@ -113,6 +120,14 @@ fun LoginContenido(
             keyboardActions = KeyboardActions(onDone = { onIngresar() }),
             modifier = Modifier.fillMaxWidth()
         )
+        if (sesionVencida && estado.error == null) {
+            Text(
+                text = stringResource(R.string.login_sesion_vencida),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error,
+                textAlign = TextAlign.Center
+            )
+        }
         estado.error?.let {
             Text(text = it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
         }
