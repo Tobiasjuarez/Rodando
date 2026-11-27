@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.rodando.app.domain.repository.AlmacenDeFotos
+import com.rodando.app.domain.repository.ReportesDeVinilo
 import com.rodando.app.domain.usecase.FinalizarViajeUseCase
 import com.rodando.app.domain.usecase.IniciarViajeUseCase
 import com.rodando.app.domain.usecase.ResultadoFoto
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 /** En qué punto del viaje se saca la foto del vinilo. */
 enum class MomentoFoto { INICIO, FIN }
@@ -33,6 +35,10 @@ data class FotoUi(
     /** Se está iniciando o finalizando el viaje. */
     val guardando: Boolean = false,
     val error: String? = null,
+    /** Se está enviando el reporte de vinilo dañado. */
+    val reportando: Boolean = false,
+    /** El equipo ya recibió el reporte de vinilo dañado. */
+    val reporteEnviado: Boolean = false,
     /** Id del viaje que se inició o finalizó: la pantalla navega cuando deja de ser null. */
     val viajeListo: String? = null
 )
@@ -44,7 +50,8 @@ data class FotoUi(
  * con ML Kit que tenga el código del vinilo y se decide qué sigue:
  * - Reconocida: se puede usar para iniciar o finalizar el viaje.
  * - No reconocida: se repite, hasta 3 intentos.
- * - Tres intentos fallidos: se puede seguir igual y el viaje queda en revisión.
+ * - Tres intentos fallidos: se puede seguir igual y el viaje queda en revisión, y además
+ *   reportar el vinilo dañado para que el equipo coordine el cambio.
  */
 class FotoViniloViewModel(
     private val momento: MomentoFoto,
@@ -52,7 +59,10 @@ class FotoViniloViewModel(
     private val iniciarViaje: IniciarViajeUseCase,
     private val finalizarViaje: FinalizarViajeUseCase,
     private val verificarFoto: VerificarFotoUseCase,
-    private val fotos: AlmacenDeFotos
+    private val fotos: AlmacenDeFotos,
+    private val reportes: ReportesDeVinilo,
+    /** Uno por pantalla: si se reintenta el envío, el servidor no duplica el reporte. */
+    private val idDeReporte: String = UUID.randomUUID().toString()
 ) : ViewModel() {
 
     private val _estado = MutableStateFlow(FotoUi(momento))
@@ -96,6 +106,22 @@ class FotoViniloViewModel(
         if (_estado.value.resultado == ResultadoFoto.OfrecerRevision) guardar(enRevision = true)
     }
 
+    /** Después de 3 intentos fallidos: avisa al equipo que el vinilo está dañado, con la última foto. */
+    fun reportarDanio() {
+        val actual = _estado.value
+        if (actual.resultado != ResultadoFoto.OfrecerRevision || actual.reportando || actual.reporteEnviado) return
+        _estado.update { it.copy(reportando = true, error = null) }
+        viewModelScope.launch {
+            runCatching { reportes.reportarDanio(idDeReporte, actual.fotoTomada, momento.name, viajeId) }
+                .onSuccess { _estado.update { it.copy(reportando = false, reporteEnviado = true) } }
+                .onFailure {
+                    _estado.update {
+                        it.copy(reportando = false, error = "No pudimos enviar el reporte. Revisá la conexión y probá de nuevo.")
+                    }
+                }
+        }
+    }
+
     private fun guardar(enRevision: Boolean) {
         val actual = _estado.value
         val ruta = actual.fotoTomada ?: return
@@ -128,9 +154,10 @@ class FotoViniloViewModel(
             iniciarViaje: IniciarViajeUseCase,
             finalizarViaje: FinalizarViajeUseCase,
             verificarFoto: VerificarFotoUseCase,
-            fotos: AlmacenDeFotos
+            fotos: AlmacenDeFotos,
+            reportes: ReportesDeVinilo
         ) = viewModelFactory {
-            initializer { FotoViniloViewModel(momento, viajeId, iniciarViaje, finalizarViaje, verificarFoto, fotos) }
+            initializer { FotoViniloViewModel(momento, viajeId, iniciarViaje, finalizarViaje, verificarFoto, fotos, reportes) }
         }
     }
 }

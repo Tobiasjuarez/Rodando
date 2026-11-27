@@ -18,7 +18,8 @@ Este documento cuenta cómo se construyó la app, etapa por etapa, qué decision
 | 4c | Foto real con CameraX | #12 | Hecha |
 | 4d | Verificación del vinilo con ML Kit (QR, 3 intentos, en revisión) | #13 | Hecha |
 | 5 | API simulada, login y envío de viajes con WorkManager | #14 | Hecha |
-| 6 | Calidad: estados sin conexión, accesibilidad, tests, migraciones | — | En curso |
+| 6 | Calidad: estados sin conexión, accesibilidad, tests, migraciones | #15, #16 | Hecha |
+| 7 | Entrega final: vinilo dañado, sesión vencida, estado de envío, README y defensa | — | En curso |
 
 ## Forma de trabajo
 
@@ -89,13 +90,26 @@ El profesor observó que reconocer el código no prueba que el auto circuló con
 - Permiso de red local de Android 17 (sin él, la app no llega a la computadora).
 - App bloqueada en vertical y modo prueba en desarrollo (mantener apretado "Sacar foto" usa el QR de ejemplo).
 
-### Etapa 6 · Calidad (rama `feature/etapa6-calidad`)
+### Etapa 6 · Calidad (#15, #16)
 
 - [x] Aviso sin conexión arriba de todas las pantallas y hora de la última sincronización en Historial.
 - [x] Accesibilidad: títulos marcados como encabezados para TalkBack, aviso sin conexión que TalkBack anuncia solo, botones que crecen con la letra grande en vez de cortar el texto.
 - [x] Tests de ViewModels con `kotlinx-coroutines-test`: la foto del vinilo (aprobada, repetir, 3 intentos y en revisión, error de cámara) y el login.
 - [x] Migraciones de Room: el esquema de cada versión se exporta a `app/schemas/` y desde la versión 5 un cambio de base necesita una migración (`data/local/Migraciones.kt`) en lugar de borrar los datos.
 - [x] Revisión con TalkBack y con la letra al máximo en el emulador: los títulos se anuncian como encabezados y el contenido de Inicio se desplaza sin cortarse.
+
+### Etapa 7 · Entrega final (rama `feature/entrega-final`)
+
+Revisamos la app contra el enunciado y lo que prometimos en la preentrega. Faltaba:
+
+- [x] **Sesión vencida:** si el servidor responde 401 (por ejemplo, se reinició la API con datos nuevos), la app vuelve al login con un aviso en vez de reintentar envíos para siempre.
+- [x] **Estado del envío en Historial:** "Enviando…", "Esperando conexión" o "Reintentando" según WorkManager; Actualizar se desactiva mientras envía.
+- [x] **Inicio:** saludo con el nombre del conductor y hora de la última sincronización (RF04).
+- [x] **Reportar vinilo dañado (RF01):** después de 3 fotos sin verificar, el conductor manda la última foto al equipo. La API lo guarda (`POST /reportes`, sin duplicar por id) y la página del equipo lo lista.
+- [x] **Limpieza:** logs de red solo en desarrollo, backup de Android sin el token, sin archivos de plantilla.
+- [x] README con requisitos alcanzados, no funcionales y limitaciones; guía de defensa en `docs/DEFENSA.md`.
+- [ ] Probar en un emulador con Android 8.0 (API 26), el mínimo que declaramos.
+- [ ] Ensayar la demo con el guion de `docs/DEFENSA.md`.
 
 ## Decisiones importantes
 
@@ -108,6 +122,8 @@ El profesor observó que reconocer el código no prueba que el auto circuló con
 | Fijo por días, sin mínimo de km | Respuesta a la devolución: premia la constancia y no incentiva recorridos extra |
 | API simulada en Node | Corre igual en Mac y Windows sin instalar librerías, y permite mostrar en la defensa la aprobación, el modo sin conexión y los envíos parciales |
 | Bloqueo en vertical | El diseño es vertical y la app se usa con el teléfono en un soporte |
+| Reporte de vinilo dañado directo, sin cola | Es un aviso puntual; si no hay conexión se avisa y se reintenta. El viaje en revisión ya queda guardado offline |
+| Vuelta al login con 401 | Un token que el servidor no reconoce nunca va a funcionar: reintentar solo gasta batería |
 
 ## Cómo probar todo
 
@@ -136,3 +152,4 @@ El profesor observó que reconocer el código no prueba que el auto circuló con
 - Presupuestos de ploteo para 10 autos por tipo de vinilo.
 - Requisito de ingreso de conductores (recorrido habitual).
 - Pasar los cambios de la devolución al documento de la entrega final.
+- Que Matías y Lucas revisen y aprueben los PRs en GitHub, y que cada uno pueda explicar su parte (ver `docs/DEFENSA.md`).

@@ -53,7 +53,11 @@ fun InicioScreen(
     modifier: Modifier = Modifier,
     /** Motivo por el que no se pudo iniciar el viaje, si lo hubo. */
     sinUbicacion: SinUbicacion? = null,
-    onCerrarSesion: (() -> Unit)? = null
+    onCerrarSesion: (() -> Unit)? = null,
+    /** Nombre del conductor con sesión iniciada, para el saludo. */
+    nombre: String? = null,
+    /** "hoy a las 15:04", o null si nunca se sincronizó. */
+    ultimaSincronizacion: String? = null
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     InicioContenido(
@@ -62,7 +66,9 @@ fun InicioScreen(
         onVerViajeEnCurso = onVerViajeEnCurso,
         modifier = modifier,
         sinUbicacion = sinUbicacion,
-        onCerrarSesion = onCerrarSesion
+        onCerrarSesion = onCerrarSesion,
+        nombre = nombre,
+        ultimaSincronizacion = ultimaSincronizacion
     )
 }
 
@@ -73,7 +79,9 @@ fun InicioContenido(
     onVerViajeEnCurso: () -> Unit,
     modifier: Modifier = Modifier,
     sinUbicacion: SinUbicacion? = null,
-    onCerrarSesion: (() -> Unit)? = null
+    onCerrarSesion: (() -> Unit)? = null,
+    nombre: String? = null,
+    ultimaSincronizacion: String? = null
 ) {
     Column(modifier = modifier.fillMaxSize()) {
         when (estado) {
@@ -87,8 +95,12 @@ fun InicioContenido(
                 mensaje = estado.mensaje,
                 modifier = Modifier.padding(top = 96.dp)
             )
-            is UiState.Contenido -> Inicio(estado.datos, onIniciarViaje, onVerViajeEnCurso, sinUbicacion, onCerrarSesion)
-            is UiState.Offline -> Inicio(estado.datosLocales, onIniciarViaje, onVerViajeEnCurso, sinUbicacion, onCerrarSesion)
+            is UiState.Contenido -> Inicio(
+                estado.datos, onIniciarViaje, onVerViajeEnCurso, sinUbicacion, onCerrarSesion, nombre, ultimaSincronizacion
+            )
+            is UiState.Offline -> Inicio(
+                estado.datosLocales, onIniciarViaje, onVerViajeEnCurso, sinUbicacion, onCerrarSesion, nombre, ultimaSincronizacion
+            )
         }
     }
 }
@@ -99,7 +111,9 @@ private fun Inicio(
     onIniciarViaje: () -> Unit,
     onVerViajeEnCurso: () -> Unit,
     sinUbicacion: SinUbicacion?,
-    onCerrarSesion: (() -> Unit)?
+    onCerrarSesion: (() -> Unit)?,
+    nombre: String? = null,
+    ultimaSincronizacion: String? = null
 ) {
     var confirmandoSalida by rememberSaveable { mutableStateOf(false) }
     if (confirmandoSalida && onCerrarSesion != null) {
@@ -140,7 +154,11 @@ private fun Inicio(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = stringResource(R.string.inicio_saludo),
+                    text = if (nombre.isNullOrBlank()) {
+                        stringResource(R.string.inicio_saludo)
+                    } else {
+                        stringResource(R.string.inicio_saludo_nombre, nombre)
+                    },
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.weight(1f).encabezado()
                 )
@@ -153,6 +171,8 @@ private fun Inicio(
                 Text(
                     text = if (inicio.pendientes > 0) {
                         pluralStringResource(R.plurals.inicio_pendientes, inicio.pendientes, inicio.pendientes)
+                    } else if (ultimaSincronizacion != null) {
+                        stringResource(R.string.inicio_sincronizado_a, ultimaSincronizacion)
                     } else {
                         stringResource(R.string.inicio_todo_sincronizado)
                     },

@@ -43,3 +43,8 @@ data class PuntoDto(val latitud: Double, val longitud: Double, val timestamp: Lo
 data class EnvioRespuesta(val remoteId: String, val verificacion: String?, val duplicado: Boolean?)
 
 data class EstadoDto(val id: String, val verificacion: String)
+
+/** [momento]: INICIO o FIN. [viajeId]: el viaje en curso si se reporta al finalizar. */
+data class ReporteDto(val id: String, val momento: String, val viajeId: String?, val fecha: Long, val foto: String?)
+
+data class ReporteRespuesta(val numero: String)

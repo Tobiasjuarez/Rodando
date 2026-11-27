@@ -40,6 +40,7 @@ import java.time.LocalDate
 import com.rodando.app.AppContainer
 import com.rodando.app.RodandoApplication
 import com.rodando.app.data.sensors.Permisos
+import com.rodando.app.domain.model.EstadoDeEnvio
 import com.rodando.app.domain.model.Sesion
 import com.rodando.app.presentation.common.AvisoSinConexion
 import com.rodando.app.presentation.common.Formato
@@ -82,16 +83,21 @@ fun RodandoApp() {
         actual.sesion == null -> {
             val viewModel: LoginViewModel = viewModel(factory = LoginViewModel.fabrica(contenedor.iniciarSesion))
             Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                LoginScreen(viewModel = viewModel, modifier = Modifier.padding(innerPadding))
+                val vencida by contenedor.sesionRepository.sesionVencida.collectAsStateWithLifecycle(initialValue = false)
+                LoginScreen(viewModel = viewModel, modifier = Modifier.padding(innerPadding), sesionVencida = vencida)
             }
         }
-        else -> AppConSesion(contenedor)
+        else -> AppConSesion(contenedor, actual.sesion.nombre)
     }
 }
 
 /** Scaffold con la barra de navegación inferior (Inicio, Historial, Ganancias) y el NavHost con las pantallas. */
 @Composable
-private fun AppConSesion(contenedor: AppContainer, navController: NavHostController = rememberNavController()) {
+private fun AppConSesion(
+    contenedor: AppContainer,
+    nombre: String,
+    navController: NavHostController = rememberNavController()
+) {
     val entradaActual by navController.currentBackStackEntryAsState()
     val destinoActual = entradaActual?.destination
     val contexto = LocalContext.current
@@ -114,6 +120,7 @@ private fun AppConSesion(contenedor: AppContainer, navController: NavHostControl
     val conectado by contenedor.conexion.conectado.collectAsStateWithLifecycle(initialValue = true)
     val ultima by contenedor.sincronizacion.ultima.collectAsStateWithLifecycle(initialValue = null)
     val ultimaTexto = ultima?.let { Formato.momento(it, LocalDate.now(Formato.zona)) }
+    val estadoDeEnvio by contenedor.envios.estado.collectAsStateWithLifecycle(initialValue = EstadoDeEnvio.QUIETO)
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -152,7 +159,9 @@ private fun AppConSesion(contenedor: AppContainer, navController: NavHostControl
                     onIniciarViaje = iniciarViaje,
                     onVerViajeEnCurso = { navController.navigate(Rutas.VIAJE_EN_CURSO) { launchSingleTop = true } },
                     sinUbicacion = sinUbicacion,
-                    onCerrarSesion = { contenedor.alcance.launch { contenedor.sesionRepository.cerrarSesion() } }
+                    onCerrarSesion = { contenedor.alcance.launch { contenedor.sesionRepository.cerrarSesion() } },
+                    nombre = nombre,
+                    ultimaSincronizacion = ultimaTexto
                 )
             }
             composable(Destino.HISTORIAL.ruta) {
@@ -162,7 +171,8 @@ private fun AppConSesion(contenedor: AppContainer, navController: NavHostControl
                     viewModel = viewModel,
                     onAbrirViaje = { id -> navController.navigate(Rutas.detalleViaje(id)) },
                     onActualizar = contenedor.envios::enviarAhora,
-                    ultimaSincronizacion = ultimaTexto
+                    ultimaSincronizacion = ultimaTexto,
+                    estadoDeEnvio = estadoDeEnvio
                 )
             }
             composable(Destino.GANANCIAS.ruta) {
@@ -189,7 +199,7 @@ private fun AppConSesion(contenedor: AppContainer, navController: NavHostControl
                 val viewModel: FotoViniloViewModel = viewModel(
                     factory = FotoViniloViewModel.fabrica(
                         MomentoFoto.INICIO, null, contenedor.iniciarViaje, contenedor.finalizarViaje,
-                        contenedor.verificarFoto, contenedor.fotos
+                        contenedor.verificarFoto, contenedor.fotos, contenedor.reportes
                     )
                 )
                 FotoViniloScreen(
@@ -219,7 +229,7 @@ private fun AppConSesion(contenedor: AppContainer, navController: NavHostControl
                 val viewModel: FotoViniloViewModel = viewModel(
                     factory = FotoViniloViewModel.fabrica(
                         MomentoFoto.FIN, viajeId, contenedor.iniciarViaje, contenedor.finalizarViaje,
-                        contenedor.verificarFoto, contenedor.fotos
+                        contenedor.verificarFoto, contenedor.fotos, contenedor.reportes
                     )
                 )
                 FotoViniloScreen(

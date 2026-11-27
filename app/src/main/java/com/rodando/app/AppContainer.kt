@@ -1,6 +1,7 @@
 package com.rodando.app
 
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -15,6 +16,7 @@ import com.rodando.app.data.repository.SesionRepositoryImpl
 import com.rodando.app.data.repository.ViajeRepositoryImpl
 import com.rodando.app.data.repository.ViniloRepositoryImpl
 import com.rodando.app.data.sensors.ConexionAndroid
+import com.rodando.app.data.remote.ReportesDeViniloApi
 import com.rodando.app.data.sensors.FotosEnArchivos
 import com.rodando.app.data.sensors.RegistradorDeViaje
 import com.rodando.app.data.sensors.RegistroConServicio
@@ -23,6 +25,7 @@ import com.rodando.app.data.sensors.VerificadorMlKit
 import com.rodando.app.data.sensors.UbicacionSimulada
 import com.rodando.app.data.sync.ProgramadorWorkManager
 import com.rodando.app.domain.repository.AlmacenDeFotos
+import com.rodando.app.domain.repository.ReportesDeVinilo
 import com.rodando.app.domain.repository.CampaniaRepository
 import com.rodando.app.domain.repository.FuenteUbicacion
 import com.rodando.app.domain.repository.MonitorDeConexion
@@ -51,7 +54,12 @@ class AppContainer(context: Context) {
     private val sesionLocal = SesionLocal(context)
 
     /** Cliente de la API simulada; cada pedido lleva el token de la sesión guardada. */
-    private val api = ClienteApi.crear(sesionLocal::token)
+    private val api = ClienteApi.crear(
+        token = sesionLocal::token,
+        alVencerSesion = sesionLocal::marcarVencida,
+        // Los pedidos se anotan en Logcat solo en desarrollo, no en la versión final.
+        registrarPedidos = (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+    )
 
     val sesionRepository: SesionRepository = SesionRepositoryImpl(api, sesionLocal)
 
@@ -81,6 +89,8 @@ class AppContainer(context: Context) {
     val registroDeRecorrido: RegistroDeRecorrido = RegistroConServicio(context.applicationContext, registradorDeViaje)
 
     val fotos: AlmacenDeFotos = FotosEnArchivos(context.applicationContext)
+
+    val reportes: ReportesDeVinilo = ReportesDeViniloApi(api)
 
     val verificarFoto = VerificarFotoUseCase(viniloRepository, VerificadorMlKit(context.applicationContext))
 

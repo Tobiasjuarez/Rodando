@@ -137,6 +137,28 @@ function guardarFoto(viajeId, momento, base64) {
   return `/fotos/${nombre}`;
 }
 
+async function recibirReporte(req, res, conductor) {
+  const reporte = await leerJson(req);
+  if (!/^[\w-]+$/.test(reporte.id || '')) return responder(res, 400, { error: 'Falta el id del reporte' });
+  datos.reportes = datos.reportes || {};
+  const existente = datos.reportes[reporte.id];
+  if (existente) return responder(res, 200, { numero: existente.numero });
+
+  const numero = `D-${String(Object.keys(datos.reportes).length + 1).padStart(4, '0')}`;
+  datos.reportes[reporte.id] = {
+    id: reporte.id,
+    numero,
+    conductorId: conductor.id,
+    momento: reporte.momento,
+    viajeId: reporte.viajeId || null,
+    fecha: reporte.fecha,
+    foto: guardarFoto(`reporte-${reporte.id}`, 'danio', reporte.foto),
+    recibido: Date.now(),
+  };
+  guardarDatos();
+  responder(res, 201, { numero });
+}
+
 async function recibirViaje(req, res, conductor) {
   const viaje = await leerJson(req);
   if (!viaje.id) return responder(res, 400, { error: 'Falta el id del viaje' });
@@ -213,6 +235,19 @@ function paginaEquipo(res) {
       </tr>`
     )
     .join('');
+  const reportes = Object.values(datos.reportes || {}).sort((a, b) => b.recibido - a.recibido);
+  const nombreDe = (id) => (CONDUCTORES.find((c) => c.id === id) || { nombre: id }).nombre;
+  const filasReportes = reportes
+    .map(
+      (r) => `
+      <tr>
+        <td><b>${escapar(r.numero)}</b></td>
+        <td>${escapar(nombreDe(r.conductorId))}</td>
+        <td>${fecha(r.fecha)}<br><small>Al ${r.momento === 'FIN' ? 'finalizar' : 'iniciar'} un viaje</small></td>
+        <td class="fotos">${r.foto ? `<a href="${r.foto}" target="_blank"><img src="${r.foto}" alt="Foto del vinilo"></a>` : '<span>Sin foto</span>'}</td>
+      </tr>`
+    )
+    .join('');
   const opcion = (valor, texto) => `<option value="${valor}" ${datos.fallas === valor ? 'selected' : ''}>${texto}</option>`;
 
   res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
@@ -221,7 +256,7 @@ function paginaEquipo(res) {
 <title>Rodando · Equipo</title>
 <style>
   body { font-family: system-ui, sans-serif; margin: 24px; color: #1a1c1a; background: #f6faf6; }
-  h1 { margin: 0 0 4px; } p { color: #555; margin: 0 0 16px; }
+  h1 { margin: 0 0 4px; } h2 { margin: 32px 0 4px; } p { color: #555; margin: 0 0 16px; }
   table { border-collapse: collapse; width: 100%; background: white; }
   th, td { text-align: left; padding: 10px; border-bottom: 1px solid #dde5dd; vertical-align: top; }
   .fotos img { width: 96px; height: 72px; object-fit: cover; border-radius: 6px; margin-right: 4px; }
@@ -249,6 +284,12 @@ function paginaEquipo(res) {
   <table>
     <thead><tr><th>Viaje</th><th>Inicio / fin</th><th>Recorrido</th><th>Fotos</th><th>Estado</th><th></th></tr></thead>
     <tbody>${filas || '<tr><td colspan="6">Todavía no llegó ningún viaje.</td></tr>'}</tbody>
+  </table>
+  <h2>Vinilos reportados como dañados</h2>
+  <p>Lo manda la app cuando no puede verificar el vinilo en 3 intentos y el conductor lo reporta. Hay que coordinar el cambio.</p>
+  <table>
+    <thead><tr><th>Reporte</th><th>Conductor</th><th>Fecha</th><th>Última foto</th></tr></thead>
+    <tbody>${filasReportes || '<tr><td colspan="4">No hay reportes.</td></tr>'}</tbody>
   </table>
 </body></html>`);
 }
@@ -298,6 +339,7 @@ const servidor = http.createServer(async (req, res) => {
     if (req.method === 'GET' && pathname === '/campania') return responder(res, 200, campaniaVigente());
     if (req.method === 'POST' && pathname === '/viajes') return recibirViaje(req, res, conductor);
     if (req.method === 'GET' && pathname === '/viajes/estados') return estados(res, conductor);
+    if (req.method === 'POST' && pathname === '/reportes') return recibirReporte(req, res, conductor);
 
     responder(res, 404, { error: 'No existe esa ruta' });
   } catch (error) {

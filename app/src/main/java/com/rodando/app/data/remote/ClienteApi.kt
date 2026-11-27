@@ -14,14 +14,28 @@ object ClienteApi {
      */
     const val URL_API = "http://10.0.2.2:3000/"
 
-    /** [token] da el token de la sesión guardada, o null si no hay sesión. */
-    fun crear(token: () -> String?): RodandoApi {
+    /**
+     * [token] da el token de la sesión guardada, o null si no hay sesión.
+     * [alVencerSesion] se llama si el servidor rechaza un token (401): por ejemplo, si se
+     * reinició la API simulada con datos nuevos. Así la app vuelve al login en vez de
+     * reintentar envíos que nunca van a llegar.
+     * [registrarPedidos] anota cada pedido en Logcat (solo en desarrollo).
+     */
+    fun crear(token: () -> String?, alVencerSesion: () -> Unit = {}, registrarPedidos: Boolean = false): RodandoApi {
         val cliente = OkHttpClient.Builder()
             .addInterceptor { cadena ->
-                val pedido = token()?.let { cadena.request().newBuilder().header("Authorization", "Bearer $it").build() }
-                cadena.proceed(pedido ?: cadena.request())
+                val tokenActual = token()
+                val pedido = tokenActual?.let { cadena.request().newBuilder().header("Authorization", "Bearer $it").build() }
+                val respuesta = cadena.proceed(pedido ?: cadena.request())
+                if (respuesta.code == 401 && tokenActual != null) alVencerSesion()
+                respuesta
             }
-            .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC })
+            // BASIC: método, ruta, código y tiempo. Nunca BODY: anotaría el token y las fotos en base64.
+            .addInterceptor(
+                HttpLoggingInterceptor().apply {
+                    level = if (registrarPedidos) HttpLoggingInterceptor.Level.BASIC else HttpLoggingInterceptor.Level.NONE
+                }
+            )
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .build()

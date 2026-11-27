@@ -10,6 +10,7 @@
     <string name="login_email">Email</string>
     <string name="login_password">Contraseña</string>
     <string name="login_ingresar">Ingresar</string>
+    <string name="login_sesion_vencida">Tu sesión venció. Volvé a ingresar: los viajes que no se enviaron siguen guardados en el teléfono.</string>
     <string name="login_usuario_prueba">Usuario de prueba de la API simulada: lucia@rodando.com.ar / rodando123</string>
 
     <!-- Navegación inferior -->
@@ -19,6 +20,8 @@
 
     <!-- Inicio -->
     <string name="inicio_saludo">Hola</string>
+    <string name="inicio_saludo_nombre">Hola, %1$s</string>
+    <string name="inicio_sincronizado_a">Todo sincronizado · %1$s</string>
     <string name="inicio_todo_sincronizado">Todo sincronizado</string>
     <plurals name="inicio_pendientes">
         <item quantity="one">%d viaje pendiente de envío</item>
@@ -74,6 +77,8 @@
     <string name="foto_cancelar">Cancelar</string>
     <string name="foto_revision_inicio">Iniciar en revisión</string>
     <string name="foto_revision_fin">Finalizar en revisión</string>
+    <string name="foto_reportar_danio">Reportar vinilo dañado</string>
+    <string name="foto_reporte_enviado">Listo, avisamos al equipo. Te van a contactar para cambiar el vinilo.</string>
     <string name="foto_tomada">Foto del vinilo que acabás de sacar</string>
     <string name="foto_sin_permiso_titulo">Necesitamos la cámara</string>
     <string name="foto_sin_permiso_mensaje">Para iniciar y finalizar un viaje hay que sacarle una foto al vinilo. Si no aparece el pedido, activala en Ajustes → Apps → Rodando → Permisos.</string>
@@ -110,6 +115,9 @@
     <string name="historial_titulo">Historial</string>
     <string name="historial_actualizar">Actualizar</string>
     <string name="historial_ultima">Sincronizado %1$s</string>
+    <string name="historial_enviando">Enviando y buscando aprobaciones…</string>
+    <string name="historial_esperando_conexion">Esperando conexión para enviar…</string>
+    <string name="historial_reintentando">No pudimos conectar con el servidor. Se vuelve a intentar solo en unos minutos.</string>
     <string name="historial_vacio_titulo">Todavía no registraste viajes</string>
     <string name="historial_vacio_mensaje">Tus viajes van a aparecer acá apenas los finalices, aunque no tengas conexión.</string>
     <string name="historial_error_titulo">No pudimos cargar el historial</string>
