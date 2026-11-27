@@ -1,6 +1,7 @@
 package com.rodando.app
 
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -53,7 +54,12 @@ class AppContainer(context: Context) {
     private val sesionLocal = SesionLocal(context)
 
     /** Cliente de la API simulada; cada pedido lleva el token de la sesión guardada. */
-    private val api = ClienteApi.crear(sesionLocal::token, sesionLocal::marcarVencida)
+    private val api = ClienteApi.crear(
+        token = sesionLocal::token,
+        alVencerSesion = sesionLocal::marcarVencida,
+        // Los pedidos se anotan en Logcat solo en desarrollo, no en la versión final.
+        registrarPedidos = (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+    )
 
     val sesionRepository: SesionRepository = SesionRepositoryImpl(api, sesionLocal)
 

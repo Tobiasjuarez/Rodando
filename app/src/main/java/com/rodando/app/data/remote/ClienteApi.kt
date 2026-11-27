@@ -19,8 +19,9 @@ object ClienteApi {
      * [alVencerSesion] se llama si el servidor rechaza un token (401): por ejemplo, si se
      * reinició la API simulada con datos nuevos. Así la app vuelve al login en vez de
      * reintentar envíos que nunca van a llegar.
+     * [registrarPedidos] anota cada pedido en Logcat (solo en desarrollo).
      */
-    fun crear(token: () -> String?, alVencerSesion: () -> Unit = {}): RodandoApi {
+    fun crear(token: () -> String?, alVencerSesion: () -> Unit = {}, registrarPedidos: Boolean = false): RodandoApi {
         val cliente = OkHttpClient.Builder()
             .addInterceptor { cadena ->
                 val tokenActual = token()
@@ -29,7 +30,12 @@ object ClienteApi {
                 if (respuesta.code == 401 && tokenActual != null) alVencerSesion()
                 respuesta
             }
-            .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC })
+            // BASIC: método, ruta, código y tiempo. Nunca BODY: anotaría el token y las fotos en base64.
+            .addInterceptor(
+                HttpLoggingInterceptor().apply {
+                    level = if (registrarPedidos) HttpLoggingInterceptor.Level.BASIC else HttpLoggingInterceptor.Level.NONE
+                }
+            )
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .build()
