@@ -40,6 +40,7 @@ import java.time.LocalDate
 import com.rodando.app.AppContainer
 import com.rodando.app.RodandoApplication
 import com.rodando.app.data.sensors.Permisos
+import com.rodando.app.domain.model.EstadoDeEnvio
 import com.rodando.app.domain.model.Sesion
 import com.rodando.app.presentation.common.AvisoSinConexion
 import com.rodando.app.presentation.common.Formato
@@ -115,6 +116,7 @@ private fun AppConSesion(contenedor: AppContainer, navController: NavHostControl
     val conectado by contenedor.conexion.conectado.collectAsStateWithLifecycle(initialValue = true)
     val ultima by contenedor.sincronizacion.ultima.collectAsStateWithLifecycle(initialValue = null)
     val ultimaTexto = ultima?.let { Formato.momento(it, LocalDate.now(Formato.zona)) }
+    val estadoDeEnvio by contenedor.envios.estado.collectAsStateWithLifecycle(initialValue = EstadoDeEnvio.QUIETO)
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -163,7 +165,8 @@ private fun AppConSesion(contenedor: AppContainer, navController: NavHostControl
                     viewModel = viewModel,
                     onAbrirViaje = { id -> navController.navigate(Rutas.detalleViaje(id)) },
                     onActualizar = contenedor.envios::enviarAhora,
-                    ultimaSincronizacion = ultimaTexto
+                    ultimaSincronizacion = ultimaTexto,
+                    estadoDeEnvio = estadoDeEnvio
                 )
             }
             composable(Destino.GANANCIAS.ruta) {

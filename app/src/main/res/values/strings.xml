@@ -111,6 +111,9 @@
     <string name="historial_titulo">Historial</string>
     <string name="historial_actualizar">Actualizar</string>
     <string name="historial_ultima">Sincronizado %1$s</string>
+    <string name="historial_enviando">Enviando y buscando aprobaciones…</string>
+    <string name="historial_esperando_conexion">Esperando conexión para enviar…</string>
+    <string name="historial_reintentando">No pudimos conectar con el servidor. Se vuelve a intentar solo en unos minutos.</string>
     <string name="historial_vacio_titulo">Todavía no registraste viajes</string>
     <string name="historial_vacio_mensaje">Tus viajes van a aparecer acá apenas los finalices, aunque no tengas conexión.</string>
     <string name="historial_error_titulo">No pudimos cargar el historial</string>

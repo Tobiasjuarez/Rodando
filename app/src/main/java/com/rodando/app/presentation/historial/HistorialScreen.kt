@@ -27,9 +27,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rodando.app.R
+import com.rodando.app.domain.model.EstadoDeEnvio
 import com.rodando.app.domain.model.EstadoEnvio
 import com.rodando.app.domain.model.EstadoVerificacion
 import com.rodando.app.presentation.common.ChipEnvio
@@ -47,7 +51,9 @@ fun HistorialScreen(
     /** Envía lo pendiente y trae las aprobaciones del equipo. */
     onActualizar: (() -> Unit)? = null,
     /** "hoy a las 15:04", o null si nunca se sincronizó. */
-    ultimaSincronizacion: String? = null
+    ultimaSincronizacion: String? = null,
+    /** Si se está enviando, esperando conexión o reintentando. */
+    estadoDeEnvio: EstadoDeEnvio = EstadoDeEnvio.QUIETO
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     HistorialContenido(
@@ -55,7 +61,8 @@ fun HistorialScreen(
         onAbrirViaje = onAbrirViaje,
         modifier = modifier,
         onActualizar = onActualizar,
-        ultimaSincronizacion = ultimaSincronizacion
+        ultimaSincronizacion = ultimaSincronizacion,
+        estadoDeEnvio = estadoDeEnvio
     )
 }
 
@@ -66,7 +73,8 @@ fun HistorialContenido(
     onAbrirViaje: (String) -> Unit,
     modifier: Modifier = Modifier,
     onActualizar: (() -> Unit)? = null,
-    ultimaSincronizacion: String? = null
+    ultimaSincronizacion: String? = null,
+    estadoDeEnvio: EstadoDeEnvio = EstadoDeEnvio.QUIETO
 ) {
     Column(modifier = modifier.fillMaxSize()) {
         Row(
@@ -79,16 +87,33 @@ fun HistorialContenido(
                 modifier = Modifier.weight(1f).encabezado()
             )
             if (onActualizar != null) {
-                TextButton(onClick = onActualizar) { Text(stringResource(R.string.historial_actualizar)) }
+                TextButton(onClick = onActualizar, enabled = estadoDeEnvio != EstadoDeEnvio.ENVIANDO) {
+                    Text(stringResource(R.string.historial_actualizar))
+                }
             }
         }
-        ultimaSincronizacion?.let {
-            Text(
-                text = stringResource(R.string.historial_ultima, it),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 24.dp, end = 24.dp, bottom = 4.dp)
-            )
+        // Qué pasa con el envío: así "Actualizar" siempre tiene una respuesta visible.
+        val (textoEnvio, colorEnvio) = when (estadoDeEnvio) {
+            EstadoDeEnvio.ENVIANDO -> stringResource(R.string.historial_enviando) to MaterialTheme.colorScheme.onSurfaceVariant
+            EstadoDeEnvio.ESPERANDO_CONEXION ->
+                stringResource(R.string.historial_esperando_conexion) to MaterialTheme.colorScheme.onSurfaceVariant
+            EstadoDeEnvio.REINTENTANDO -> stringResource(R.string.historial_reintentando) to MaterialTheme.colorScheme.error
+            EstadoDeEnvio.QUIETO ->
+                ultimaSincronizacion?.let { stringResource(R.string.historial_ultima, it) } to MaterialTheme.colorScheme.onSurfaceVariant
+        }
+        textoEnvio?.let {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .padding(start = 24.dp, end = 24.dp, bottom = 4.dp)
+                    .semantics { liveRegion = LiveRegionMode.Polite }
+            ) {
+                if (estadoDeEnvio == EstadoDeEnvio.ENVIANDO) {
+                    CircularProgressIndicator(modifier = Modifier.size(14.dp), strokeWidth = 2.dp)
+                }
+                Text(text = it, style = MaterialTheme.typography.labelMedium, color = colorEnvio)
+            }
         }
         when (estado) {
             UiState.Cargando -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

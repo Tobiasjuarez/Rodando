@@ -8,8 +8,13 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import com.rodando.app.domain.model.EstadoDeEnvio
 import com.rodando.app.domain.repository.ProgramadorDeEnvios
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import java.util.concurrent.TimeUnit
 
 class ProgramadorWorkManager(context: Context) : ProgramadorDeEnvios {
@@ -28,6 +33,17 @@ class ProgramadorWorkManager(context: Context) : ProgramadorDeEnvios {
         // Si se interrumpe un envío, el servidor no duplica el viaje porque el id es el mismo.
         workManager.enqueueUniqueWork(ENVIO_INMEDIATO, ExistingWorkPolicy.REPLACE, pedido)
     }
+
+    override val estado: Flow<EstadoDeEnvio> =
+        workManager.getWorkInfosForUniqueWorkFlow(ENVIO_INMEDIATO).map { infos ->
+            val info = infos.firstOrNull() ?: return@map EstadoDeEnvio.QUIETO
+            when (info.state) {
+                WorkInfo.State.RUNNING -> EstadoDeEnvio.ENVIANDO
+                WorkInfo.State.ENQUEUED, WorkInfo.State.BLOCKED ->
+                    if (info.runAttemptCount > 0) EstadoDeEnvio.REINTENTANDO else EstadoDeEnvio.ESPERANDO_CONEXION
+                else -> EstadoDeEnvio.QUIETO
+            }
+        }.distinctUntilChanged()
 
     override fun programarPeriodico() {
         val pedido = PeriodicWorkRequestBuilder<EnvioDeViajesWorker>(15, TimeUnit.MINUTES)
